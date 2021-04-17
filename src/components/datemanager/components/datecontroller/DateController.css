@@ -1,0 +1,24 @@
+.DateController {
+  /*
+  position: fixed;
+  top: 5px;
+  left:5px;
+  width: 100px;
+  height: 100px;
+  background: rgba(82, 219, 89, 0);
+  border-radius: 8px;
+  z-index: 100;
+  */
+
+
+  position: absolute;
+  top: 0px;
+  left:0px;
+  margin-top: -15px;
+  width: 100px;
+  height: 100px;
+  z-index: 200;
+  background: rgba(82, 164, 219, 0);
+
+
+}

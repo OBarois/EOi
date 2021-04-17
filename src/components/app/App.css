@@ -1,0 +1,33 @@
+:root {
+  --color: rgb(104, 180, 241);
+}
+
+
+.App {
+    position: fixed;
+    text-align: center;
+    color: var(--color);
+    font-family: 'Exo 2', sans-serif;
+    font-family: 'Arial', sans-serif;
+    text-shadow: 0.1em 0.1em 0.10em  rgba(53, 4, 4, 0.884);
+    user-select: none;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+
+
+}
+
+.MissionLabel {
+    position: fixed;
+    top: 100px;
+    left: 10px;
+    color: var(--color);
+    /* width: 100px; */
+    height: 30px;
+    margin: auto;
+    z-index: 2;
+  
+  }
+  
+
