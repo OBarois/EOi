@@ -94,7 +94,7 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
         return memo
         },
 
-        onDrag: ({  event, first, down, delta, velocity, direction, shiftKey, xy, movement, temp = {
+        onDrag: ({  event, active, first, down, touches, delta, velocity, direction, shiftKey, xy, movement, temp = {
             lastzoom: zoomfactor,
             lastdelta: [0,0],
             currentzoom: zoomfactor
@@ -102,9 +102,7 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
         }) => {
             //event.preventDefault()
             let zoom
-            // console.log(down)
             if (first) {
-                // console.log('shiftKey: '+shiftKey)
                 setActive(true)
                 handleDoubleTap()
                 setlLastStartdate(scaledate)
@@ -113,9 +111,6 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
             }
 
             if (doubleTap.current || shiftKey) {
-                // console.log('in double tap')
-                // console.log(' / movement / delta :  '+'/ '+movement[1]+'/ '+ delta[1] )
-                // zoom = temp.currentzoom + temp.currentzoom / 50 * (temp.lastdelta[1] - delta[1] )
                 zoom = temp.currentzoom + temp.currentzoom / 50 *  delta[1] 
                 if (zoom < MINZOOM) zoom = MINZOOM
                 if (zoom > MAXZOOM) zoom = MAXZOOM
@@ -130,7 +125,7 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
 
             setyOnDrag({                 
                 posxy_drag:  movement, 
-                immediate: down, 
+                immediate: (active), 
                 config: { velocity: scale(direction, velocity), decay: true},
                 onFrame: ()=>{
                     // console.log('y / movement / delta:  '+xy[1]+'/ '+movement[1]+'/ '+delta[1])
@@ -154,7 +149,7 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
             return temp
         }
     },
-    {reset: true}
+    {reset: true,drag: {useTouch: true} }
     )
 
 

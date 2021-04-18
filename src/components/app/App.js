@@ -65,7 +65,15 @@ function App() {
         <div className="App" >
              <FullScreen handle={handle}>
                 <div className="Earth">
-                    <Earth viewdate={viewdate} id="globe" starfield={mapSettings.starfield} atmosphere={mapSettings.atmosphere} names={mapSettings.names} background={mapSettings.background} clon='0.5' clat='40' />
+                    <Earth id="globe" 
+                        viewdate={viewdate} 
+                        starfield={mapSettings.starfield} 
+                        atmosphere={mapSettings.atmosphere} 
+                        names={mapSettings.names} 
+                        background={mapSettings.background} 
+                        clon='0.5' 
+                        clat='40' 
+                    />
                 </div>
                 <DateManager startdate={startdate} onDateChange={changeDate} onFinalDateChange={finalChangeDate} animated={searching}/>
                 <ControlPanel active="true">

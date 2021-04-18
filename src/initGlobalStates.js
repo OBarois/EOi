@@ -20,8 +20,8 @@ export  function initGlobalStates() {
         mapSettings: {
             atmosphere: true,
             starfield: false,
-            names: true,
-            background:"terrain"
+            names: false,
+            background:0
         }
     })
     
