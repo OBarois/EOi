@@ -19,9 +19,9 @@ export  function initGlobalStates() {
         mission: 'S1',
         mapSettings: {
             atmosphere: true,
-            starfield: true,
+            starfield: false,
             names: true,
-            background:0
+            background:"terrain"
         }
     })
     

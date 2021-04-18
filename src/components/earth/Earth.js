@@ -32,6 +32,7 @@ function Earth({ viewdate, id, clat, clon, alt, starfield, atmosphere, names, ba
         alt: alt,
         starfield: starfield,
         atmosphere: atmosphere,
+        background: background,
         names: names
     })
 

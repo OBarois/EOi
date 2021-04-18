@@ -38,7 +38,7 @@ import {bgLayers, ovLayers} from './layerConfig';
 //     }
 // };
 
-export function useEww({ id, clon, clat, alt, starfield, atmosphere, names }) {
+export function useEww({ id, clon, clat, alt, starfield, atmosphere, background, names }) {
     //console.log('useEww renders')
     
   
@@ -113,10 +113,9 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, names }) {
         eww.current.redraw();
     }
     //toggle background overlay
-    function toggleBg2() {
-        console.log('toggleTerrain')
-        getLayerByName('terrain').enabled = !getLayerByName('terrain').enabled
-        getLayerByName('s2cloudless-2018').enabled = !getLayerByName('s2cloudless-2018').enabled
+    function setBg(background) {
+        getLayerByName(background).enabled = true
+        eww.current.layers[bgIndex.current].enabled=false
         eww.current.redraw();
     }
     function toggleBg() {
@@ -684,6 +683,14 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, names }) {
     //     let newewwstate = {...ewwstate, aoi: aoi}
     //     setEwwState(newewwstate)
     // }, [aoi]); 
+    // useEffect(() => {
+    //     console.log("effect background:")
+    //     console.log(background)
+    //     setBg(background)
+    // }, [background]);
+
+
+
     useEffect(() => {
         console.log("Copernicus Dem: " + demOn)
         var elevationModel

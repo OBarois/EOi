@@ -53,11 +53,12 @@ function App() {
         }
     }
     const [fullScreen, setfullScreen] = useState(false);
-    useHotkeys("f",() => setfullScreen(isFull => !isFull)) 
+    // useHotkeys("f",() => setfullScreen(isFull => !isFull)) 
+    useHotkeys("f",handle.enter) 
 
     useEffect(() => {
         console.log('fullScreen changed to: '+fullScreen)
-        if(fullScreen == false) handle.enter()
+        // if(fullScreen == false) handle.enter()
     },[fullScreen])
     
     return (
