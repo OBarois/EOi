@@ -501,7 +501,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     // handler for tap/click
 
     const handleClick  = (recognizer) => {
-        // console.log('click')
+        console.log('click')
         let x = recognizer.clientX
         let y = recognizer.clientY
         // Perform the pick. Must first convert from window coordinates to canvas coordinates, which are
@@ -542,8 +542,11 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
 
 
     }
-
     const handleDoubleClick  = (recognizer) => {
+        northUp()
+    }
+
+    const handleDoubleClick2  = (recognizer) => {
         console.log('double click')
         let x = recognizer.clientX
         let y = recognizer.clientY
@@ -595,18 +598,19 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         }
 
         // define click/tap recognisers
-        // let tapRecognizer = new WorldWind.TapRecognizer(eww.current, handleClick);
-        // tapRecognizer.numberOfTaps = 1;
-        // let doubleTapRecognizer = new WorldWind.TapRecognizer(eww.current, handleDoubleClick);
-        // doubleTapRecognizer.numberOfTaps = 2;
-        // doubleTapRecognizer.recognizeSimultaneouslyWith(tapRecognizer);
 
-        // let clickRecognizer = new WorldWind.ClickRecognizer(eww.current, handleClick);
-        // clickRecognizer.numberOfClicks = 1;
-        // let doubleClickRecognizer = new WorldWind.ClickRecognizer(eww.current, handleDoubleClick);
-        // doubleClickRecognizer.numberOfClicks = 2;
-        // doubleClickRecognizer.recognizeSimultaneouslyWith(clickRecognizer);
-        // doubleClickRecognizer.maxClickInterval = 200;
+        let clickRecognizer = new WorldWind.ClickRecognizer(eww.current, handleClick);
+        clickRecognizer.numberOfClicks = 1;
+        let doubleClickRecognizer = new WorldWind.ClickRecognizer(eww.current, handleDoubleClick);
+        doubleClickRecognizer.numberOfClicks = 2;
+        clickRecognizer.requireRecognizerToFail(doubleClickRecognizer);
+        doubleClickRecognizer.maxClickInterval = 200;
+
+        let tapRecognizer = new WorldWind.TapRecognizer(eww.current, handleClick);
+        tapRecognizer.numberOfTaps = 1;
+        let doubleTapRecognizer = new WorldWind.TapRecognizer(eww.current, handleDoubleClick);
+        doubleTapRecognizer.numberOfTaps = 2;
+        tapRecognizer.requireRecognizerToFail(doubleTapRecognizer);
 
         // let tapRecognizer = new WorldWind.TapRecognizer(eww.current, handleClick);
         // tapRecognizer.numberOfTaps = 1;
