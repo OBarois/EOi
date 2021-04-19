@@ -5,26 +5,28 @@ import './MapSelector.css'
 
 // should use a prop
 
-function MapSelector({onMapSettingsChange}) {
+function MapSelector({mapSettings, onMapSettingsChange}) {
 
 
-    const [mapSettings, setMapSettings] = useState({starfield: true, names: true, atmosphere: true})
-    const toggleAtmosphere = () => setMapSettings((mapSettings)=>({...mapSettings, atmosphere:!mapSettings.atmosphere}))
-    const toggleStarfield = () => setMapSettings((mapSettings)=>({...mapSettings, starfield:!mapSettings.starfield}))
-    const toggleNames = () => setMapSettings((mapSettings)=>({...mapSettings, names:!mapSettings.names}))
-    const toggleBg = () => setMapSettings((mapSettings)=>({...mapSettings, background:Math.random()}))
+    const [mapSet, setMapSet] = useState(mapSettings)
+
+    const toggleAtmosphere = () => setMapSet((mapSet)=>({...mapSet, atmosphere:!mapSet.atmosphere}))
+    const toggleStarfield = () => setMapSet((mapSet)=>({...mapSet, starfield:!mapSet.starfield}))
+    const toggleNames = () => setMapSet((mapSet)=>({...mapSet, names:!mapSet.names}))
+    const toggleBg = () => setMapSet((mapSet)=>({...mapSet, background:Math.random()}))
+
 
     useEffect(() => {
-        onMapSettingsChange(mapSettings)
-        console.log(mapSettings)
-    }, [mapSettings, onMapSettingsChange]);
+        onMapSettingsChange(mapSet)
+        console.log(mapSet)
+    }, [mapSet, onMapSettingsChange]);
 
 
     
     //console.log('mission rendering')
     return (
         <div className='MapSelector'>
-            <div className='CircleButton'><img className='MapIcon' draggable="false" src='./images/atmosphere.png' alt='' onClick={toggleAtmosphere} /></div>
+            <div className='CircleButton'><img className={(mapSettings.atmosphere)?'MapIcon':'MapIconSelected'} draggable="false" src='./images/atmosphere.png' alt='' onClick={toggleAtmosphere} /></div>
             <div className='CircleButton'><img className='MapIcon' draggable="false" src='./images/starfield.png' alt='' onClick={toggleStarfield} /></div>
             <div className='CircleButton'><img className='MapIcon' draggable="false" src='./images/names.png' alt='' onClick={toggleNames} /></div>
             <div className='CircleButton'><img className='MapIcon' draggable="false" src='./images/names.png' alt='' onClick={toggleBg} /></div>

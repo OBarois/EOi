@@ -50,7 +50,7 @@ function Earth({ viewdate, id, clat, clon, alt, starfield, atmosphere, names, ba
 
     useEffect(() => {
         setTime(viewdate.getTime())
-    },[viewdate, setTime])
+    },[viewdate])
 
     // useEffect(() => {
     //     toggleStarfield(starfield)

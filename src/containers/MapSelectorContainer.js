@@ -8,10 +8,10 @@ function C_MapSelector() {
     // const [atmosphere, setAtmosphere] = useGlobal('atmosphere')
     // const [names, setNames] = useGlobal('names')
 
-    const [, setMapSettings] = useGlobal('mapSettings')
+    const [mapSettings, setMapSettings] = useGlobal('mapSettings')
 
     return (
-        <MapSelector onMapSettingsChange={setMapSettings}></MapSelector> 
+        <MapSelector mapSettings={mapSettings} onMapSettingsChange={setMapSettings}></MapSelector> 
      )
 }
 

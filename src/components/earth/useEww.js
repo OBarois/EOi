@@ -443,8 +443,6 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     function setTime(epoch) {
         getLayerByName('StarField').time = getLayerByName('Atmosphere').time = new Date(epoch)
         enableRenderables(epoch)
-        // console.log('display name: ')
-        // console.log(getLayerByName('StarField').displayName)
         eww.current.redraw();
      }
 
@@ -679,23 +677,19 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     //     setEwwState(newewwstate)
     // }, [aoi]); 
     useEffect(() => {
-        console.log("effect background:")
         console.log(background)
         toggleBg()
     }, [background]);
 
     useEffect(() => {
-        console.log("effect names:")
         toggleNames(names)
     }, [names]);
 
     useEffect(() => {
-        console.log("effect atmosphere:")
         toggleAtmosphere(atmosphere)
     }, [atmosphere]);
 
     useEffect(() => {
-        console.log('toggleStarfield')
         toggleStarfield(starfield)
     }, [starfield]);
 
