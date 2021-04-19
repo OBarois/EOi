@@ -116,6 +116,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         bgIndex.current = (bgIndex.current + 1)%bgLayers.length
         console.log("Background Layer2: "+eww.current.layers[bgIndex.current].displayName)
         eww.current.layers[bgIndex.current].enabled=true
+        eww.current.redraw();
     }
     function toggleOv() {
         eww.current.layers[ovIndex.current+bgLayers.length].enabled=false
