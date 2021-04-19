@@ -20,6 +20,10 @@ function MapSelector({mapSettings, onMapSettingsChange}) {
         onMapSettingsChange(mapSet)
     }, [mapSet]);
 
+    useEffect(() => {
+        setMapSet(mapSettings)
+    }, [mapSettings]);
+
 
     
     //console.log('mission rendering')

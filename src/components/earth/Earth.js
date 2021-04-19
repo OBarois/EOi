@@ -14,12 +14,6 @@ function Earth({ viewdate, id, clat, clon, alt, starfield, atmosphere, names, ba
 
     const [mapSet, setMapSet] = useState(mapSettings)
 
-    // const toggleAtmosphere = () => setMapSet((mapSet)=>({...mapSet, atmosphere:!mapSet.atmosphere}))
-    // const toggleStarfield = () => setMapSet((mapSet)=>({...mapSet, starfield:!mapSet.starfield}))
-    // const toggleNames = () => setMapSet((mapSet)=>({...mapSet, names:!mapSet.names}))
-    // const toggleBg = () => setMapSet((mapSet)=>({...mapSet, background:Math.random()}))
-
-
 
     const {
         ewwstate,
@@ -28,10 +22,6 @@ function Earth({ viewdate, id, clat, clon, alt, starfield, atmosphere, names, ba
         removeGeojson,
         addWMS,
         toggleProjection,
-        // toggleAtmosphere,
-        toggleStarfield,
-        toggleNames,
-        toggleBg,
         toggleOv,
         toggleModel,
         setTime,
@@ -73,35 +63,12 @@ function Earth({ viewdate, id, clat, clon, alt, starfield, atmosphere, names, ba
     },[viewdate])
 
     useEffect(() => {
-        console.log("mapset:")
-        console.log(mapSet)
         setMapSettings(mapSet)
     }, [mapSet]);
 
     useEffect(() => {
-        console.log("mapSettings:")
-        console.log(mapSettings)
+        setMapSet(mapSettings)
     }, [mapSettings]);
-
-
-
-    // useEffect(() => {
-    //     toggleStarfield(starfield)
-    // },[starfield])
-
-    // useEffect(() => {
-    //     setNames(names)
-    // },[names])
-
-    // useEffect(() => {
-    //     toggleAtmosphere(atmosphere)
-    // },[atmosphere])
-
-    // useEffect(() => {
-    //     toggleBg()
-    //     console.log("bg changed")
-    // },[background])
-
 
 
     let globeStyle = {

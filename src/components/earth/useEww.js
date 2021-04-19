@@ -82,28 +82,29 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
 
     //toggle atmosphere
     function toggleAtmosphere(bool) {
-        console.log('toggleAtmosphere:'+bool)
+        console.log('toggleAtmosphere: '+bool)
         getLayerByName('Atmosphere').enabled = (bool!= null)?bool:!getLayerByName('Atmosphere').enabled
         // getLayerByName('Atmosphere').enabled = bool
-        console.log(eww.current.layers)
+        // console.log(eww.current.layers)
         eww.current.redraw();
     }
     //toggle model
     function toggleModel(bool) {
-        console.log('toggleModel')
+        console.log('toggleModel: '+bool)
         getLayerByName('Model').enabled = (bool!= null)?bool:!getLayerByName('Model').enabled
         eww.current.redraw();
     }
 
     //toggle starField
     function toggleStarfield(bool) {
-        console.log('toggleStarfield')
+        console.log('toggleStarfield: '+bool)
         getLayerByName('StarField').enabled = (bool!= null)?bool:!getLayerByName('StarField').enabled
         eww.current.redraw();
     }
 
     //toggle name overlay
     function toggleNames(bool) {
+        console.log('toggleNames: '+bool)
         getLayerByName('overlay_bright').enabled = (bool!= null)?bool:!getLayerByName('overlay_bright').enabled
         eww.current.redraw();
     }
@@ -615,17 +616,6 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         doubleTapRecognizer.numberOfTaps = 2;
         tapRecognizer.requireRecognizerToFail(doubleTapRecognizer);
 
-        // let tapRecognizer = new WorldWind.TapRecognizer(eww.current, handleClick);
-        // tapRecognizer.numberOfTaps = 1;
-        // let doubleTapRecognizer = new WorldWind.TapRecognizer(eww.current, handleDoubleClick);
-        // doubleTapRecognizer.numberOfTaps = 2;
-        // doubleTapRecognizer.recognizeSimultaneouslyWith(tapRecognizer);
-        // doubleTapRecognizer.maxTapInterval = 200;
-
-
-
-        //setWwd(eww);
-
         WorldWind.configuration.baseUrl = WorldWind.configuration.baseUrl.slice(0,-3)
 
         //let starFieldLayer = new WorldWindX.StarFieldLayer();
@@ -685,22 +675,18 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     //     setEwwState(newewwstate)
     // }, [aoi]); 
     useEffect(() => {
-        console.log("effect background: "+background)
         toggleBg()
     }, [background]);
 
     useEffect(() => {
-        console.log("effect names: "+names)
         toggleNames(names)
     }, [names]);
 
     useEffect(() => {
-        console.log("effect atmosphere: "+atmosphere)
         toggleAtmosphere(atmosphere)
     }, [atmosphere]);
 
     useEffect(() => {
-        console.log("effect starfield: "+starfield)
         toggleStarfield(starfield)
     }, [starfield]);
 

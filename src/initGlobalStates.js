@@ -21,7 +21,7 @@ export  function initGlobalStates() {
             atmosphere: true,
             starfield: true,
             names: false,
-            background:0
+            background:1
         }
     })
     
