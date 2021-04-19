@@ -39,7 +39,7 @@ import {bgLayers, ovLayers} from './layerConfig';
 // };
 
 export function useEww({ id, clon, clat, alt, starfield, atmosphere, background, names }) {
-    //console.log('useEww renders')
+    // console.log('useEww renders')
     
   
     const eww = useRef(null)
@@ -82,26 +82,29 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
 
     //toggle atmosphere
     function toggleAtmosphere(bool) {
-        getLayerByName('Atmosphere').enabled = (bool)?bool:!getLayerByName('Atmosphere').enabled
+        console.log('toggleAtmosphere:'+bool)
+        getLayerByName('Atmosphere').enabled = (bool!= null)?bool:!getLayerByName('Atmosphere').enabled
+        // getLayerByName('Atmosphere').enabled = bool
+        console.log(eww.current.layers)
         eww.current.redraw();
     }
     //toggle model
     function toggleModel(bool) {
         console.log('toggleModel')
-        getLayerByName('Model').enabled = (bool)?bool:!getLayerByName('Model').enabled
+        getLayerByName('Model').enabled = (bool!= null)?bool:!getLayerByName('Model').enabled
         eww.current.redraw();
     }
 
     //toggle starField
     function toggleStarfield(bool) {
         console.log('toggleStarfield')
-        getLayerByName('StarField').enabled = (bool)?bool:!getLayerByName('StarField').enabled
+        getLayerByName('StarField').enabled = (bool!= null)?bool:!getLayerByName('StarField').enabled
         eww.current.redraw();
     }
 
     //toggle name overlay
     function toggleNames(bool) {
-        getLayerByName('overlay_bright').enabled = (bool)?bool:!getLayerByName('overlay_bright').enabled
+        getLayerByName('overlay_bright').enabled = (bool!= null)?bool:!getLayerByName('overlay_bright').enabled
         eww.current.redraw();
     }
     //toggle background overlay
@@ -114,7 +117,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         eww.current.layers[bgIndex.current].enabled=false
 
         bgIndex.current = (bgIndex.current + 1)%bgLayers.length
-        console.log("Background Layer2: "+eww.current.layers[bgIndex.current].displayName)
+        console.log("Background Layer: "+eww.current.layers[bgIndex.current].displayName)
         eww.current.layers[bgIndex.current].enabled=true
         eww.current.redraw();
     }
@@ -682,19 +685,22 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     //     setEwwState(newewwstate)
     // }, [aoi]); 
     useEffect(() => {
-        console.log(background)
+        console.log("effect background: "+background)
         toggleBg()
     }, [background]);
 
     useEffect(() => {
+        console.log("effect names: "+names)
         toggleNames(names)
     }, [names]);
 
     useEffect(() => {
+        console.log("effect atmosphere: "+atmosphere)
         toggleAtmosphere(atmosphere)
     }, [atmosphere]);
 
     useEffect(() => {
+        console.log("effect starfield: "+starfield)
         toggleStarfield(starfield)
     }, [starfield]);
 
