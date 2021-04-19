@@ -60,6 +60,10 @@ function App() {
         console.log('fullScreen changed to: '+fullScreen)
         // if(fullScreen == false) handle.enter()
     },[fullScreen])
+    useEffect(() => {
+        console.log('time to init earth')
+        // if(fullScreen == false) handle.enter()
+    },[])
     
     return (
         <div className="App" >

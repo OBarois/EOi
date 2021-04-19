@@ -12,13 +12,14 @@ function Earth({ viewdate, id, clat, clon, alt, starfield, atmosphere, names, ba
 
     const {
         ewwstate,
+        moveTo,
         addGeojson,
         removeGeojson,
         addWMS,
         toggleProjection,
-        setAtmosphere,
-        setStarfield,
-        setNames,
+        toggleAtmosphere,
+        toggleStarfield,
+        toggleNames,
         toggleBg,
         toggleOv,
         toggleModel,
@@ -43,27 +44,30 @@ function Earth({ viewdate, id, clat, clon, alt, starfield, atmosphere, names, ba
     useHotkeys("m",toggleModel)
     useHotkeys("d",toggleDem)
     useHotkeys("o",toggleOv)
+    useHotkeys("a",(state)=>toggleAtmosphere(!state))  
+    useHotkeys("s",(state)=>toggleStarfield(!state))
+    useHotkeys("n",(state)=>toggleNames(!state))  
 
     useEffect(() => {
         setTime(viewdate.getTime())
     },[viewdate, setTime])
 
-    useEffect(() => {
-        setStarfield(starfield)
-    },[starfield])
+    // useEffect(() => {
+    //     toggleStarfield(starfield)
+    // },[starfield])
 
-    useEffect(() => {
-        setNames(names)
-    },[names])
+    // useEffect(() => {
+    //     setNames(names)
+    // },[names])
 
-    useEffect(() => {
-        setAtmosphere(atmosphere)
-    },[atmosphere])
+    // useEffect(() => {
+    //     toggleAtmosphere(atmosphere)
+    // },[atmosphere])
 
-    useEffect(() => {
-        toggleBg()
-        console.log("bg changed")
-    },[background])
+    // useEffect(() => {
+    //     toggleBg()
+    //     console.log("bg changed")
+    // },[background])
 
 
 

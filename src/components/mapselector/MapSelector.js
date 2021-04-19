@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 
-import { useHotkeys } from 'react-hotkeys-hook';
 import './MapSelector.css'
 
 
@@ -14,10 +13,6 @@ function MapSelector({onMapSettingsChange}) {
     const toggleStarfield = () => setMapSettings((mapSettings)=>({...mapSettings, starfield:!mapSettings.starfield}))
     const toggleNames = () => setMapSettings((mapSettings)=>({...mapSettings, names:!mapSettings.names}))
     const toggleBg = () => setMapSettings((mapSettings)=>({...mapSettings, background:Math.random()}))
-
-    useHotkeys("a",toggleAtmosphere)  
-    useHotkeys("s",toggleStarfield)  
-    useHotkeys("n",toggleNames)  
 
     useEffect(() => {
         onMapSettingsChange(mapSettings)
