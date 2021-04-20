@@ -1,13 +1,15 @@
 .MapSelector {
-    position: absolute;
+    /* position: absolute; */
     display: flex; 
     justify-content: center;
-    flex-direction: rows;
+    flex-direction: row;
+    flex-wrap: wrap;
+
     left: 1px;
-    bottom: 10px;
     width: 100%;
-    height: 150px;
+    height: 100px;
     z-index: 3;
+    /* background:  rgba(0, 255, 34, 0.315); */
   
 }
 

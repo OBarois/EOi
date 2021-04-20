@@ -1,7 +1,7 @@
 
 .ControlPanel {
     position: fixed ;
-    background-color: #33333bdc;
+    background-color: #3592bd75;
     height: 100%;
     width: 300px;
     top: 0px;
@@ -10,8 +10,8 @@
 
     display: flex;
     flex-direction: column;
-    align-items: left;
-    justify-content: center;
+    justify-content: flex-end;
+    align-content: space-between;
     color: white;
     z-index: 300; 
     user-select: none;

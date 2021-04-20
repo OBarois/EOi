@@ -98,6 +98,7 @@ function App() {
                 </div>
                 <DateManager startdate={startdate} onDateChange={changeDate} onFinalDateChange={finalChangeDate} animated={searching}/>
                 <ControlPanel active="true">
+                    <div class='logo'><img  src='./images/ESA_logo_2020_White.png' height="60" ></img></div>
                     <C_MissionSelector></C_MissionSelector>
                     <C_MapSelector ></C_MapSelector>
                     <HuePickerContainer></HuePickerContainer>
