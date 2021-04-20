@@ -1,5 +1,5 @@
 :root {
-  --color: rgb(230, 104, 241);
+  --color: rgb(241, 21, 50);
 }
 
 
@@ -9,6 +9,7 @@
     color: var(--color);
     font-family: 'Exo 2', sans-serif;
     font-family: 'Arial', sans-serif;
+    background: rgb(8, 31, 80);
     text-shadow: 0.1em 0.1em 0.10em  rgba(53, 4, 4, 0.884);
     user-select: none;
     width: 100%;
