@@ -1,0 +1,9 @@
+.ColorSelector {
+    width: 250px;
+    height: 50px;
+    background:  rgba(255, 0, 0, 0);
+    overflow: hidden;
+    -webkit-user-drag: none;
+
+margin: auto;
+}

@@ -1,20 +1,19 @@
+
 import React, { useEffect } from "react";
 import { useGlobal } from 'reactn';
 
 import { HuePicker, AlphaPicker } from 'react-color';
-import './colorpicker.css'
+import './ColorPicker.css'
 
 
-// should use a prop
-
-function ColorPicker({appcolor}) {
+function HuePickerContainer() {
 
 
-    const [ acolor, setAcolor ] = useState(appcolor);
+    const [ appcolor, setAppcolor ] = useGlobal('appColor');
 
-    useEffect(() => {
-        console.log('appcolor changed to: '+ mission)
-    }, [appcolor]);
+    // useEffect(() => {
+    //     console.log('Mission changed to: '+ mission)
+    // }, [mission]);
     
     const handleChangeComplete = (color) => {
         document.documentElement.style.setProperty('--color', color.hex);
@@ -24,12 +23,13 @@ function ColorPicker({appcolor}) {
     //console.log('mission rendering')
     return (
         <div className='ColorSelector'>
-            <HuePicker color={acolor} onChangeComplete={handleChangeComplete }/>
-            
-            
+            <HuePicker color={appcolor} onChangeComplete={handleChangeComplete }/>
         </div>
     )
     // <AlphaPicker />  
 }
 
-export default ColorPicker;
+export default HuePickerContainer;
+
+
+
