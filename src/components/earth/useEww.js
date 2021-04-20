@@ -39,7 +39,7 @@ import {bgLayers, ovLayers} from './layerConfig';
 // };
 
 export function useEww({ id, clon, clat, alt, starfield, atmosphere, background, names }) {
-    //console.log('useEww renders')
+    // console.log('useEww renders')
     
   
     const eww = useRef(null)
@@ -80,36 +80,32 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         setTimeout(runOperation, 10);
     }
 
-    // useEffect(() => {
-    //     console.log('toggleStarfield')
-    //     getLayerByName('StarField').enabled = !getLayerByName('StarField').enabled
-    //     eww.current.redraw();
-    // }, [starfield]);
-
     //toggle atmosphere
-    function setAtmosphere(bool) {
-        console.log('toggleAtmosphere')
-        getLayerByName('Atmosphere').enabled = bool
+    function toggleAtmosphere(bool) {
+        console.log('toggleAtmosphere: '+bool)
+        getLayerByName('Atmosphere').enabled = (bool!= null)?bool:!getLayerByName('Atmosphere').enabled
+        // getLayerByName('Atmosphere').enabled = bool
+        // console.log(eww.current.layers)
         eww.current.redraw();
     }
     //toggle model
-    function toggleModel() {
-        console.log('toggleModel')
-        getLayerByName('Model').enabled = !getLayerByName('Model').enabled
+    function toggleModel(bool) {
+        console.log('toggleModel: '+bool)
+        getLayerByName('Model').enabled = (bool!= null)?bool:!getLayerByName('Model').enabled
         eww.current.redraw();
     }
 
     //toggle starField
-    function setStarfield(bool) {
-        console.log('toggleStarfield')
-        getLayerByName('StarField').enabled = bool
+    function toggleStarfield(bool) {
+        console.log('toggleStarfield: '+bool)
+        getLayerByName('StarField').enabled = (bool!= null)?bool:!getLayerByName('StarField').enabled
         eww.current.redraw();
     }
 
     //toggle name overlay
-    function setNames(bool) {
-        console.log('toggleNames')
-        getLayerByName('overlay_bright').enabled = bool
+    function toggleNames(bool) {
+        console.log('toggleNames: '+bool)
+        getLayerByName('overlay_bright').enabled = (bool!= null)?bool:!getLayerByName('overlay_bright').enabled
         eww.current.redraw();
     }
     //toggle background overlay
@@ -124,6 +120,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         bgIndex.current = (bgIndex.current + 1)%bgLayers.length
         console.log("Background Layer: "+eww.current.layers[bgIndex.current].displayName)
         eww.current.layers[bgIndex.current].enabled=true
+        eww.current.redraw();
     }
     function toggleOv() {
         eww.current.layers[ovIndex.current+bgLayers.length].enabled=false
@@ -451,12 +448,16 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     function setTime(epoch) {
         getLayerByName('StarField').time = getLayerByName('Atmosphere').time = new Date(epoch)
         enableRenderables(epoch)
-        // console.log('display name: ')
-        // console.log(getLayerByName('StarField').displayName)
         eww.current.redraw();
-        
-
      }
+
+     function moveTo(clat, clon, alt) {
+        setTimeout(() => {
+            eww.current.goToAnimator.travelTime = 1000;
+            eww.current.goTo(new WorldWind.Position(clat, clon, alt));
+            eww.current.redraw();
+            }, 2000)
+        }
 
 
     function toggleProjection() {
@@ -504,7 +505,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     // handler for tap/click
 
     const handleClick  = (recognizer) => {
-        // console.log('click')
+        console.log('click')
         let x = recognizer.clientX
         let y = recognizer.clientY
         // Perform the pick. Must first convert from window coordinates to canvas coordinates, which are
@@ -545,8 +546,11 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
 
 
     }
-
     const handleDoubleClick  = (recognizer) => {
+        northUp()
+    }
+
+    const handleDoubleClick2  = (recognizer) => {
         console.log('double click')
         let x = recognizer.clientX
         let y = recognizer.clientY
@@ -568,10 +572,6 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
               console.log('No position !');
               setEwwState((ewwstate) => { return {...ewwstate, aoi: ''}})
         }
-  
-        
-
-       
     }
 
 
@@ -602,29 +602,19 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         }
 
         // define click/tap recognisers
-        // let tapRecognizer = new WorldWind.TapRecognizer(eww.current, handleClick);
-        // tapRecognizer.numberOfTaps = 1;
-        // let doubleTapRecognizer = new WorldWind.TapRecognizer(eww.current, handleDoubleClick);
-        // doubleTapRecognizer.numberOfTaps = 2;
-        // doubleTapRecognizer.recognizeSimultaneouslyWith(tapRecognizer);
 
-        // let clickRecognizer = new WorldWind.ClickRecognizer(eww.current, handleClick);
-        // clickRecognizer.numberOfClicks = 1;
-        // let doubleClickRecognizer = new WorldWind.ClickRecognizer(eww.current, handleDoubleClick);
-        // doubleClickRecognizer.numberOfClicks = 2;
-        // doubleClickRecognizer.recognizeSimultaneouslyWith(clickRecognizer);
-        // doubleClickRecognizer.maxClickInterval = 200;
+        let clickRecognizer = new WorldWind.ClickRecognizer(eww.current, handleClick);
+        clickRecognizer.numberOfClicks = 1;
+        let doubleClickRecognizer = new WorldWind.ClickRecognizer(eww.current, handleDoubleClick);
+        doubleClickRecognizer.numberOfClicks = 2;
+        clickRecognizer.requireRecognizerToFail(doubleClickRecognizer);
+        doubleClickRecognizer.maxClickInterval = 200;
 
-        // let tapRecognizer = new WorldWind.TapRecognizer(eww.current, handleClick);
-        // tapRecognizer.numberOfTaps = 1;
-        // let doubleTapRecognizer = new WorldWind.TapRecognizer(eww.current, handleDoubleClick);
-        // doubleTapRecognizer.numberOfTaps = 2;
-        // doubleTapRecognizer.recognizeSimultaneouslyWith(tapRecognizer);
-        // doubleTapRecognizer.maxTapInterval = 200;
-
-
-
-        //setWwd(eww);
+        let tapRecognizer = new WorldWind.TapRecognizer(eww.current, handleClick);
+        tapRecognizer.numberOfTaps = 1;
+        let doubleTapRecognizer = new WorldWind.TapRecognizer(eww.current, handleDoubleClick);
+        doubleTapRecognizer.numberOfTaps = 2;
+        tapRecognizer.requireRecognizerToFail(doubleTapRecognizer);
 
         WorldWind.configuration.baseUrl = WorldWind.configuration.baseUrl.slice(0,-3)
 
@@ -667,11 +657,12 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         //let date = new Date();
         starFieldLayer.time = new Date();
         atmosphereLayer.time = new Date();
-        setTimeout(() => {
-            eww.current.goToAnimator.travelTime = 1000;
-            eww.current.goTo(new WorldWind.Position(clat, clon, alt));
-            eww.current.redraw();
-            }, 2000)
+        moveTo(clat, clon, alt) 
+        // setTimeout(() => {
+        //     eww.current.goToAnimator.travelTime = 1000;
+        //     eww.current.goTo(new WorldWind.Position(clat, clon, alt));
+        //     eww.current.redraw();
+        //     }, 2000)
     
         eww.current.redraw();
         eww.current.deepPicking = true;
@@ -683,11 +674,21 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     //     let newewwstate = {...ewwstate, aoi: aoi}
     //     setEwwState(newewwstate)
     // }, [aoi]); 
-    // useEffect(() => {
-    //     console.log("effect background:")
-    //     console.log(background)
-    //     setBg(background)
-    // }, [background]);
+    useEffect(() => {
+        toggleBg()
+    }, [background]);
+
+    useEffect(() => {
+        toggleNames(names)
+    }, [names]);
+
+    useEffect(() => {
+        toggleAtmosphere(atmosphere)
+    }, [atmosphere]);
+
+    useEffect(() => {
+        toggleStarfield(starfield)
+    }, [starfield]);
 
 
 
@@ -715,5 +716,5 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
 
     }, [demOn]); 
 
-  return { ewwstate, removeGeojson, addGeojson, addWMS, setStarfield, setAtmosphere, setTime, toggleProjection, setNames, toggleModel, toggleBg, toggleOv, toggleDem, northUp };
+  return { ewwstate, moveTo, removeGeojson, addGeojson, addWMS, toggleStarfield, toggleAtmosphere, setTime, toggleProjection, toggleNames, toggleModel, toggleBg, toggleOv, toggleDem, northUp };
 }

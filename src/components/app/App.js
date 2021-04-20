@@ -60,7 +60,20 @@ function App() {
         console.log('fullScreen changed to: '+fullScreen)
         // if(fullScreen == false) handle.enter()
     },[fullScreen])
-    
+
+
+    useEffect(() => {
+        console.log('time to init earth')
+        console.log(mapSettings)
+        // if(fullScreen == false) handle.enter()
+    },[])
+
+    useEffect(() => {
+        console.log('mapSettings effect')
+        console.log(mapSettings)
+        // if(fullScreen == false) handle.enter()
+    },[mapSettings])
+
     return (
         <div className="App" >
              <FullScreen handle={handle}>
