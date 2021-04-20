@@ -17,6 +17,7 @@ export  function initGlobalStates() {
 
     setGlobal({
         mission: 'S1',
+        appColor: '#222222',
         mapSettings: {
             atmosphere: true,
             starfield: false,
