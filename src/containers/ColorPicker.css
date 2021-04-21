@@ -1,0 +1,10 @@
+.ColorSelector {
+    display: flex;
+    flex-direction: row;
+    align-self: flex-start ;
+    width: 90%;
+    height: 160px;
+    /* background:  rgba(255, 0, 0, 0.5); */
+    /* overflow: hidden; */
+    padding: 20px;
+}

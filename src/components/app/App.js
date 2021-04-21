@@ -1,13 +1,14 @@
-import React, {useState, useEffect, useCallback} from 'react';
-import { useGlobal } from 'reactn';
+import React, {useState, useEffect, useCallback} from 'react'
+import { useGlobal } from 'reactn'
 
 import './App.css'
 import Earth from '../earth'
 import DateManager from '../datemanager'
 import { useHotkeys } from 'react-hotkeys-hook'
-import ControlPanel from "../controlpanel";
-import C_MissionSelector from "../../containers/MissionSelectorContainer";
-import C_MapSelector from "../../containers/MapSelectorContainer";
+import ControlPanel from "../controlpanel"
+import C_MissionSelector from "../../containers/MissionSelectorContainer"
+import C_MapSelector from "../../containers/MapSelectorContainer"
+import HuePickerContainer from "../../containers/HuePickerContainer"
 
 // import useToggle from 'react-use/lib/useToggle'
 import { FullScreen, useFullScreenHandle } from "react-full-screen"
@@ -26,6 +27,7 @@ function App() {
 
     const [ mission,  ] = useGlobal('mission');
     const [ mapSettings, ] = useGlobal('mapSettings')
+    const [ appColor, ] = useGlobal('appColor')
 
     const changeDate = (newdate) => {
         // console.log('App changeDate callback: ' + newdate.toJSON())
@@ -74,6 +76,12 @@ function App() {
         // if(fullScreen == false) handle.enter()
     },[mapSettings])
 
+    useEffect(() => {
+        console.log('appColor effect')
+        console.log(appColor)
+        // if(fullScreen == false) handle.enter()
+    },[appColor])
+
     return (
         <div className="App" >
              <FullScreen handle={handle}>
@@ -90,8 +98,10 @@ function App() {
                 </div>
                 <DateManager startdate={startdate} onDateChange={changeDate} onFinalDateChange={finalChangeDate} animated={searching}/>
                 <ControlPanel active="true">
+                    <div class='logo'><img  src='./images/ESA_logo_2020_White.png' height="60" ></img></div>
                     <C_MissionSelector></C_MissionSelector>
                     <C_MapSelector ></C_MapSelector>
+                    <HuePickerContainer></HuePickerContainer>
                 </ControlPanel>
                 <div className='MissionLabel'>{mission}</div>
             </FullScreen>

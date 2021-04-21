@@ -17,11 +17,13 @@ export  function initGlobalStates() {
 
     setGlobal({
         mission: 'S1',
+        appColor: '#222222',
         mapSettings: {
             atmosphere: true,
             starfield: true,
             names: false,
-            background:1
+            background: 1,
+            dem: true
         }
     })
     

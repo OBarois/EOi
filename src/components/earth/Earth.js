@@ -8,7 +8,7 @@ import { useHotkeys } from 'react-hotkeys-hook'
 
 
 
-function Earth({ viewdate, id, clat, clon, alt, starfield, atmosphere, names, background }) {
+function Earth({ viewdate, id, clat, clon, alt }) {
 
     const [mapSettings, setMapSettings] = useGlobal('mapSettings')
 
@@ -35,7 +35,8 @@ function Earth({ viewdate, id, clat, clon, alt, starfield, atmosphere, names, ba
         starfield: mapSettings.starfield,
         atmosphere: mapSettings.atmosphere,
         background: mapSettings.background,
-        names: mapSettings.names
+        names: mapSettings.names,
+        dem: mapSettings.dem
     })
 
     useHotkeys("p",toggleProjection)  
@@ -43,7 +44,7 @@ function Earth({ viewdate, id, clat, clon, alt, starfield, atmosphere, names, ba
     useHotkeys("u",northUp)
     useHotkeys("b",() => setMapSet((mapSet)=>({...mapSet, background:Math.random()})))  
     useHotkeys("m",toggleModel)
-    useHotkeys("d",toggleDem)
+    useHotkeys("d",() => setMapSet((mapSet)=>({...mapSet, dem:!mapSet.dem})))  
     useHotkeys("o",toggleOv)
     useHotkeys("a",() => setMapSet((mapSet)=>({...mapSet, atmosphere:!mapSet.atmosphere})))  
     useHotkeys("s",() => setMapSet((mapSet)=>({...mapSet, starfield:!mapSet.starfield})))  

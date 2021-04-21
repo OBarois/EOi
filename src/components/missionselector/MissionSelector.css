@@ -1,12 +1,13 @@
 .MissionSelector {
-    position: absolute;
     display: flex; 
     justify-content: center;
-    flex-direction: column;
-    left: 1px;
-    top: 10px;
+    flex-direction: row;
+    flex-wrap: wrap;
     width: 100%;
-    height: 300px;
+    height: 100px;
+    /* background:  rgba(0, 140, 255, 0.486); */
+    /* border-radius: 10%; */
+
     
   
 }
