@@ -38,7 +38,7 @@ import {bgLayers, ovLayers} from './layerConfig';
 //     }
 // };
 
-export function useEww({ id, clon, clat, alt, starfield, atmosphere, background, names }) {
+export function useEww({ id, clon, clat, alt, starfield, atmosphere, background, names, dem }) {
     // console.log('useEww renders')
     
   
@@ -49,10 +49,11 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     const [geojsonlayers, setGeojsonlayers] = useState([])
     const [quicklooklayers, setQuicklooklayers] = useState([])
     const [ewwstate, setEwwState] = useState({latitude: clat, longitude: clon, altitude: alt, aoi:'', pickedItems: []})
-    const [demOn,setDemOn] = useState(true)
-    const copDemOn = useRef(false)
+    const copDemOn = useRef(dem)
     const bgIndex = useRef(0)
     const ovIndex = useRef(0)
+    const copdemlayer = useRef(0)
+    const nasademlayer = useRef(0)
 
 
     // Turn the globe up north
@@ -128,37 +129,13 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         ovIndex.current = (ovIndex.current + 1)%ovLayers.length
         console.log("Overlay Layer: "+eww.current.layers[ovIndex.current+bgLayers.length].displayName)
         eww.current.layers[ovIndex.current+bgLayers.length].enabled=true
+        eww.current.redraw()
     }
     
     //toggle DEM 
-    function toggleDem() {
-        // var elevationModel
-        // console.log("Dem state in toggle: "+((demOn)<=!demOn))
-        // if(!copDemOn.current) {
-        //     console.log('Switching to Copernicus Dem')
-        //     elevationModel = new WorldWind.ElevationModel();
-        //     elevationModel.addCoverage(new WorldWind.TiledElevationCoverage({
-        //         coverageSector: WorldWind.Sector.FULL_SPHERE,
-        //         resolution: 0.008333333333333,
-        //         retrievalImageFormat: "image/tiff",
-        //         minElevation: -11000,
-        //         maxElevation: 8850,
-        //         urlBuilder: new WorldWind.WcsTileUrlBuilder("https://dem.esa.maps.eox.at/elevation", "copdem", "2.0.1")
-        //         }));    
-            
-        // } else {
-        //     console.log('Switching to NASA Dem')
-        //     elevationModel = new WorldWind.EarthElevationModel()
-        // }
-        // eww.current.globe.elevationModel = elevationModel
-        // eww.current.redraw();
-        copDemOn.current = !copDemOn.current
-        setDemOn(copDemOn.current)
-    }
-
-    function toggleDem2() {
+    function toggleDem(dem) {
+        console.log("Copernicus Dem: " + dem)
         var elevationModel
-        console.log("Dem state: "+demOn)
         if(!copDemOn.current) {
             console.log('Switching to Copernicus Dem')
             elevationModel = new WorldWind.ElevationModel();
@@ -178,9 +155,10 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         eww.current.globe.elevationModel = elevationModel
         eww.current.redraw();
         copDemOn.current = !copDemOn.current
-        setDemOn(!demOn)
+        // setDemOn(copDemOn.current)
     }
 
+ 
     function  getViewPolygon () {
         let view = eww.current.viewport
         let area = {}
@@ -690,31 +668,9 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         toggleStarfield(starfield)
     }, [starfield]);
 
-
-
     useEffect(() => {
-        console.log("Copernicus Dem: " + demOn)
-        var elevationModel
-        if(!copDemOn.current) {
-            console.log('Switching to Copernicus Dem')
-            elevationModel = new WorldWind.ElevationModel();
-            elevationModel.addCoverage(new WorldWind.TiledElevationCoverage({
-                coverageSector: WorldWind.Sector.FULL_SPHERE,
-                resolution: 0.008333333333333,
-                retrievalImageFormat: "image/tiff",
-                minElevation: -11000,
-                maxElevation: 8850,
-                urlBuilder: new WorldWind.WcsTileUrlBuilder("https://dem.esa.maps.eox.at/elevation", "copdem", "2.0.1")
-                }));    
-            
-        } else {
-            console.log('Switching to NASA Dem')
-            elevationModel = new WorldWind.EarthElevationModel()
-        }
-        eww.current.globe.elevationModel = elevationModel
-        eww.current.redraw();
-
-    }, [demOn]); 
+        toggleDem(dem)
+    }, [dem]); 
 
   return { ewwstate, moveTo, removeGeojson, addGeojson, addWMS, toggleStarfield, toggleAtmosphere, setTime, toggleProjection, toggleNames, toggleModel, toggleBg, toggleOv, toggleDem, northUp };
 }
