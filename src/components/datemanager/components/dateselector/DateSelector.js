@@ -40,7 +40,7 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
 
     const handleDoubleTap = () => {
         const now = Date.now();
-        if (lastTap.current && (now - lastTap.current) < 300) {
+        if (lastTap.current && (now - lastTap.current) < 300  && !active) {
             doubleTap.current = true
         } else {
             lastTap.current = now
