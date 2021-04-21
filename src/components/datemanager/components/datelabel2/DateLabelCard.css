@@ -1,0 +1,47 @@
+/* @-webkit-keyframes glow { 
+  0% { background-color:red; }
+  50% { background-color:var(--color); }
+  100% { background-color:red; } 
+
+}  */
+@keyframes glow { 
+    0% { background-color: var(--color); }
+    50% { background-color:red; } 
+    100% { background-color: var(--color); }
+  }
+  /* @keyframes glow { 
+    0% { background-color:red; }
+    50% { background-color:var(--color); }
+    100% { background-color:red; } 
+  } */
+  
+  
+  .LabelContainer {
+    position: fixed;
+    top: 5px;
+    right:5px;
+    /* width: 400px; */
+    height: 80px;;
+    /* background: rgba(82, 219, 89, 0.288); */
+    border-radius: 8px;
+    text-align: center;
+    font-kerning: 'none';
+    
+  
+  }
+
+.Highlighted {
+  color: rgba(220, 223, 93, 0.966);
+  text-shadow: 0px 0px 10px  rgba(219, 36, 36, 1);
+}
+
+hi {
+  font-family: 'Monaco', Monospace;
+  /* color: rgba(220, 223, 93, 0.966); */
+  /* text-shadow: 0px 0px 10px  rgba(219, 36, 36, 1); */
+}
+.Greyedout {
+    color: var(--color);
+  }
+  
+  

@@ -612,8 +612,8 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
             // { layer: new WorldWind.WmsLayer(wmsConfigNames, ""), enabled: names },
             { layer: starFieldLayer, enabled: starfield },
             { layer: atmosphereLayer, enabled: atmosphere },
-            { layer: quicklookLayer, enabled: true },
-            { layer: modelsLayer, enabled: false }
+            { layer: quicklookLayer, enabled: true }
+            // { layer: modelsLayer, enabled: false }
         ];
     
         for (let l = 0; l < bgLayers.length; l++) {
