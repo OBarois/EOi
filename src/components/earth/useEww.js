@@ -604,7 +604,8 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         // tapRecognizer.recognizeSimultaneouslyWith(doubleTapRecognizer);
         // doubleTapRecognizer.requireRecognizerToFail(tapRecognizer)
 
-        WorldWind.configuration.baseUrl = WorldWind.configuration.baseUrl.slice(0,-3)
+        
+        WorldWind.configuration.baseUrl = window.location.href
 
         //let starFieldLayer = new WorldWindX.StarFieldLayer();
         // let starFieldLayer = new WorldWind.StarFieldLayer();
