@@ -20,8 +20,9 @@ function DateSelectorScale({date, zoomfactor,  step}) {
         if(!scale.current) return
             
         const monthcode = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']
-        const YEAR_LEVEL = 1000*60*60*24*30*10
-        const MONTH_LEVEL = 1000*60*60*24*3
+        const YEAR_LEVEL = 1000*60*60*24*30*3
+        const MONTH4_LEVEL = 1000*60*60*24*4
+        const MONTH_LEVEL = 1000*60*60*24*2
         const DAY5_LEVEL = 1000*60*60*8
         const DAY_LEVEL = 1000*60*70
         const HOUR3_LEVEL = 1000*60*7
@@ -61,7 +62,7 @@ function DateSelectorScale({date, zoomfactor,  step}) {
                             tics.push({class:'HourTic', pos: i, label: pad(hour,2)+':'+pad(minute,2)})
                         } else {
                             if (minute === 0 && hour === 0) {
-                                tics.push({class:'DayTic_h', pos: i, label: day})
+                                tics.push({class:'DayTic_h', pos: i, label: pad(day,2)})
                                 tics.push({class:'MonthTic_h2', pos: i, label: monthcode[month]})
                                 //tics.push({class:'YearTic_h', pos: i, label: year})
                             }     
@@ -75,7 +76,7 @@ function DateSelectorScale({date, zoomfactor,  step}) {
                             tics.push({class:'HourTic', pos: i, label: pad(hour,2)+':'+pad(minute,2)})
                         } else {
                             if (minute === 0 && hour === 0) {
-                                tics.push({class:'DayTic_h', pos: i, label: day})
+                                tics.push({class:'DayTic_h', pos: i, label: pad(day,2)})
                                 tics.push({class:'MonthTic_h2', pos: i, label: monthcode[month]})
                                 //tics.push({class:'YearTic_h', pos: i, label: year})
                             }     
@@ -89,7 +90,7 @@ function DateSelectorScale({date, zoomfactor,  step}) {
                             tics.push({class:'HourTic', pos: i, label: pad(hour,2)+':00'})
                         
                         } else  {
-                            tics.push({class:'DayTic_h', pos: i, label: day})
+                            tics.push({class:'DayTic_h', pos: i, label: pad(day,2)})
                             tics.push({class:'MonthTic_h2', pos: i, label: monthcode[month]})
                             // tics.push({class:'YearTic_h', pos: i, label: year})            
                         }
@@ -102,7 +103,7 @@ function DateSelectorScale({date, zoomfactor,  step}) {
                             tics.push({class:'HourTic', pos: i, label: pad(hour,2)+':00'})
                         } else  {
                             if (hour === 0) {
-                                tics.push({class:'DayTic_h', pos: i, label: day})
+                                tics.push({class:'DayTic_h', pos: i, label: pad(day,2)})
                                 tics.push({class:'MonthTic_h2', pos: i, label: monthcode[month]})
                                 // tics.push({class:'YearTic_h', pos: i, label: year})            
                             }
@@ -147,6 +148,20 @@ function DateSelectorScale({date, zoomfactor,  step}) {
                         } else {
                             tics.push({class:'MonthTic_h', pos: i, label: monthcode[month]})
                             tics.push({class:'YearTic_h2', pos: i, label: year})
+                        }
+                    }
+    
+                break
+
+                case _zoom < MONTH4_LEVEL:
+                    if( month !== lastmonth ) {
+                        if (month !== 0 && month !== 11 && (month) % 3 === 0 ) {
+                            tics.push({class:'MonthTic', pos: i, label: monthcode[month]})
+                        } else {
+                            if (month == 0) {
+                                tics.push({class:'MonthTic_h', pos: i, label: monthcode[month]})
+                                tics.push({class:'YearTic_h2', pos: i, label: year})
+                            }
                         }
                     }
     

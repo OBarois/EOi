@@ -70,11 +70,11 @@ function App() {
         // if(fullScreen == false) handle.enter()
     },[])
 
-    useEffect(() => {
-        console.log('mapSettings effect')
-        console.log(mapSettings)
-        // if(fullScreen == false) handle.enter()
-    },[mapSettings])
+    // useEffect(() => {
+    //     console.log('mapSettings effect')
+    //     console.log(mapSettings)
+    //     // if(fullScreen == false) handle.enter()
+    // },[mapSettings])
 
     useEffect(() => {
         console.log('appColor effect')
@@ -87,18 +87,14 @@ function App() {
              <FullScreen handle={handle}>
                 <div className="Earth">
                     <Earth id="globe" 
-                        viewdate={viewdate} 
-                        starfield={mapSettings.starfield} 
-                        atmosphere={mapSettings.atmosphere} 
-                        names={mapSettings.names} 
-                        background={mapSettings.background} 
-                        clon='0.5' 
-                        clat='40' 
+                        // viewdate={viewdate} 
                     />
                 </div>
                 <DateManager startdate={startdate} onDateChange={changeDate} onFinalDateChange={finalChangeDate} animated={searching}/>
                 <ControlPanel active="true">
-                    <div class='logo'><img  src='./images/ESA_logo_2020_White.png' height="60" ></img></div>
+                <div class='logo'><img  src='./images/ESA_logo_2020_White.png' height="40" ></img></div>
+                    <div ><img  src='./images/EOi_logo.png' height="150" ></img></div>
+                
                     <C_MissionSelector></C_MissionSelector>
                     <C_MapSelector ></C_MapSelector>
                     <HuePickerContainer></HuePickerContainer>

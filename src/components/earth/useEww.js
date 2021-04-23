@@ -59,16 +59,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     // Turn the globe up north
     function northUp() {
         const wwd = eww.current
-        let headingIncrement = 1.0;
-        if (Math.abs(wwd.navigator.heading) > 60) {
-            headingIncrement = 2.0;
-        } else if (Math.abs(navigator.heading) > 120) {
-            headingIncrement = 3.0;
-        }
-        if (wwd.navigator.heading > 0) {
-            headingIncrement = -headingIncrement;
-        }
-
+        let headingIncrement = wwd.navigator.heading / -20;
         let runOperation = () => {
             if (Math.abs(wwd.navigator.heading) > Math.abs(headingIncrement)) {
                 wwd.navigator.heading += headingIncrement;
@@ -115,17 +106,16 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         eww.current.layers[bgIndex.current].enabled=false
         eww.current.redraw();
     }
-    function toggleBg() {
+    function toggleBg(background) {
         eww.current.layers[bgIndex.current].enabled=false
-
-        bgIndex.current = (bgIndex.current + 1)%bgLayers.length
-        console.log("Background Layer: "+eww.current.layers[bgIndex.current].displayName)
+        bgIndex.current = (background === null)?(bgIndex.current + 1):(background +1)%bgLayers.length
+        console.log("Background Layer ["+bgIndex.current+"/"+bgLayers.length+"]: "+eww.current.layers[bgIndex.current].displayName)
         eww.current.layers[bgIndex.current].enabled=true
         eww.current.redraw();
+        // setEwwState((ewwstate) => { return {...ewwstate, background: bgIndex.current}})
     }
     function toggleOv() {
         eww.current.layers[ovIndex.current+bgLayers.length].enabled=false
-
         ovIndex.current = (ovIndex.current + 1)%ovLayers.length
         console.log("Overlay Layer: "+eww.current.layers[ovIndex.current+bgLayers.length].displayName)
         eww.current.layers[ovIndex.current+bgLayers.length].enabled=true
@@ -525,6 +515,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
 
     }
     const handleDoubleClick  = (recognizer) => {
+        console.log('double click')
         northUp()
     }
 
@@ -581,18 +572,30 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
 
         // define click/tap recognisers
 
-        let clickRecognizer = new WorldWind.ClickRecognizer(eww.current, handleClick);
-        clickRecognizer.numberOfClicks = 1;
-        let doubleClickRecognizer = new WorldWind.ClickRecognizer(eww.current, handleDoubleClick);
-        doubleClickRecognizer.numberOfClicks = 2;
-        clickRecognizer.requireRecognizerToFail(doubleClickRecognizer);
-        doubleClickRecognizer.maxClickInterval = 200;
+        let appDoubleClickRecognizer = new WorldWind.ClickRecognizer(eww.current, handleDoubleClick);
+        appDoubleClickRecognizer.numberOfClicks = 2;
+        appDoubleClickRecognizer.maxClickInterval = 200;
+        eww.current.worldWindowController.clickDownRecognizer.recognizeSimultaneouslyWith(appDoubleClickRecognizer);
+        
+        // turning this block on will cause double drag to not be recognized anymore....
+        // let appClickRecognizer = new WorldWind.ClickRecognizer(eww.current, handleClick);
+        // appClickRecognizer.numberOfClicks = 1;
+        // eww.current.worldWindowController.clickDownRecognizer.recognizeSimultaneouslyWith(appClickRecognizer);
+        // appDoubleClickRecognizer.recognizeSimultaneouslyWith(appClickRecognizer);
+        // appClickRecognizer.requireRecognizerToFail(appDoubleClickRecognizer)
 
-        let tapRecognizer = new WorldWind.TapRecognizer(eww.current, handleClick);
-        tapRecognizer.numberOfTaps = 1;
-        let doubleTapRecognizer = new WorldWind.TapRecognizer(eww.current, handleDoubleClick);
-        doubleTapRecognizer.numberOfTaps = 2;
-        tapRecognizer.requireRecognizerToFail(doubleTapRecognizer);
+
+        let appDoubleTapRecognizer = new WorldWind.TapRecognizer(eww.current, handleDoubleClick);
+        appDoubleTapRecognizer.numberOfTaps = 2;
+        appDoubleTapRecognizer.name = 'double tap';
+        eww.current.worldWindowController.tapDownRecognizer.recognizeSimultaneouslyWith(appDoubleTapRecognizer);
+
+        // // next 2 lines: marche pas...
+        // eww.current.worldWindowController.panRecognizer.recognizeSimultaneouslyWith(appDoubleTapRecognizer);
+        // eww.current.worldWindowController.doublePanRecognizer.recognizeSimultaneouslyWith(appDoubleTapRecognizer);
+ 
+        // tapRecognizer.recognizeSimultaneouslyWith(doubleTapRecognizer);
+        // doubleTapRecognizer.requireRecognizerToFail(tapRecognizer)
 
         WorldWind.configuration.baseUrl = WorldWind.configuration.baseUrl.slice(0,-3)
 
@@ -653,7 +656,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     //     setEwwState(newewwstate)
     // }, [aoi]); 
     useEffect(() => {
-        toggleBg()
+        toggleBg(background)
     }, [background]);
 
     useEffect(() => {

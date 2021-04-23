@@ -18,11 +18,16 @@ export  function initGlobalStates() {
     setGlobal({
         mission: 'S1',
         appColor: '#222222',
+        position: {
+            clon:'0.5',
+            clat:'40' 
+        },
+        viewDate: new Date(),
         mapSettings: {
             atmosphere: true,
             starfield: true,
             names: false,
-            background: 1,
+            background: 4,
             dem: true
         }
     })

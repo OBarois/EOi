@@ -8,9 +8,11 @@ import { useHotkeys } from 'react-hotkeys-hook'
 
 
 
-function Earth({ viewdate, id, clat, clon, alt }) {
+function Earth({ id, alt }) {
 
     const [mapSettings, setMapSettings] = useGlobal('mapSettings')
+    const [ position, setPosition] = useGlobal('position')
+    const [ viewDate, setViewDate] = useGlobal('viewDate')
 
     const [mapSet, setMapSet] = useState(mapSettings)
 
@@ -29,8 +31,8 @@ function Earth({ viewdate, id, clat, clon, alt }) {
         northUp
     } = useEww({
         id: id,
-        clat: clat,
-        clon: clon,
+        clat: position.clat,
+        clon: position.clon,
         alt: alt,
         starfield: mapSettings.starfield,
         atmosphere: mapSettings.atmosphere,
@@ -42,7 +44,7 @@ function Earth({ viewdate, id, clat, clon, alt }) {
     useHotkeys("p",toggleProjection)  
     useHotkeys("c",removeGeojson)
     useHotkeys("u",northUp)
-    useHotkeys("b",() => setMapSet((mapSet)=>({...mapSet, background:Math.random()})))  
+    useHotkeys("b",() => setMapSet((mapSet)=>({...mapSet, background:mapSet.background+1})))  
     useHotkeys("m",toggleModel)
     useHotkeys("d",() => setMapSet((mapSet)=>({...mapSet, dem:!mapSet.dem})))  
     useHotkeys("o",toggleOv)
@@ -60,8 +62,9 @@ function Earth({ viewdate, id, clat, clon, alt }) {
 
 
     useEffect(() => {
-        setTime(viewdate.getTime())
-    },[viewdate])
+        console.log('date chsnged')
+        setTime(viewDate.getTime())
+    },[viewDate])
 
     useEffect(() => {
         setMapSettings(mapSet)
@@ -70,7 +73,6 @@ function Earth({ viewdate, id, clat, clon, alt }) {
     useEffect(() => {
         setMapSet(mapSettings)
     }, [mapSettings]);
-
 
     let globeStyle = {
         background: 'black',

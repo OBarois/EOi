@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import DateLabel from './components/datelabel'
+import DateLabel from './components/datelabel2'
 import DateController from './components/datecontroller'
 import DateSelector from './components/dateselector'
 
