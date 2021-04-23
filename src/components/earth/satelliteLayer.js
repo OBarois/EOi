@@ -1,5 +1,7 @@
 import WorldWind from 'webworldwind-esa';
-import SatelliteModel from './wwwx/shapes/satellites/Model';
+import wwx from 'webworldwind-x';
+
+// import SatelliteModel from './wwwx/shapes/satellites/Model';
 
 // const Location = WorldWind.Location,
 //     Sector = WorldWind.Sector,
@@ -32,7 +34,7 @@ const modelsLayer = new RenderableLayer('Model');
 fetch('./data/sentinel1/s1.json').then(response => {
     return response.json();
 }).then(satelliteData => {
-    modelsLayer.addRenderable(new SatelliteModel(satelliteData, {
+    modelsLayer.addRenderable(new wwx.Model(satelliteData, {
         rotations: {
             x: 0,
             y: 0,

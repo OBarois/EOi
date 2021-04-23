@@ -4,8 +4,9 @@ import DateController from './components/datecontroller'
 import DateSelector from './components/dateselector'
 
 
-function DateManager({startdate, onDateChange, onFinalDateChange, animated}) {
+function DateManager({ onDateChange, onFinalDateChange, animated}) {
 
+    let startdate = new Date()
     const [selectorStartdate, setselectorStartdate] = useState(startdate)
     const [controllerStartdate, setcontrollerStartdate] = useState(startdate)
     const [labeldate, setLabelDate] = useState(startdate)

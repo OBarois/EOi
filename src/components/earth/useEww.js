@@ -1,7 +1,8 @@
 import  { useState, useEffect, useRef } from "react";
 import WorldWind from "webworldwind-esa";
-import StarFieldLayer from "./wwwx/layer/starfield/StarFieldLayer"
-import TexturedSurfacePolygon from './wwwx/shapes/TexturedSurfacePolygon'
+// import StarFieldLayer from "./wwwx/layer/starfield/StarFieldLayer"
+// import TexturedSurfacePolygon from './wwwx/shapes/TexturedSurfacePolygon'
+import wwwx from "webworldwind-x";
 import modelsLayer from './satelliteLayer';
 import {bgLayers, ovLayers} from './layerConfig';
 
@@ -38,7 +39,7 @@ import {bgLayers, ovLayers} from './layerConfig';
 //     }
 // };
 
-export function useEww({ id, clon, clat, alt, starfield, atmosphere, background, names, dem }) {
+export function useEww({ id, clon, clat, alt, starfield, atmosphere, background, overlay, names, satellites, dem }) {
     // console.log('useEww renders')
     
   
@@ -107,17 +108,23 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         eww.current.redraw();
     }
     function toggleBg(background) {
+        // console.log("toggleBg: "+background+"/"+bgLayers.length)
         eww.current.layers[bgIndex.current].enabled=false
-        bgIndex.current = (background === null)?(bgIndex.current + 1):(background +1)%bgLayers.length
-        console.log("Background Layer ["+bgIndex.current+"/"+bgLayers.length+"]: "+eww.current.layers[bgIndex.current].displayName)
+        bgIndex.current = (background === null)?(bgIndex.current + 1):(background-1)%bgLayers.length
+        console.log("Background Layer ["+(bgIndex.current+1)+"/"+bgLayers.length+"]: "+eww.current.layers[bgIndex.current].displayName)
         eww.current.layers[bgIndex.current].enabled=true
         eww.current.redraw();
         // setEwwState((ewwstate) => { return {...ewwstate, background: bgIndex.current}})
     }
-    function toggleOv() {
+    function toggleOv(overlay) {
+        console.log(overlay)
         eww.current.layers[ovIndex.current+bgLayers.length].enabled=false
-        ovIndex.current = (ovIndex.current + 1)%ovLayers.length
-        console.log("Overlay Layer: "+eww.current.layers[ovIndex.current+bgLayers.length].displayName)
+        // ovIndex.current = (ovIndex.current + 1)%ovLayers.length
+        ovIndex.current = (overlay === null)?(ovIndex.current + 1):(overlay-1)%ovLayers.length
+        console.log(ovIndex.current)
+        // console.log("Overlay Layer: "+eww.current.layers[ovIndex.current+bgLayers.length].displayName)
+        // console.log("Overlay Layer ["+(ovIndex.current+bgLayers.length+1)+"/"+ovLayers.length+"]: "+eww.current.layers[ovIndex.current+bgLayers.length].displayName)
+
         eww.current.layers[ovIndex.current+bgLayers.length].enabled=true
         eww.current.redraw()
     }
@@ -397,7 +404,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
             ]
             // footprint[0].pop()
             console.log(footprint)
-            let quicklook =  new TexturedSurfacePolygon(footprint,renderable.attributes)
+            let quicklook =  new wwwx.TexturedSurfacePolygon(footprint,renderable.attributes)
             quicklook.maxImageWidth = 64
             quicklook.maxImageHeight = 64
             
@@ -601,7 +608,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
 
         //let starFieldLayer = new WorldWindX.StarFieldLayer();
         // let starFieldLayer = new WorldWind.StarFieldLayer();
-        let starFieldLayer = new StarFieldLayer();
+        let starFieldLayer = new wwwx.StarFieldLayer();
         let atmosphereLayer = new WorldWind.AtmosphereLayer('images/BlackMarble_2016_01deg.jpg');
         // let atmosphereLayer = new WorldWind.AtmosphereLayer('images/BlackMarble_2016_3km.jpg');
         
@@ -616,7 +623,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
             { layer: starFieldLayer, enabled: starfield },
             { layer: atmosphereLayer, enabled: atmosphere },
             { layer: quicklookLayer, enabled: true },
-            { layer: modelsLayer, enabled: false }
+            { layer: modelsLayer, enabled: satellites }
         ];
     
         for (let l = 0; l < bgLayers.length; l++) {
@@ -656,20 +663,38 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     //     setEwwState(newewwstate)
     // }, [aoi]); 
     useEffect(() => {
+        // console.log('background changed effect: '+background)
+
         toggleBg(background)
     }, [background]);
 
     useEffect(() => {
+        // console.log('overlay changed effect: '+overlay)
+
+        toggleOv(overlay)
+    }, [overlay]);
+
+    useEffect(() => {
+        // console.log('names changed effect: '+names)
         toggleNames(names)
     }, [names]);
 
     useEffect(() => {
+        // console.log('atmosphere changed effect: '+satellites)
+
         toggleAtmosphere(atmosphere)
     }, [atmosphere]);
 
     useEffect(() => {
+        // console.log('starfield changed effect: '+starfield)
         toggleStarfield(starfield)
     }, [starfield]);
+
+    useEffect(() => {
+        // console.log('sat changed effect: '+satellites)
+
+        toggleModel(satellites)
+    }, [satellites]);
 
     useEffect(() => {
         toggleDem(dem)
