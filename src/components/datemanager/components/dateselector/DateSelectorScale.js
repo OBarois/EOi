@@ -62,7 +62,7 @@ function DateSelectorScale({date, zoomfactor,  step}) {
                             tics.push({class:'HourTic', pos: i, label: pad(hour,2)+':'+pad(minute,2)})
                         } else {
                             if (minute === 0 && hour === 0) {
-                                tics.push({class:'DayTic_h', pos: i, label: day})
+                                tics.push({class:'DayTic_h', pos: i, label: pad(day,2)})
                                 tics.push({class:'MonthTic_h2', pos: i, label: monthcode[month]})
                                 //tics.push({class:'YearTic_h', pos: i, label: year})
                             }     
@@ -76,7 +76,7 @@ function DateSelectorScale({date, zoomfactor,  step}) {
                             tics.push({class:'HourTic', pos: i, label: pad(hour,2)+':'+pad(minute,2)})
                         } else {
                             if (minute === 0 && hour === 0) {
-                                tics.push({class:'DayTic_h', pos: i, label: day})
+                                tics.push({class:'DayTic_h', pos: i, label: pad(day,2)})
                                 tics.push({class:'MonthTic_h2', pos: i, label: monthcode[month]})
                                 //tics.push({class:'YearTic_h', pos: i, label: year})
                             }     
@@ -90,7 +90,7 @@ function DateSelectorScale({date, zoomfactor,  step}) {
                             tics.push({class:'HourTic', pos: i, label: pad(hour,2)+':00'})
                         
                         } else  {
-                            tics.push({class:'DayTic_h', pos: i, label: day})
+                            tics.push({class:'DayTic_h', pos: i, label: pad(day,2)})
                             tics.push({class:'MonthTic_h2', pos: i, label: monthcode[month]})
                             // tics.push({class:'YearTic_h', pos: i, label: year})            
                         }
@@ -103,7 +103,7 @@ function DateSelectorScale({date, zoomfactor,  step}) {
                             tics.push({class:'HourTic', pos: i, label: pad(hour,2)+':00'})
                         } else  {
                             if (hour === 0) {
-                                tics.push({class:'DayTic_h', pos: i, label: day})
+                                tics.push({class:'DayTic_h', pos: i, label: pad(day,2)})
                                 tics.push({class:'MonthTic_h2', pos: i, label: monthcode[month]})
                                 // tics.push({class:'YearTic_h', pos: i, label: year})            
                             }

@@ -13,7 +13,7 @@ function MapSelector({mapSettings, onMapSettingsChange}) {
     const toggleAtmosphere = () => setMapSet((mapSet)=>({...mapSet, atmosphere:!mapSet.atmosphere}))
     const toggleStarfield = () => setMapSet((mapSet)=>({...mapSet, starfield:!mapSet.starfield}))
     const toggleNames = () => setMapSet((mapSet)=>({...mapSet, names:!mapSet.names}))
-    const toggleBg = () => setMapSet((mapSet)=>({...mapSet, background:Math.random()}))
+    const toggleBg = () => setMapSet((mapSet)=>({...mapSet, background:mapSet.background+1}))
 
 
     useEffect(() => {
