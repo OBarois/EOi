@@ -1,7 +1,7 @@
 import WorldWind from 'webworldwind-esa';
+import ColladaScene from "../../collada/ColladaScene";
 
 const {
-    ColladaScene,
     Matrix,
     Renderable
 } = WorldWind;
@@ -42,9 +42,9 @@ class Model extends Renderable {
             'PlatformCircleAndName', 'SolarWingsCircleAndName', 'C-SarCircleAndName',
             'PlatformTextsAndArrows', 'SolarWingsTextsAndArrows', 'C-SarTextsAndArrows',
 
-            'SolarArrayGroup', 'WingsDetailsGroup', 'Group004', 'MsiGroup', 'SatteliteGroup',
+            'SolarArrayGroup', 'WingsDetailsGroup', 'Group004', 'MsiGroup', 'SatelliteGroup',
 
-            'SatteliteDimensionsGroup', 'MWRGroup', 'SRALGroup', 'OLCIGroup', 'SLSTRGroup'
+            'SatelliteDimensionsGroup', 'MWRGroup', 'SRALGroup', 'OLCIGroup', 'SLSTRGroup'
         ];
         const {
             rotations,
