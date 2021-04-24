@@ -8,7 +8,7 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import ControlPanel from "../controlpanel"
 import C_MissionSelector from "../../containers/MissionSelectorContainer"
 import C_MapSelector from "../../containers/MapSelectorContainer"
-import HuePickerContainer from "../../containers/HuePickerContainer"
+import ColorSelectorContainer from "../../containers/ColorSelectorContainer"
 
 // import useToggle from 'react-use/lib/useToggle'
 import { FullScreen, useFullScreenHandle } from "react-full-screen"
@@ -73,12 +73,12 @@ function App() {
                 {/* <DateManager startdate={startdate} onDateChange={changeDate} onFinalDateChange={finalChangeDate} animated={searching}/> */}
                 <C_DateManager></C_DateManager>
                 <ControlPanel active="true">
-                <div class='logo'><img  src='./images/ESA_logo_2020_White.png' height="40" ></img></div>
-                    <div ><img  src='./images/EOi_logo.png' height="150" ></img></div>
+                    {/* <div class='logo'><img  src='./images/ESA_logo_2020_White.png' height="40" ></img></div> */}
+                    <div class='logo'><img  src='./images/EOi_logo.png' height="150" ></img></div>
                 
                     <C_MissionSelector></C_MissionSelector>
                     <C_MapSelector ></C_MapSelector>
-                    <HuePickerContainer></HuePickerContainer>
+                    <ColorSelectorContainer></ColorSelectorContainer>
                 </ControlPanel>
                 <div className='MissionLabel'>{mission}</div>
             </FullScreen>

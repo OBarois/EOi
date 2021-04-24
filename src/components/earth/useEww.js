@@ -1,6 +1,6 @@
 import  { useState, useEffect, useRef } from "react";
 import WorldWind from "webworldwind-esa";
-// import StarFieldLayer from "./wwwx/layer/starfield/StarFieldLayer"
+import StarFieldLayer from "./wwwxx/layer/starfield/StarFieldLayer"
 // import TexturedSurfacePolygon from './wwwx/shapes/TexturedSurfacePolygon'
 import wwwx from "webworldwind-x";
 import modelsLayer from './satelliteLayer';
@@ -609,7 +609,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
 
         //let starFieldLayer = new WorldWindX.StarFieldLayer();
         // let starFieldLayer = new WorldWind.StarFieldLayer();
-        let starFieldLayer = new wwwx.StarFieldLayer();
+        let starFieldLayer = new StarFieldLayer();
         let atmosphereLayer = new WorldWind.AtmosphereLayer('images/BlackMarble_2016_01deg.jpg');
         // let atmosphereLayer = new WorldWind.AtmosphereLayer('images/BlackMarble_2016_3km.jpg');
         
