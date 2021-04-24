@@ -2,11 +2,11 @@
 import React, { useEffect } from "react";
 import { useGlobal } from 'reactn';
 
-import { HuePicker, AlphaPicker } from 'react-color';
-import './ColorPicker.css'
+import { HuePicker } from 'react-color';
+import './ColorSelector.css'
 
 
-function HuePickerContainer() {
+function ColorSelectorContainer() {
 
 
     const [ appcolor, setAppcolor ] = useGlobal('appColor');
@@ -29,7 +29,7 @@ function HuePickerContainer() {
     // <AlphaPicker />  
 }
 
-export default HuePickerContainer;
+export default ColorSelectorContainer;
 
 
 

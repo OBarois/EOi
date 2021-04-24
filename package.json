@@ -18,7 +18,8 @@
     "reactn": "^2.2.7",
     "vec-la": "^1.5.0",
     "web-vitals": "^1.1.1",
-    "webworldwind-esa": "github:OBarois/WebWorldWind-ESA-Oli"
+    "webworldwind-esa": "github:OBarois/WebWorldWind-ESA-Oli",
+    "webworldwind-x": "^2.6.1"
   },
   "devDependencies": {
     "@iconify-icons/ic": "^1.1.3",

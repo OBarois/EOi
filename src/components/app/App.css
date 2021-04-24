@@ -43,6 +43,12 @@
   z-index: 2;
   background: rgba(131, 52, 177, 0);
   padding:10px;
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  -webkit-user-drag: none;
+
 }
 
 

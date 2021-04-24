@@ -13,8 +13,10 @@ function Earth({ id, alt }) {
     const [mapSettings, setMapSettings] = useGlobal('mapSettings')
     const [ position, setPosition] = useGlobal('position')
     const [ viewDate, setViewDate] = useGlobal('viewDate')
+    const [ satellites, setSatellites ] = useGlobal('satellites')
 
     const [mapSet, setMapSet] = useState(mapSettings)
+    const [sat, setSat] = useState(satellites)
 
 
     const {
@@ -37,6 +39,8 @@ function Earth({ id, alt }) {
         starfield: mapSettings.starfield,
         atmosphere: mapSettings.atmosphere,
         background: mapSettings.background,
+        overlay: mapSettings.overlay,
+        satellites: satellites,
         names: mapSettings.names,
         dem: mapSettings.dem
     })
@@ -45,9 +49,10 @@ function Earth({ id, alt }) {
     useHotkeys("c",removeGeojson)
     useHotkeys("u",northUp)
     useHotkeys("b",() => setMapSet((mapSet)=>({...mapSet, background:mapSet.background+1})))  
-    useHotkeys("m",toggleModel)
+    useHotkeys("m",() => setSat((sat)=>(!sat)))  
+    // useHotkeys("m",() => setSatellites((satellites)=>(!satellites)))  
     useHotkeys("d",() => setMapSet((mapSet)=>({...mapSet, dem:!mapSet.dem})))  
-    useHotkeys("o",toggleOv)
+    useHotkeys("o",() => setMapSet((mapSet)=>({...mapSet, overlay:mapSet.overlay+1})))  
     useHotkeys("a",() => setMapSet((mapSet)=>({...mapSet, atmosphere:!mapSet.atmosphere})))  
     useHotkeys("s",() => setMapSet((mapSet)=>({...mapSet, starfield:!mapSet.starfield})))  
     useHotkeys("n",() => setMapSet((mapSet)=>({...mapSet, names:!mapSet.names})))  
@@ -62,7 +67,6 @@ function Earth({ id, alt }) {
 
 
     useEffect(() => {
-        console.log('date chsnged')
         setTime(viewDate.getTime())
     },[viewDate])
 
@@ -71,8 +75,19 @@ function Earth({ id, alt }) {
     }, [mapSet]);
 
     useEffect(() => {
+        // console.log(mapSettings)
         setMapSet(mapSettings)
     }, [mapSettings]);
+
+    useEffect(() => {
+        setSatellites(sat)
+    }, [sat]);
+
+    useEffect(() => {
+        setSat(satellites)
+    }, [satellites]);
+    
+
 
     let globeStyle = {
         background: 'black',

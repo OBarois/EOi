@@ -1,7 +1,7 @@
 
 
 .DateSelector {
-    position: fixed;
+    position: absolute;
     top: 0px;
     right: 0px;
     width: 68px;

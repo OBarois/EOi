@@ -1,7 +1,8 @@
 
 .ControlPanel {
     position: fixed ;
-    background-color: #3592bd75;
+    background-color: #003b94d5;
+    /* background-color: var(--color); */
     height: 100%;
     width: 300px;
     top: 0px;
@@ -12,7 +13,7 @@
     flex-direction: column;
     justify-content: flex-end;
     align-content: space-between;
-    color: white;
+    /* color: white; */
     z-index: 300; 
     user-select: none;
 }
@@ -39,8 +40,8 @@
     -webkit-user-drag: none;
     height: 50px;
     width: 50px;
-    bottom: 0px;
-    left: -50px;
+    bottom: 30px;
+    left: -80px;
     z-index: 300; 
     /* background-image: url("EOi_logo.png"); */
     /* background-color: #77bd35c9; */

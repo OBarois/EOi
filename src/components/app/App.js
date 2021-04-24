@@ -8,36 +8,21 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import ControlPanel from "../controlpanel"
 import C_MissionSelector from "../../containers/MissionSelectorContainer"
 import C_MapSelector from "../../containers/MapSelectorContainer"
-import HuePickerContainer from "../../containers/HuePickerContainer"
+import ColorSelectorContainer from "../../containers/ColorSelectorContainer"
 
 // import useToggle from 'react-use/lib/useToggle'
 import { FullScreen, useFullScreenHandle } from "react-full-screen"
+import C_DateManager from '../../containers/DateManagerContainer'
 // import { useFullscreen } from '@straw-hat/react-fullscreen'
 
 
 function App() {
     
-    let initdate = new Date()
-    const [viewdate, setViewdate] = useState(initdate)
-    const [startdate, ] = useState(initdate)
-    const [searching, setSearching] = useState(false)
-    // const [collection, setCollection] = useState('S1')
-
     const handle = useFullScreenHandle();
 
     const [ mission,  ] = useGlobal('mission');
     const [ mapSettings, ] = useGlobal('mapSettings')
     const [ appColor, ] = useGlobal('appColor')
-
-    const changeDate = (newdate) => {
-        // console.log('App changeDate callback: ' + newdate.toJSON())
-        setViewdate(newdate)
-    }
-
-    const finalChangeDate = (date) => {
-        console.log('Final Date: ' + date.toJSON())
-        // setSearching(true)
-    }
 
     // manage full screen
     // const fullScreen = useRef()
@@ -76,11 +61,6 @@ function App() {
     //     // if(fullScreen == false) handle.enter()
     // },[mapSettings])
 
-    useEffect(() => {
-        console.log('appColor effect')
-        console.log(appColor)
-        // if(fullScreen == false) handle.enter()
-    },[appColor])
 
     return (
         <div className="App" >
@@ -90,14 +70,15 @@ function App() {
                         // viewdate={viewdate} 
                     />
                 </div>
-                <DateManager startdate={startdate} onDateChange={changeDate} onFinalDateChange={finalChangeDate} animated={searching}/>
+                {/* <DateManager startdate={startdate} onDateChange={changeDate} onFinalDateChange={finalChangeDate} animated={searching}/> */}
+                <C_DateManager></C_DateManager>
                 <ControlPanel active="true">
-                <div class='logo'><img  src='./images/ESA_logo_2020_White.png' height="40" ></img></div>
-                    <div ><img  src='./images/EOi_logo.png' height="150" ></img></div>
+                    {/* <div class='logo'><img  src='./images/ESA_logo_2020_White.png' height="40" ></img></div> */}
+                    <div class='logo'><img  src='./images/EOi_logo.png' height="150" ></img></div>
                 
                     <C_MissionSelector></C_MissionSelector>
                     <C_MapSelector ></C_MapSelector>
-                    <HuePickerContainer></HuePickerContainer>
+                    <ColorSelectorContainer></ColorSelectorContainer>
                 </ControlPanel>
                 <div className='MissionLabel'>{mission}</div>
             </FullScreen>

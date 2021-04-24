@@ -17,6 +17,7 @@ export  function initGlobalStates() {
 
     setGlobal({
         mission: 'S1',
+        satellites: false,
         appColor: '#222222',
         position: {
             clon:'0.5',
@@ -27,7 +28,8 @@ export  function initGlobalStates() {
             atmosphere: true,
             starfield: true,
             names: false,
-            background: 4,
+            background: 1,
+            overlay:2,
             dem: true
         }
     })
