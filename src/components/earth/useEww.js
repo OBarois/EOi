@@ -1,9 +1,11 @@
 import  { useState, useEffect, useRef } from "react";
 import WorldWind from "webworldwind-esa";
-import StarFieldLayer from "./wwwxx/layer/starfield/StarFieldLayer"
+import StarFieldLayer from "./wwwxx/layer/starfield/StarFieldLayer" // import a custom one as the base url is not set when using wwwx
 // import TexturedSurfacePolygon from './wwwx/shapes/TexturedSurfacePolygon'
 import wwwx from "webworldwind-x";
 import modelsLayer from './satelliteLayer';
+import satelliteLayers from './satelliteLayers';
+
 import {bgLayers, ovLayers} from './layerConfig';
 
 
@@ -339,25 +341,25 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     }
 
     async function enableRenderables(time) {
-        let timeOffset = 1000 * 60 * 60 * 3 // 3 hours
-        for (let i = 0; i < eww.current.layers.length; i++) {
-            if (eww.current.layers[i].displayName.includes('Products:')) {
+        // let timeOffset = 1000 * 60 * 60 * 3 // 3 hours
+        // for (let i = 0; i < eww.current.layers.length; i++) {
+        //     if (eww.current.layers[i].displayName.includes('Products:')) {
                 
-                for (let j = 0; j < eww.current.layers[i].renderables.length; j++) {
-                    let renderable = eww.current.layers[i].renderables[j]
-                    if (time != 0) {
-                        let renderableStartDate = (new Date(renderable.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStartTime)).getTime()
-                        let renderableStopDate = (new Date(renderable.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStopTime)).getTime()
-                        renderable.enabled = (renderableStartDate <= time+timeOffset/2 && renderableStopDate >= time-timeOffset/2) ? true : false   
-                    } else {
-                        renderable.enabled = false
-                    }         
-                }
-            }
-            if (eww.current.layers[i].displayName === 'quicklook') {
-                // eww.current.layers[i].enabled = 
-            }
-        }
+        //         for (let j = 0; j < eww.current.layers[i].renderables.length; j++) {
+        //             let renderable = eww.current.layers[i].renderables[j]
+        //             if (time != 0) {
+        //                 let renderableStartDate = (new Date(renderable.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStartTime)).getTime()
+        //                 let renderableStopDate = (new Date(renderable.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStopTime)).getTime()
+        //                 renderable.enabled = (renderableStartDate <= time+timeOffset/2 && renderableStopDate >= time-timeOffset/2) ? true : false   
+        //             } else {
+        //                 renderable.enabled = false
+        //             }         
+        //         }
+        //     }
+        //     if (eww.current.layers[i].displayName === 'quicklook') {
+        //         // eww.current.layers[i].enabled = 
+        //     }
+        // }
 
     }
 
@@ -423,6 +425,10 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     function setTime(epoch) {
         getLayerByName('StarField').time = getLayerByName('Atmosphere').time = new Date(epoch)
         enableRenderables(epoch)
+
+        for(let l=0 ; l<satelliteLayers.length ; l++) {
+            satelliteLayers[l].setTime(new Date(epoch))
+        }
         eww.current.redraw();
      }
 
@@ -616,6 +622,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         //atmosphereLayer.minActiveAltitude = 5000000
 
         let quicklookLayer = new WorldWind.RenderableLayer('Quicklooks')
+        console.log(satelliteLayers)
     
         let layers = [
             // { layer: new WorldWind.WmsLayer(wmsConfigBg_s2, ""), enabled: true },
@@ -642,6 +649,12 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
             layers[l].layer.enabled = layers[l].enabled;
             eww.current.addLayer(layers[l].layer);
         }
+        for (let l = 0; l < satelliteLayers.length; l++) {
+            satelliteLayers.enabled = satellites
+            eww.current.addLayer(satelliteLayers[l]);
+        }
+
+
         console.log(eww.current.layers)
         //let date = new Date();
         starFieldLayer.time = new Date();
