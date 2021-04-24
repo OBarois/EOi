@@ -27,7 +27,7 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
     const [lastStartdate, setlLastStartdate ] = useState(startdate)
     
     const [active, setActive ] = useState(false)
-    const [step, setStep ] = useState(60000)
+    const [step, setStep ] = useState([60000])
     const [stepLabel, setStepLabel ] = useState('hour')
 
     // zoomfactor: how long is a pixel in ms
@@ -37,6 +37,8 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
     // to detect double taps
     const lastTap = useRef()
     const doubleTap = useRef()
+
+    const month = useRef()
 
 
     const handleDoubleTap = () => {
@@ -67,14 +69,14 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
             // console.log(down)
             // console.log(first)
             setyOnWheel({                 
-                posy_wheel: movement[1] + lastPos.current, 
-                immediate: false, 
+                posy_wheel: movement[1]/2 + lastPos.current, 
+                immediate: true, 
                 config: { },
                 onFrame: ()=>{
                     // console.log('y / posy / movement / memo:  '+xy[1]+'/ '+posy_wheel.getValue()+'/ '+movement[1]+'/ '+lastPos.current)
                     if (!first) {
                         // let newdate = new Date(lastStartdate.getTime() + Math.ceil(posy_wheel.getValue() * zoomfactor  / step) * step)
-                        let newdate = new Date(lastStartdate.getTime() + Math.ceil(movement[1] * zoomfactor  / step) * step) 
+                        let newdate = new Date(lastStartdate.getTime() + Math.ceil(movement[1] * zoomfactor  / step[0]) * step[0]) 
                         setScaledate(newdate)
                         onDateChange(newdate)
                         }
@@ -85,7 +87,7 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
                 onRest: ()=>{
                     if (!down) {
                         setActive(false)
-                        let newdate = new Date(lastStartdate.getTime() + Math.ceil(posy_wheel.getValue() * zoomfactor  / step) * step) 
+                        let newdate = new Date(lastStartdate.getTime() + Math.ceil(posy_wheel.getValue() * zoomfactor  / step[0]) * step[0]) 
                         onFinalDateChange(newdate)
                         setlLastStartdate(newdate)
                         lastPos.current=0
@@ -131,7 +133,16 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
                 onFrame: ()=>{
                     // console.log('y / movement / delta:  '+xy[1]+'/ '+movement[1]+'/ '+delta[1])
                     if (!first) {
-                        let newdate = new Date(lastStartdate.getTime() - Math.ceil(posxy_drag.getValue()[1] * zoomfactor  / step) * step) 
+                        let newdate
+                        if(stepLabel==='month') {
+                            let nbstep = Math.ceil(posxy_drag.getValue()[1] * zoomfactor  / step[0])
+                            newdate = new Date(lastStartdate.getTime())
+                            newdate.setUTCMonth(lastStartdate.getUTCMonth()-nbstep)
+
+                        } else {
+                            newdate = new Date(lastStartdate.getTime() - Math.ceil(posxy_drag.getValue()[1] * zoomfactor  / step[0]) * step[0]) 
+
+                        }
                         setScaledate(newdate)
                         onDateChange(newdate)
                         }
@@ -141,7 +152,8 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
                 onRest: ()=>{
                     if (!down) {
                         setActive(false)
-                        let newdate = new Date(lastStartdate.getTime() - Math.ceil(posxy_drag.getValue()[1] * zoomfactor  / step) * step) 
+                        let thisstep = (stepLabel==='month')?step[scaledate.getUTCMonth()]:step[0]
+                        let newdate = new Date(lastStartdate.getTime() - Math.ceil(posxy_drag.getValue()[1] * zoomfactor  / thisstep) * thisstep) 
                         onFinalDateChange(newdate)
                         setlLastStartdate(newdate)
                     }
@@ -199,26 +211,40 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
         onStepChange(stepLabel)
     },[stepLabel])
 
+    
     useEffect(() => {
         switch (true) {
             case zoomfactor > 120426316:
-                setStep(1000*60*60*24*30)
+                setStep([
+                    1000*60*60*24*31,
+                    1000*60*60*24*28,
+                    1000*60*60*24*31,
+                    1000*60*60*24*30,
+                    1000*60*60*24*31,
+                    1000*60*60*24*30,
+                    1000*60*60*24*31,
+                    1000*60*60*24*31,
+                    1000*60*60*24*30,
+                    1000*60*60*24*31,
+                    1000*60*60*24*30,
+                    1000*60*60*24*31,
+                    ])
                 setStepLabel('month')
                 break
             case zoomfactor > 14544702:
-                setStep(1000*60*60*24)
+                setStep([1000*60*60*24])
                 setStepLabel('day')
                 break
             case zoomfactor > 735259:
-                setStep(1000*60*60)
+                setStep([1000*60*60])
                 setStepLabel('hour')
                 break
             case zoomfactor > 32274:
-                setStep(1000*60)
+                setStep([1000*60])
                 setStepLabel('minute')
                 break
             default:
-                setStep(1000)
+                setStep([1000])
                 setStepLabel('second')
         }
     },[zoomfactor])
@@ -231,7 +257,7 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
             <div className="Mask"  >
                 <div {...bind()} className="touchMask"> </div>
 
-                <DateSelectorScale className='scale' date={scaledate} zoomfactor={zoomfactor} step={step}></DateSelectorScale>
+                <DateSelectorScale className='scale' date={scaledate} zoomfactor={zoomfactor} ></DateSelectorScale>
                 
                 <div className="TriangleContainer" >
                     <svg height="40" width="20" className="Triangle">
