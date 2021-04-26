@@ -9,6 +9,7 @@ import ControlPanel from "../controlpanel"
 import C_MissionSelector from "../../containers/MissionSelectorContainer"
 import C_MapSelector from "../../containers/MapSelectorContainer"
 import ColorSelectorContainer from "../../containers/ColorSelectorContainer"
+import AltitudeLabelContainer from "../../containers/AltitudeLabelContainer"
 
 // import useToggle from 'react-use/lib/useToggle'
 import { FullScreen, useFullScreenHandle } from "react-full-screen"
@@ -49,11 +50,11 @@ function App() {
     },[fullScreen])
 
 
-    useEffect(() => {
-        console.log('time to init earth')
-        console.log(mapSettings)
-        // if(fullScreen == false) handle.enter()
-    },[])
+    // useEffect(() => {
+    //     console.log('time to init earth')
+    //     console.log(mapSettings)
+    //     // if(fullScreen == false) handle.enter()
+    // },[])
 
     // useEffect(() => {
     //     console.log('mapSettings effect')
@@ -65,13 +66,10 @@ function App() {
     return (
         <div className="App" >
              <FullScreen handle={handle}>
-                <div className="Earth">
-                    <Earth id="globe" 
-                        // viewdate={viewdate} 
-                    />
-                </div>
+                <Earth id="globe" />
                 {/* <DateManager startdate={startdate} onDateChange={changeDate} onFinalDateChange={finalChangeDate} animated={searching}/> */}
                 <C_DateManager></C_DateManager>
+                <AltitudeLabelContainer/>
                 <ControlPanel active="true">
                     {/* <div class='logo'><img  src='./images/ESA_logo_2020_White.png' height="40" ></img></div> */}
                     <div class='logo'><img  src='./images/EOi_logo.png' height="150" ></img></div>

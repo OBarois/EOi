@@ -98,8 +98,8 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
         },
 
         onDrag: ({  event, active, first, down, touches, delta, velocity, direction, shiftKey, xy, movement, temp = {
-            lastzoom: zoomfactor,
-            lastdelta: [0,0],
+            // lastzoom: zoomfactor,
+            // lastdelta: [0,0],
             currentzoom: zoomfactor
             }
         }) => {
@@ -120,7 +120,7 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
                 setZoomfactor(zoom)
                 // temp.xy = [0,0]
                 temp.currentzoom = zoom
-                temp.lastdelta = delta
+                // temp.lastdelta = delta
                 if(!down) setActive(false)
                 return temp
             }
@@ -230,6 +230,10 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
                     1000*60*60*24*31,
                     ])
                 setStepLabel('month')
+                break
+            case zoomfactor > 94544702:
+                setStep([1000*60*60*24*12])
+                setStepLabel('cycle')
                 break
             case zoomfactor > 14544702:
                 setStep([1000*60*60*24])
