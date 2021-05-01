@@ -18,188 +18,42 @@
   
   .LabelContainer {
     position: fixed;
-    top: 5px;
-    left:5px;
-    width: 100px;
+    top: 3px;
+    /* right:5px; */
+    width: 100%;
     height: 80px;;
-    background: rgba(82, 219, 89, 0);
+    /* background: rgba(82, 219, 89, 0.288); */
     border-radius: 8px;
-    /* display: flex; 
-    justify-content: center;
-    flex-direction: column; */
     text-align: center;
     font-kerning: 'none';
     
   
   }
-  
-  .Date {
-    position: absolute;
-    left: 0px;
-    width: 100%;
-    height: 50%;
-    /* display: flex;  */
-    /* justify-content: center;
-    flex-direction: row; */
-    background: rgba(177, 155, 33, 0);
-    /* margin-top: -10px; */
-    /* margin: auto; */
-  
-  }
-  .YearMonth {
-    position: absolute;
-    /* width: 50%; */
-    height: 50px;
-    left: 53px;
-    /* display: flex; 
-    justify-content: center; */
-    /* flex-direction: column; */
-  
-    /* margin-top: 5px; */
-  }
-  
-  .Line{
-    width: 80%;
-    height: 2px;
-    background-color: var(--color);
-    /* background-color: rgb(33, 59, 177); */
-    /* justify-content: center; */
-    position: absolute;
-    top: 45px;
-    /* margin-top: -4px; */
-    margin-left: 8px;
-    /* margin: auto; */
-    box-shadow: 0.1em 0.1em 0.15em  rgba(22, 22, 20, 0.74);
 
-  }
-  
-  
-  .Line-active{
-    -webkit-animation: glow 1s infinite alternate;
-    -moz-animation: glow 1s infinite alternate;
-    -ms-animation: glow 1s infinite alternate;
-    -o-animation: glow 1s infinite alternate;
-    animation: glow 1s infinite ;
-  }
-    
-  .DayLabel {
-    position: absolute;
-    left: 0px;
-    top: 0px;
-    pointer-events: none;
-    font-size: 47px; 
-    /* width: 100%; */
-    height: 50px;
-    margin-top: -5px;
-  }
-  .MonthLabel {
-    position: absolute;
-    left: 0px;
-    top: 0px;
-    pointer-events: none;
-    font-size: 21px; 
-    /* left: 70px; */
-    height: 25px;
-    }
-    .YearLabel {
-      position: absolute;
-      pointer-events: none;
-      font-size: 19px; 
-      top: 21px;
-      left: 0px;
-      height: 25px;
-      margin-top: 0px;  
-    }
+/* .Highlighted {
+  color: rgba(220, 223, 93, 0.966);
+  text-shadow: 0em 0em 0.2em  rgb(252, 38, 84);
+} */
 
-    .TimeLabel {
-    position: absolute;
-    top: 48px;
-    left: 0px;
-    height: 46px;
-    /* display: flex;  */
-    /* justify-content: center; */
-    /* flex-direction: row; */
-    background: rgba(177, 155, 33, 0);
+.Highlighted{
+  border-style: solid;
+  border-width: 0px; 
+  border-radius: 30%;
+  border-color: var(--colort);
   
-  }
-    
-  .HourLabel {
-  position: absolute;
-  left: 0px;
-  pointer-events: none;
-  background: rgba(157, 82, 219, 0);
-  
-  font-size: 20px;
-  font-kerning: 'none';
-  text-align: 'justify';
-  height: 23px;
-  margin-left: 8px;
-
-  /* margin: 0 0 0 0; */
+  background: var(--colort);
+  padding:0.03em 0.15em;
 }
-.hourseparator {
-    position: absolute;
-    left: 32px;
-    pointer-events: none;
-    background: rgba(157, 82, 219, 0);
 
-    font-size: 20px;
-    font-kerning: 'none';
-    text-align: 'justify';
-    /* width: 30%; */
-    height: 25px;
-  
+hi {
+  /* font-family: 'Monaco', Monospace; */
+  /* font-family: 'JetBrains Mono', monospace; */
+  font-size: 120%;
+
+  /* color: rgba(220, 223, 93, 0.966); */
+  /* text-shadow: 0px 0px 10px  rgba(219, 36, 36, 1); */
 }
-.minseparator {
-    position: absolute;
-    left: 60px;
-    pointer-events: none;
-    background: rgba(157, 82, 219, 0);
-
-    font-size: 20px;
-    font-kerning: 'none';
-    text-align: 'justify';
-    /* width: 30%; */
-    height: 23px;
-  
-}
-  .MinuteLabel {
-  position: absolute;
-  left: 37px;
-  pointer-events: none;
-  background: rgba(157, 82, 219, 0);
-  
-  font-size: 20px;
-  font-kerning: 'none';
-  text-align: 'justify';
-  width: 30%;
-  height: 23px;
-
-  /* height: 'auto'; */
-  /* margin: auto; */
-}
-  .SecondLabel {
-  position: absolute;
-  left: 65px;
-
-  pointer-events: none;
-  background: rgba(157, 82, 219, 0);
-  
-  font-size: 20px;
-  font-kerning: 'none';
-  text-align: 'justify';
-  width: 30%;
-  height: 23px;
-  margin-right: 8px;
-
-  /* height: 'auto'; */
-  /* margin: auto; */
-}
-  .Highlighted {
-    color: rgba(220, 223, 93, 0.966);
-    text-shadow: 0px 0px 10px  rgba(219, 36, 36, 1);
-  }
-  .Greyedout {
+.Greyedout {
     color: var(--color);
   }
   

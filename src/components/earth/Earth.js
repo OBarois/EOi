@@ -93,6 +93,10 @@ function Earth({ id, alt }) {
     }, [satellites]);
     
     useEffect(() => {
+        console.log("eww changed")
+    }, [eww]);
+    
+    useEffect(() => {
         console.log("world created"+' / '+position.clat+' / '+position.clon+' / '+altitude)
         setTimeout(() => {
             moveTo(position.clat, position.clon, altitude) 

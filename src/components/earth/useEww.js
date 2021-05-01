@@ -588,7 +588,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         // Define a min/max altitude limit
         eww.current.navigator.range = alt
         WorldWind.BasicWorldWindowController.prototype.applyLimits = function () {
-            eww.current.navigator.range = WorldWind.WWMath.clamp(eww.current.navigator.range, 2000, 300000000);
+            eww.current.navigator.range = WorldWind.WWMath.clamp(eww.current.navigator.range, 1, 300000000);
         }
 
         // define click/tap recognisers

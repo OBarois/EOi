@@ -1,6 +1,7 @@
 :root {
   --color: rgb(241, 21, 50);
-  --shadow: -0.1em -0.1em 0.12em  rgba(48, 16, 90, 0.884);
+  --colort: rgba(241, 21, 50, 0.24);
+  --shadow: 0.1em 0.1em 0.12em  rgba(48, 16, 90, 0.884);
 }
 
 
@@ -43,6 +44,20 @@
   margin: auto;
   z-index: 2;
 
+}
+.Debug {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  justify-content: left;  
+  text-align: left;
+  bottom: 100px;
+  left: 5px;
+  color: var(--color);
+  /* width: 100px; */
+  /* height: 30px; */
+  margin: auto;
+  z-index: 2;
 }
 
 
