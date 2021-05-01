@@ -2,7 +2,7 @@ import React, {useEffect, useState, useGlobal } from 'reactn';
 import './Earth.css'
 import { useEww } from "./useEww"
 import { useHotkeys } from 'react-hotkeys-hook'
-
+import FluidWorldWindowController from './FluidWorldWindowController'
 
 
 
@@ -12,6 +12,7 @@ function Earth({ id, alt }) {
 
     const [mapSettings, setMapSettings] = useGlobal('mapSettings')
     const [ position, setPosition] = useGlobal('position')
+    const [ altitude, setAltitude] = useGlobal('altitude')
     const [ viewDate, setViewDate] = useGlobal('viewDate')
     const [ satellites, setSatellites ] = useGlobal('satellites')
 
@@ -20,6 +21,7 @@ function Earth({ id, alt }) {
 
 
     const {
+        eww,
         ewwstate,
         moveTo,
         addGeojson,
@@ -35,7 +37,7 @@ function Earth({ id, alt }) {
         id: id,
         clat: position.clat,
         clon: position.clon,
-        alt: alt,
+        alt: altitude,
         starfield: mapSettings.starfield,
         atmosphere: mapSettings.atmosphere,
         background: mapSettings.background,
@@ -64,6 +66,9 @@ function Earth({ id, alt }) {
     // const toggleNames = () => setMapSettings((mapSettings)=>({...mapSettings, names:!mapSettings.names}))
     // const toggleBg = () => setMapSettings((mapSettings)=>({...mapSettings, background:Math.random()}))
 
+    useEffect(() => {
+        setAltitude(ewwstate.altitude)
+    },[ewwstate.altitude])
 
 
     useEffect(() => {
@@ -87,18 +92,45 @@ function Earth({ id, alt }) {
         setSat(satellites)
     }, [satellites]);
     
+    useEffect(() => {
+        console.log("eww changed")
+    }, [eww]);
+    
+    useEffect(() => {
+        console.log("world created"+' / '+position.clat+' / '+position.clon+' / '+altitude)
+        setTimeout(() => {
+            moveTo(position.clat, position.clon, altitude) 
+        }, 1000)
+
+    }, []);
+    
 
 
     let globeStyle = {
         background: 'black',
         position: "fixed",
         left: 0,
+        top: 10,
         width: '100%',
         height: '100%'
     };
+
+    let globeControllerStyle = {
+        background: 'red',
+        position: "fixed",
+        left: '100px',
+        bottom:'100px',
+        width: '100%',
+        height: '200px',
+    };
+
         
     return (
-            <canvas id={id} style={globeStyle} />
+        <div>
+            <canvas className={'Earth'} id={id} />
+            {/* <canvas id={id} style={globeStyle} /> */}
+            <FluidWorldWindowController world={eww}/>
+        </div>
     );
 }
 

@@ -3,7 +3,7 @@ import WorldWind from "webworldwind-esa";
 import StarFieldLayer from "./wwwxx/layer/starfield/StarFieldLayer" // import a custom one as the base url is not set when using wwwx
 // import TexturedSurfacePolygon from './wwwx/shapes/TexturedSurfacePolygon'
 import wwwx from "webworldwind-x";
-import modelsLayer from './satelliteLayer';
+// import modelsLayer from './satelliteLayer';
 import satelliteLayers from './satelliteLayers';
 
 import {bgLayers, ovLayers} from './layerConfig';
@@ -46,6 +46,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     
   
     const eww = useRef(null)
+   
     const [projection, setProjection] = useState("3D")
     // const [aoi, setAoi] = useState({type: null, value: null})
     const [aoi, setAoi] = useState('')
@@ -86,7 +87,10 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     //toggle model
     function toggleModel(bool) {
         console.log('toggleModel: '+bool)
-        getLayerByName('Model').enabled = (bool!= null)?bool:!getLayerByName('Model').enabled
+        for (let l = 0; l < satelliteLayers.length; l++) {
+            satelliteLayers[l].enabled = (bool!= null)?bool:!satelliteLayers[l].enabled
+        }
+        // getLayerByName('Model').enabled = (bool!= null)?bool:!getLayerByName('Model').enabled
         eww.current.redraw();
     }
 
@@ -433,11 +437,14 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
      }
 
      function moveTo(clat, clon, alt) {
-        setTimeout(() => {
+        // setTimeout(() => {
+            console.log('nav: '+eww.current.navigator.range+'  alt: '+alt)
             eww.current.goToAnimator.travelTime = 1000;
-            eww.current.goTo(new WorldWind.Position(clat, clon, alt));
+            eww.current.goTo(new WorldWind.Position(clat, clon));
+            eww.current.navigator.range = alt;
+            eww.current.navigator.camera.applyLimits()
             eww.current.redraw();
-            }, 2000)
+            // }, 1000)
         }
 
 
@@ -486,7 +493,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     // handler for tap/click
 
     const handleClick  = (recognizer) => {
-        console.log('click')
+        // console.log('click')
         let x = recognizer.clientX
         let y = recognizer.clientY
         // Perform the pick. Must first convert from window coordinates to canvas coordinates, which are
@@ -579,8 +586,9 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         eww.current.redrawCallbacks.push(setGlobeStates)
 
         // Define a min/max altitude limit
+        eww.current.navigator.range = alt
         WorldWind.BasicWorldWindowController.prototype.applyLimits = function () {
-            eww.current.navigator.range = WorldWind.WWMath.clamp(eww.current.navigator.range, 2000, 300000000);
+            eww.current.navigator.range = WorldWind.WWMath.clamp(eww.current.navigator.range, 1, 300000000);
         }
 
         // define click/tap recognisers
@@ -622,7 +630,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         //atmosphereLayer.minActiveAltitude = 5000000
 
         let quicklookLayer = new WorldWind.RenderableLayer('Quicklooks')
-        console.log(satelliteLayers)
+        // console.log(satelliteLayers)
     
         let layers = [
             // { layer: new WorldWind.WmsLayer(wmsConfigBg_s2, ""), enabled: true },
@@ -630,8 +638,8 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
             // { layer: new WorldWind.WmsLayer(wmsConfigNames, ""), enabled: names },
             { layer: starFieldLayer, enabled: starfield },
             { layer: atmosphereLayer, enabled: atmosphere },
-            { layer: quicklookLayer, enabled: true },
-            { layer: modelsLayer, enabled: satellites }
+            { layer: quicklookLayer, enabled: true }
+            // { layer: modelsLayer, enabled: satellites }
         ];
     
         for (let l = 0; l < bgLayers.length; l++) {
@@ -659,7 +667,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         //let date = new Date();
         starFieldLayer.time = new Date();
         atmosphereLayer.time = new Date();
-        moveTo(clat, clon, alt) 
+        // moveTo(clat, clon, alt) 
         // setTimeout(() => {
         //     eww.current.goToAnimator.travelTime = 1000;
         //     eww.current.goTo(new WorldWind.Position(clat, clon, alt));
@@ -714,5 +722,5 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         toggleDem(dem)
     }, [dem]); 
 
-  return { ewwstate, moveTo, removeGeojson, addGeojson, addWMS, toggleStarfield, toggleAtmosphere, setTime, toggleProjection, toggleNames, toggleModel, toggleBg, toggleOv, toggleDem, northUp };
+  return { eww, ewwstate, moveTo, removeGeojson, addGeojson, addWMS, toggleStarfield, toggleAtmosphere, setTime, toggleProjection, toggleNames, toggleModel, toggleBg, toggleOv, toggleDem, northUp };
 }

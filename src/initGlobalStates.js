@@ -2,7 +2,7 @@ import { setGlobal } from 'reactn';
 
 
 export  function initGlobalStates() {
-    console.log("init global: "+(new Date()).getTime())
+    console.log("init global: "+(new Date()))
 
     // Set current time as global state
     // setGlobal({appdate: ((new Date()).getTime())})
@@ -17,11 +17,12 @@ export  function initGlobalStates() {
 
     setGlobal({
         mission: 'S1',
-        satellites: false,
-        appColor: '#222222',
+        altitude: '5000000',
+        satellites: true,
+        appColor: '#ebd1d1',
         position: {
             clon:'0.5',
-            clat:'40' 
+            clat:'45' 
         },
         viewDate: new Date(),
         mapSettings: {
