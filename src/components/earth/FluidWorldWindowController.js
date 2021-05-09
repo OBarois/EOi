@@ -1,8 +1,8 @@
-import React, {useState, useEffect, useRef} from 'react'
+import React, {useState, useEffect, useRef, memo} from 'react'
 import WorldWind from 'webworldwind-esa';
 import { useGesture, useDrag } from 'react-use-gesture'
 import {useSpring, config, animated} from 'react-spring'
-// import { sub, scale } from 'vec-la'
+import { add, sub, scale } from 'vec-la'
 import './Earth.css'
 import LogPanel from '../logpanel';
 
@@ -11,17 +11,25 @@ import LogPanel from '../logpanel';
 //      set limits to the navigator.camera
 
 
-export default function FluidWorldWindowController({world}) {
+export const FluidWorldWindowController = memo( ({world}) => {
 
-
+    const controllerRef = useRef()
+    const MAX_ALT = 100000000
+    const EYE_ALT = 2
     // to detect double taps
     const lastTap = useRef()
     const doubleTap = useRef()
     const button = useRef()
     const clicktimeout = useRef()
+    const tilttimeout = useRef()
+    const dragtimeout = useRef()
 
     //
-    const pointerLocation = useRef()
+    const gesturestartposition = useRef()
+    // const [dragenabled, setdragenabled] = useState(true)
+    const dragenabled = useRef(true)
+    const rotationmode = useRef(false)
+    const pinchmode = useRef('undefined')
     const [logitems,setlogitems] = useState({})
 
     // debug snippet
@@ -44,67 +52,141 @@ export default function FluidWorldWindowController({world}) {
     }    
     // end debug snippet  
     
-    
     const detectDoubleTap = (e) => {
-        const now = Date.now();
         button.current = e.button
-        if (lastTap.current && (now - lastTap.current) < 300) {
+        if (lastTap.current && (e.timeStamp - lastTap.current) < 300) {
             doubleTap.current = true
         } else {
-            lastTap.current = now
+            lastTap.current = e.timeStamp
             doubleTap.current = false
         }
     }
 
 
-    const [{ posxy_drag}, setyOnDrag] = useSpring(() => ({ posxy_drag: [0,0]  }))
-    // const [{ y }, api] = useSpring(() => ({ y: 0 }))
-
-    
-
     const bind = useGesture({
-        onDrag: ({  event, xy, previous, first, down, initial, delta, movement, offset, velocity, direction, tap}) => {
+        onDrag: ({  event, xy, vxvy, previous, first, down, initial, delta, movement, offset, velocity, direction, tap, scrolling, touches, pinching, origin}) => {
 
             if(first) {
+
+                gesturestartposition.current = positionAtPickPoint(xy[0],xy[1])
+                // logdebug({startlat: gesturestartposition.current.latitude})
+                // logdebug({startlon: gesturestartposition.current.longitude})
+                if(!gesturestartposition.current) {
+                    gesturestartposition.current = positionAtPickPoint(world.current.canvas.clientWidth/2,world.current.canvas.clientHeight/2)
+                }
+
+
                 detectDoubleTap(event)
+                if(doubleTap.current) clearTimeout(clicktimeout.current)
+                // console.log('double:'+doubleTap.current+' tap: '+tap)
             }
 
             switch (true) {
-                case (doubleTap.current && tap): {
-                    console.log("north up")
-                    clearTimeout(clicktimeout.current)
-                    break
-                }
-                case (!doubleTap.current && tap && button.current == 0):  
+
+                // case (touches === 2):
+                //     // 2 finger tap: tilt
+                //     handletilt(down, delta, false, first, vxvy)
+                //     // tilttimeout.current = setTimeout(() => {
+                //     //     handletilt(down, delta, false, first)
+                //     // }, 300);                
+                //     break
+
+
+                case (!doubleTap.current && tap):  
+                    // simple click or tap
                     clicktimeout.current = setTimeout(() => {
                         console.log("simple click")
-                      }, 300);
+                    }, 300);
                     break
-                case (!doubleTap.current && !tap && button.current == 0):
-                    // should cancel animations here
+                case (doubleTap.current && tap): {
+                    clearTimeout(clicktimeout.current)
+
+                    // double click or tap
+                    console.log("double click")
+                    northUp()
+                    break
+                }
+                case ((!doubleTap.current && !tap) && button.current != 2 && touches !=2  ):
+                    // Pan
+                    // console.log('pan')
+                    if(!dragenabled.current) return
                     zoomspring.stop()
-                    console.log("pan")
+                    pinchzoomspring.stop()
+                    pinchrotatespring.stop()
+                    pinchtiltspring.stop()
+                    if (world.current.globe.is2D()) {
+                        handlepan2d(event,initial,down,delta,offset,movement,velocity, direction, xy, previous,first,scrolling)
+                    } else {
+                        handlepan3d(event,initial,down,delta,offset,vxvy,velocity, direction, xy, previous,first,scrolling,touches,pinching)
+                    }
                     break
                 case (doubleTap.current && !tap):
-                    // console.log("zoom")
-                    zoom(initial,down,delta,offset,movement,velocity, direction, xy, previous,first)
+                    // zoom
+                    zoomspring.stop()
+                    handlezoom(event,initial,down,delta,offset,movement,velocity, direction, xy, previous,first,scrolling)
                     break
 
                 case (!doubleTap.current && !tap && button.current == 2):
-                    console.log("tilt")
+                    // right click button: tilt and rotate
+                    handletilt(down, delta, true)
                     break
-
+    
+        
                 default:
                 console.log("default ")
 
             }
 
         },
-        onWheel: ({}) => {
-            console.log('zoom')
+        onDragend: () => {
+            console.log('drag end')
+        },
+        onWheel: ({event, xy, previous, first, down, initial, delta, movement, offset, velocity, direction, tap, scrolling}) => {
+            if(first) {
+                gesturestartposition.current = positionAtPickPoint(event.clientX,event.clientY)
+            }
+            delta[1] *= 0.1         
+            delta[0] *= 0.1         
+            handlezoom(event,initial,down,delta,offset,movement,velocity, direction, xy, previous,first,scrolling)
+        },
+        onPinchStart: (origin)=>{
+            dragenabled.current = false
+            panspring.stop()
+            zoomspring.stop()
+            pinchzoomspring.stop()
+            pinchrotatespring.stop()
+            pinchtiltspring.stop()
+            // memo.lastY = origin[1]
+            // gesturestartposition.current = positionAtPickPoint(origin[0],origin[1])
+            pinchmode.current = 'undefined'
+
+            tilttimeout.current = setTimeout(() => {
+                pinchmode.current = 'tilt'
+                }, 300);        
+                
+        },
+        onPinch: ({event, da, vdva, origin, pinching, delta, first, initial, direction, previous, memo = {lastY:0} }, velocity) => {
+            handlepinch(event, da, vdva, origin, pinching, delta, first, initial, direction, previous, memo, velocity)
+            memo.lastY = origin[1]
+            return memo
+        },
+        onPinchEnd: () => { 
+            dragtimeout.current = setTimeout(() => {
+                dragenabled.current = true
+                // logdebug({drag: (dragenabled.current)?'true':'false'})
+                }, 300);
+            pinchmode.current = 'undefined'
+            
+            //    console.log('pinch end')
         }
     },
-    {reset: false, drag: {useTouch: true}, filterTaps: true }
+    // {reset: false, drag: {useTouch: true}, filterTaps: true }
+    {
+        domTarget: controllerRef,
+        drag: {useTouch: true},
+        pinch: {useTouch: true},
+        eventOptions: {passive: false}
+    }
     )
 
     const normalize = (val,min,max)=> {
@@ -112,106 +194,360 @@ export default function FluidWorldWindowController({world}) {
         return (val - min) / delta
     }
 
-    const [{ scale }, zoomspring] = useSpring(() => ({ scale: 1 }))
-    const zoom = (initial,down,delta,offset,movement,velocity, direction, xy, previous,first) => {
+    // north up
+    // todo: spring ?
+    function northUp() {
+        let headingIncrement = world.current.navigator.heading / -20;
+        let runOperation = () => {
+            if (Math.abs(world.current.navigator.heading) > Math.abs(headingIncrement)) {
+                world.current.navigator.heading += headingIncrement;
+                setTimeout(runOperation, 10);
+            } else {
+                world.current.navigator.heading = 0;
+                rotationmode.current = false
+            }
+            world.current.redraw();
+        };
+        setTimeout(runOperation, 10);
+    }
 
-        if(first) {
-            console.log('first')
-            console.log(locationAtPickPoint(xy[0], xy[1]))
+    // pinching
+    const handlepinch = (event, da, vdva, origin, pinching, delta, first, initial, direction, previous, memo, velocity) => {
 
-            pointerLocation.current = locationAtPickPoint(xy[0], xy[1])
+        if(pinchmode.current === 'undefined' && !first) {
+            pinchmode.current = (Math.abs(direction[0]) > Math.abs(direction[1]))?'zoom':'rotation'
+            clearTimeout(tilttimeout.current)    
         }
 
-        zoomspring.start({
-            to: {scale: 1-delta[1]/250},
+        switch (pinchmode.current) {
+
+            case 'tilt':
+                handlepinchtilt(pinching, delta, origin, initial, memo)
+                break
+
+            case 'zoom':
+                // handlezoomrotate(pinching,delta)
+                handlepinchzoom(pinching,delta,vdva)
+                break
+
+            case 'rotation':
+                handlepinchrotate(pinching,delta,vdva)
+                break
+
+            default:
+                break
+        }
+
+    }
+
+    const [{ pinchtiltvalue }, pinchtiltspring] = useSpring(() => ({ pinchtiltvalue: [0,0] }))
+    const handlepinchtilt = (pinching, delta, origin, initial, memo ) => {
+        pinchtiltspring.start({
+            // pinchtiltvalue: delta,
+            pinchtiltvalue: sub(origin,[0,memo.lastY]),
+            immediate: pinching,
+            // config: config.stiff,
+            config: { mass: 1, tension: 100, friction: 40 },
+            onChange: ()=>{
+                let tiltfactor = (pinching)?0.5:0.2
+                world.current.navigator.tilt -= pinchtiltvalue.get()[1] * tiltfactor
+                applyLimits()
+                world.current.redraw()
+
+            }
+        })
+    }
+
+
+
+    const [{ pinchzoomrotatevalue }, pinchzoomrotatespring] = useSpring(() => ({ pinchzoomrotatevalue: [0,0] }))
+    const handlezoomrotate = (pinching,delta) => {
+        pinchzoomrotatespring.start({
+            pinchzoomrotatevalue: delta,
+            immediate: pinching,
+            // config: config.stiff,
+            config: {...config.molasses},
+            // config: { mass: 1, tension: 100, friction: 40, duration: 200 },
+            onChange: ()=>{
+                    moveZoom(gesturestartposition.current,1-pinchzoomrotatevalue.get()[0]/300 )
+                    world.current.navigator.range *= 1-pinchzoomrotatevalue.get()[0]/300 
+                    // logdebug({angle: pinchzoomrotatevalue.get()[1]})
+                    // logdebug({dist: pinchzoomrotatevalue.get()[0]})
+                    
+                    world.current.navigator.heading -= pinchzoomrotatevalue.get()[1]
+                    // world.current.navigator.heading -= hpinchval.get()  
+                    applyLimits()
+
+                    world.current.redraw()
+
+            }
+        })        
+    }
+
+    const [{ pinchzoomvalue }, pinchzoomspring] = useSpring(() => ({ pinchzoomvalue: 0 }))
+    const handlepinchzoom = (pinching,delta,vdva) => {
+        let enabler = 1
+        if (!pinching) enabler = (Math.abs(vdva[0]) < 0.2)?0:1
+        pinchzoomspring.start({
+            pinchzoomvalue: delta[0],
+            immediate: pinching,
+            // config: config.stiff,
+            config: {...config.molasses},
+            // config: { mass: 1, tension: 100, friction: 40, duration: 200 },
+            onChange: ()=>{
+                if(!pinching) pinchmode.current = 'undefined'
+
+                moveZoom(gesturestartposition.current,1-pinchzoomvalue.get()/300 )
+                world.current.navigator.range *= 1-pinchzoomvalue.get()/300 * enabler
+                // world.current.navigator.heading -= hpinchval.get()  
+                applyLimits()
+
+                world.current.redraw()
+
+            }
+        })        
+    }
+
+
+    const [{ pinchrotatevalue }, pinchrotatespring] = useSpring(() => ({ pinchrotatevalue: 0 }))
+    const handlepinchrotate = (pinching,delta,vdva) => {
+        let enabler = 1
+        if (!pinching) enabler = (Math.abs(vdva[1]) < 0.2)?0:1
+        pinchrotatespring.start({
+            pinchrotatevalue: delta[1],
+            immediate: pinching,
+            // config: config.stiff,
+            config: {...config.molasses},
+            // config: { mass: 1, tension: 100, friction: 40, duration: 200 },
+            onChange: ()=>{
+                    world.current.navigator.heading -= pinchrotatevalue.get() * enabler 
+                    if(world.current.navigator.heading !== 0) rotationmode.current = true
+                    applyLimits()
+
+                    world.current.redraw()
+
+            }
+        })
+    
+    }
+
+
+     // tilting
+    const [{ tiltvalue }, tiltspring] = useSpring(() => ({ tiltvalue: [0,0] }))
+
+    const handletilt = (down, delta, dorotation ) => {
+        tiltspring.start({
+            to: {tiltvalue: delta},
             immediate: down,
             // config: config.stiff,
             config: { mass: 1, tension: 100, friction: 40 },
-            onChange: (spring)=>{
-                    logdebug({movc: movement[1]})
-                    logdebug({delta: delta[1]})
-                    logdebug({x: initial[0]})
-                    logdebug({y: initial[1], scale: scale.get()})
-                    setlogitems({x: initial[0], y: initial[1],scale: spring.value.scale})
-                    setlogitems({scalec: spring.value.scale})
+            onChange: ()=>{
+                let tiltoffset = -90 * tiltvalue.get()[1]*2 / world.current.canvas.clientHeight
+                let headingoffset = -90 * tiltvalue.get()[0]*2 / world.current.canvas.clientWidth
+                // world.current.navigator.tilt += tiltvalue.get()[1]/8
+                world.current.navigator.tilt -= tiltoffset
+                if(dorotation) world.current.navigator.heading -= headingoffset
+                if(world.current.navigator.heading !== 0) rotationmode.current = true
+                applyLimits()
+                world.current.redraw()
 
-                    moveZoom(initial[0],initial[1],spring.value.scale)
-                    world.current.navigator.range *= spring.value.scale
+            }
+        })
+    }
+
+    // panning
+    const [{ panvalue }, panspring] = useSpring(() => ({ panvalue: [0,0] }))
+
+    const handlepan2d = (event,initial,down,delta,offset,movement,velocity, direction, xy, previous,first,wheeling) => {
+        let enabler = 1
+        if (!down) enabler = (velocity < 0.2)?0:1
+        let correction = (event.type === 'touchmove')?1:2.5
+        // logdebug({pinching: pinching})
+
+        panspring.start({
+            panvalue: delta,
+            // to: {panvalue: (down)?movement:add(movement,scale(movement,velocity))},
+            // to: {panvalue: (down)?movement:movement[1]+movement[1]*velocity*5},
+            immediate: down,
+            // config: config.stiff,
+            config: { mass: 1, tension: 150, friction: 80 },
+            onChange: ()=>{
+                let lookatxy = [world.current.canvas.clientWidth/2, world.current.canvas.clientHeight/2]
+                let nextlookatxy = sub(lookatxy,scale(panvalue.get(),correction*enabler))
+                let currentposition = positionAtPickPoint(lookatxy[0],lookatxy[1])
+                if(!currentposition) console.log('no currentpos !')
+                let nextposition = positionAtPickPoint(nextlookatxy[0],nextlookatxy[1])
+                if(!nextposition) console.log('no nextposition !')
+
+                let currentpoint = new WorldWind.Vec3(0,0,0)
+                let nextpoint = new WorldWind.Vec3(0,0,0)
+                if(!world.current.globe.computePointFromPosition(currentposition.latitude, currentposition.longitude, currentposition.altitude, currentpoint)) return
+                if(!world.current.globe.computePointFromPosition(nextposition.latitude, nextposition.longitude, nextposition.altitude, nextpoint)) return
+
+                let viewMatrix = WorldWind.Matrix.fromIdentity();
+                world.current.computeViewingTransform(null, viewMatrix)
+                viewMatrix.multiplyByTranslation(currentpoint[0] - nextpoint[0], currentpoint[1] - nextpoint[1], currentpoint[2] - nextpoint[2])
+
+                // Compute the globe point at the screen center from the perspective of the transformed navigator state.
+                var ray = world.current.rayThroughScreenPoint(world.current.canvasCoordinates(xy[0], xy[1]))
+
+                viewMatrix.extractEyePoint(ray.origin);
+                viewMatrix.extractForwardVector(ray.direction);
+
+                let origin = new WorldWind.Vec3(0, 0, 0);
+
+                if (!world.current.globe.intersectsLine(ray, origin)) {
+                    return;
+                }
+
+                // Convert the transformed modelview matrix to a set of navigator properties, then apply those
+                // properties to this navigator.
+                let params = viewMatrix.extractViewingParameters(origin, world.current.navigator.roll, world.current.globe, {});
+                world.current.navigator.lookAtLocation.copy(params.origin);
+                world.current.navigator.range = params.range;
+                world.current.navigator.heading = params.heading;
+                world.current.navigator.tilt = params.tilt;
+                world.current.navigator.roll = params.roll;
+                applyLimits();
+                world.current.redraw();
+
+
+            },
+            onRest: () => {
+                // logdebug({status: 'finsished: '})
+            }
+        })
+    }
+       
+
+    const handlepan3d = (event,initial,down,delta,offset,vxvy,velocity, direction, xy, previous,first,wheeling, touches,pinching) => {
+        try {
+            if(first){
+                // can crash the drag:
+                if(gesturestartposition.current.latitude>70 || gesturestartposition.current.latitude<-70 || world.current.navigator.heading > 2 ) {
+                    rotationmode.current = true
+                    console.log('rotation true')
+                }
+            }
+        } catch {
+            console.log('Position at start not detected')
+        }
+
+
+        let enabler = 1
+        if (!down) enabler = (velocity < 0.2)?0:1
+        let correction = (event.type === 'touchmove')?1:2.5
+        if(!down) correction *= 0.5
+
+        panspring.start({
+            panvalue: delta,
+            // to: {panvalue: (down)?movement:add(movement,scale(movement,velocity))},
+            // to: {panvalue: (down)?movement:movement[1]+movement[1]*velocity*5},
+            immediate: down,
+            // config: config.stiff,
+            config: { mass: 1, tension: 150, friction: 80 },
+            onChange: ()=>{
+                try{
+                    let lookatxy = [world.current.canvas.clientWidth/2, world.current.canvas.clientHeight/2]
+                    let nextlookatxy = sub(lookatxy,scale(panvalue.get(),correction*enabler))
+                    let currentposition = positionAtPickPoint(lookatxy[0],lookatxy[1])
+                    if(!currentposition) console.log('no currentpos !')
+                    let nextposition = positionAtPickPoint(nextlookatxy[0],nextlookatxy[1])
+                    if(!nextposition) console.log('no nextposition !')
+
+                    let currentpoint = new WorldWind.Vec3(0,0,0)
+                    let nextpoint = new WorldWind.Vec3(0,0,0)
+                    if(!world.current.globe.computePointFromPosition(currentposition.latitude, currentposition.longitude, currentposition.altitude, currentpoint)) return
+                    if(!world.current.globe.computePointFromPosition(nextposition.latitude, nextposition.longitude, nextposition.altitude, nextpoint)) return
+
+                    let rotationVector = new WorldWind.Vec3(0, 0, 0)
+                    let rotationAngle = computeRotationVectorAndAngle( nextpoint,currentpoint, rotationVector);
+                    // logdebug({delta: panvalue.get()[1]})
+
+                    if(nextposition && (nextposition.latitude > 80 || nextposition.latitude < -80) && rotationmode.current == false) {
+                        console.log('out')
+                        panspring.stop()
+                        return
+                    }
+                    rotateShpere(rotationVector, rotationAngle, nextpoint, nextposition)
+                    if(rotationmode.current == false) world.current.navigator.heading = 0
+                    world.current.redraw()
+                }
+                catch {
+                    console.log('probl !')
+                }
+            },
+            onRest: () => {
+                // logdebug({status: 'finsished: '})
+            }
+        })
+    }
+
+
+    // zooming
+    const [{ range }, zoomspring] = useSpring(() => ({ range: [1,0] }))
+    const handlezoom = (event,initial,down,delta,offset,movement,velocity, direction, xy, previous,first,scrolling) => {
+
+        let enabler = 1
+        if (!down) enabler = (velocity < 0.2)?0:1
+
+        zoomspring.start({
+            to: {range: [1-delta[1]/100,0]},
+            immediate: (down||scrolling),
+            // config: config.stiff,
+            config: { mass: 1, tension: 100, friction: 40 },
+            onChange: ()=>{
+                    // logdebug({rangefactor: spring.value.range})
+                    let rangefactor = (enabler === 0)?1:range.get()[0]
+                    moveZoom(gesturestartposition.current,rangefactor)
+                    world.current.navigator.range *= rangefactor
+                    applyLimits()
+
                     world.current.redraw()
 
             },
             onRest: () => {
-                logdebug({status: 'finsished: '+world.current.navigator.range})
+                // logdebug({status: 'finsished: '+world.current.navigator.range})
             }
         })
 
     }
-    const moveZoom = function (x, y, amount) {
-        var lookAtLocation = world.current.navigator.lookAtLocation;
-        pointerLocation.current = locationAtPickPoint(x, y);
-        if (!pointerLocation.current) return
-        let intermediateLocation = WorldWind.Location.interpolateGreatCircle(
-            amount, 
-            pointerLocation.current,
-            lookAtLocation, 
-            new WorldWind.Location(0, 0)
+
+    const moveZoom = function (refposition, amount) {
+        if (!refposition || amount >= 1) return
+        let lookAtLocation = world.current.navigator.lookAtLocation;
+        let lookatAltitude = world.current.globe.elevationAtLocation(lookAtLocation.latitude, lookAtLocation.longitude)
+        let lookAtPosition = new WorldWind.Position(lookAtLocation.latitude, lookAtLocation.longitude, lookatAltitude)
+        let position
+        if(amount <1) {
+            position = WorldWind.Position.interpolateGreatCircle(
+                amount, 
+                refposition,
+                lookAtPosition, 
+                new WorldWind.Position(0, 0, 0)
+                )
+    
+        } 
+        else { // may be better to do nothing...
+            return
+            let intermediatePosition = WorldWind.Position.interpolateGreatCircle(
+                1/amount, 
+                refposition,
+                lookAtPosition, 
+                new WorldWind.Location(0, 0)
             )
+            let distanceRadians = WorldWind.Location.greatCircleDistance(lookAtPosition, intermediatePosition)
+            let greatCircleAzimuthDegrees = WorldWind.Location.greatCircleAzimuth(lookAtPosition, intermediatePosition)
+            let location =  WorldWind.Location.greatCircleLocation(lookAtPosition, greatCircleAzimuthDegrees ,
+                    distanceRadians, new WorldWind.Location(0, 0));
+            position = new WorldWind.Position(location.latitude, location.longitude, intermediatePosition.altitude)
+        }
 
-        var distanceRadians = WorldWind.Location.greatCircleDistance(lookAtLocation, intermediateLocation);
-
-        var greatCircleAzimuthDegrees = WorldWind.Location.greatCircleAzimuth(lookAtLocation, intermediateLocation);
-
-        var location = WorldWind.Location.greatCircleLocation(lookAtLocation, greatCircleAzimuthDegrees ,
-            distanceRadians, new WorldWind.Location(0, 0));
-        lookAtLocation.latitude = location.latitude;
-        lookAtLocation.longitude = location.longitude;
+        lookAtLocation.latitude = position.latitude;
+        lookAtLocation.longitude = position.longitude;
+        lookAtLocation.altitude = position.altitude;
     }
 
-    const moveZoom2 = function (x, y, amount) {
-        if (amount === 1) {
-            return;
-        }
-
-        pointerLocation.current = locationAtPickPoint(x, y);
-
-        if (!pointerLocation.current) {
-            console.log("outside globe!")
-            return;
-        }
-
-        var lookAtLocation = world.current.navigator.lookAtLocation;
-        var location;
-
-        if (amount < 1) {
-            // var distanceRemaining = Location.greatCircleDistance(lookAtLocation,
-            //     this.pointerLocation) * this.wwd.globe.equatorialRadius;
-
-            // if (distanceRemaining <= 50000) {
-            //     console.log("below")
-            //     location = this.pointerLocation;
-            // }
-            // else {
-            //     location = Location.interpolateGreatCircle(amount, this.pointerLocation,
-            //         lookAtLocation, new Location(0, 0));
-            // }
-            location = WorldWind.Location.interpolateGreatCircle(amount, pointerLocation.current,
-                lookAtLocation, new WorldWind.Location(0, 0));
-        }
-        else {
-            var intermediateLocation = WorldWind.Location.interpolateGreatCircle(1 / amount, pointerLocation.current,
-                lookAtLocation, new WorldWind.Location(0, 0));
-
-            var distanceRadians = WorldWind.Location.greatCircleDistance(lookAtLocation, intermediateLocation);
-
-            var greatCircleAzimuthDegrees = WorldWind.Location.greatCircleAzimuth(lookAtLocation, intermediateLocation);
-
-            location = WorldWind.Location.greatCircleLocation(lookAtLocation, greatCircleAzimuthDegrees - 180,
-                distanceRadians, new WorldWind.Location(0, 0));
-        }
-
-        lookAtLocation.latitude = location.latitude;
-        lookAtLocation.longitude = location.longitude;
-    };
 
     const locationAtPickPoint = (x, y) => {
         var coordinates = world.current.canvasCoordinates(x, y)
@@ -228,14 +564,113 @@ export default function FluidWorldWindowController({world}) {
         }
     };
 
+    
+    const positionAtPickPoint2 = (x, y) => {
+
+        // another way to do it (but no altitude):
+        let ray = world.current.rayThroughScreenPoint(world.current.canvasCoordinates(x, y))
+        let position = new WorldWind.Position(0,0,0)
+        let intersectpoint = [0,0,0]
+        if (world.current.globe.intersectsLine(ray, intersectpoint)) {
+            world.current.globe.computePositionFromPoint(intersectpoint[0], intersectpoint[1], intersectpoint[2], position)
+            return(position)
+        }
+        return null
+    }
+
+    const positionAtPickPoint = (x, y) => {
+
+        let coordinates = world.current.canvasCoordinates(x, y)
+        let pickList = world.current.pickTerrain(coordinates);
+
+        for (let i = 0; i < pickList.objects.length; i++) {
+            let pickedObject = pickList.objects[i];
+            if (pickedObject.isTerrain) {
+                let pickedPosition = pickedObject.position;
+                if (pickedPosition) {
+                    return new WorldWind.Position(pickedPosition.latitude, pickedPosition.longitude, pickedPosition.altitude);
+                }
+            }
+        }
+
+    };
+
+    const computeRotationVectorAndAngle = function (vec1, vec2, rotationVector) {
+        var angleRad = WorldWind.MeasurerUtils.angleBetweenVectors(vec1, vec2);
+        var angle = angleRad * WorldWind.Angle.RADIANS_TO_DEGREES;
+        rotationVector.copy(vec1);
+        rotationVector.cross(vec2);
+        rotationVector.normalize();
+        return angle;
+    };
+
+    const rotateShpere = function (rotationVector, angle, nextpoint, nextposition) {
+        if (!isFinite(angle) || !isFinite(rotationVector[0]) || !isFinite(rotationVector[1]) || !isFinite(rotationVector[2])) {
+            return false;
+        }
+
+        var wwd = world.current;
+        var navigator = wwd.navigator;
+        var viewMatrix = WorldWind.Matrix.fromIdentity();
+        var altitude = navigator.lookAtLocation.altitude;
+        var tilt = navigator.tilt;
+        var scratchRay = new WorldWind.Line(new WorldWind.Vec3(0, 0, 0), new WorldWind.Vec3(0, 0, 0));
+        
+        navigator.tilt = 0;
+        wwd.computeViewingTransform(null, viewMatrix);
+        viewMatrix.multiplyByRotation(rotationVector[0], rotationVector[1], rotationVector[2], angle);
+
+        viewMatrix.extractEyePoint(scratchRay.origin);
+        viewMatrix.extractForwardVector(scratchRay.direction);
+        if (!wwd.globe.intersectsLine(scratchRay, nextpoint)) {
+            navigator.tilt = tilt;
+            return false;
+        }
+
+        var params = viewMatrix.extractViewingParameters(nextpoint, navigator.roll, wwd.globe, {});
+        if (Math.abs(navigator.heading) < 5 && Math.abs(navigator.lookAtLocation.latitude < 70) && Math.abs(nextposition.latitude) < 70) {
+            navigator.heading = Math.round(params.heading);
+        }
+        else {
+            navigator.heading = params.heading;
+        }
+        navigator.lookAtLocation.copy(params.origin);
+        navigator.lookAtLocation.altitude = altitude;
+        navigator.tilt = tilt;
+
+        return true;
+    }
+
+
+    const applyLimits = () => {
+        let nav = world.current.navigator
+        nav.camera.applyLimits() // not sure if not done by default by www
+        nav.range = WorldWind.WWMath.clamp(
+            nav.range, 
+            world.current.globe.elevationAtLocation(nav.lookAtLocation.latitude, nav.lookAtLocation.longitude) + EYE_ALT, 
+            MAX_ALT 
+        )
+        // logdebug({
+        //     range: nav.range, 
+        //     lookAtlat: nav.lookAtLocation.latitude, 
+        //     lookAtlon: nav.lookAtLocation.longitude, 
+        //     lookAtalt: nav.lookAtLocation.altitude, 
+        //     clookAtalt: world.current.globe.elevationAtLocation(nav.lookAtLocation.latitude, nav.lookAtLocation.longitude),
+        //     // initlat: gesturestartposition.current.latitude,
+        //     // initlon: gesturestartposition.current.longitude,
+        // })
+    
+    }
+
     useEffect(() => {
+        // this prevents the browser from intercepting the right click
         window.addEventListener("contextmenu", e => e.preventDefault());
     },[])
 
 
     return (
         <div>
-            <div {...bind()} className={'EarthController'} ></div>
+            <div className={'EarthController'} ref={controllerRef}></div>
             {/* <div  className='Debug'>
                 {debugtext.current}
             </div> */}
@@ -248,4 +683,4 @@ export default function FluidWorldWindowController({world}) {
     )
 
     
-}
+})

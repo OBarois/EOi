@@ -45,14 +45,6 @@
   padding:0.03em 0.15em;
 }
 
-hi {
-  /* font-family: 'Monaco', Monospace; */
-  /* font-family: 'JetBrains Mono', monospace; */
-  font-size: 120%;
-
-  /* color: rgba(220, 223, 93, 0.966); */
-  /* text-shadow: 0px 0px 10px  rgba(219, 36, 36, 1); */
-}
 .Greyedout {
     color: var(--color);
   }

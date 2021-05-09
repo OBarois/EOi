@@ -43,6 +43,8 @@
     width: 60px;
     height: 100%;
     background: rgba(26, 70, 99, 0);
+    touch-action: none;
+
     /* mask-image: linear-gradient(to bottom, rgba(42, 177, 42, 0), rgba(0,0,0,1), rgba(48, 139, 151, 0));
     -webkit-mask-image: linear-gradient(to bottom, rgba(42, 177, 42, 0), rgba(0,0,0,1), rgba(48, 139, 151, 0)); */
 }

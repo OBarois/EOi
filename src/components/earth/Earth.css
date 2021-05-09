@@ -17,6 +17,6 @@
   /* background: rgb(26, 12, 224); */
   border-radius: 8px;
   z-index: 2;
-
+  touch-action: none;
 }
 

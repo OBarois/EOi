@@ -3,7 +3,7 @@ import {useSpring, animated} from 'react-spring'
 import { useGesture } from 'react-use-gesture'
 import "./controlpanel.css"
 // npm install --save-dev @iconify/react @iconify-icons/ic
-import { Icon, InlineIcon } from '@iconify/react';
+import { Icon } from '@iconify/react';
 // import baselineExplore from '@iconify-icons/ic/baseline-explore';
 import baselinePalette from '@iconify-icons/ic/baseline-palette';
 

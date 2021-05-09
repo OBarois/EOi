@@ -26,7 +26,7 @@ export  function initGlobalStates() {
         },
         viewDate: new Date(),
         mapSettings: {
-            atmosphere: true,
+            atmosphere: false,
             starfield: true,
             names: false,
             background: 1,

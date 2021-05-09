@@ -438,7 +438,6 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
 
      function moveTo(clat, clon, alt) {
         // setTimeout(() => {
-            console.log('nav: '+eww.current.navigator.range+'  alt: '+alt)
             eww.current.goToAnimator.travelTime = 1000;
             eww.current.goTo(new WorldWind.Position(clat, clon));
             eww.current.navigator.range = alt;
@@ -451,7 +450,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     function toggleProjection() {
         setProjection( prevProj => {
           console.log("prevProjection: "+prevProj)
-          let supportedProjections = [ "3D", "Equirectangular", "Mercator"];
+          let supportedProjections = [ "3D", "Equirectangular", "Mercator","North Polar","South Polar"];
           let newProj = (supportedProjections.indexOf(prevProj) + 1)%supportedProjections.length
           console.log("newProjection: "+supportedProjections[newProj])
           switch (supportedProjections[newProj]) {
@@ -583,40 +582,42 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
 
 
         eww.current = new WorldWind.WorldWindow(id);
+        // eww.current.worldWindowController = null;
         eww.current.redrawCallbacks.push(setGlobeStates)
 
         // Define a min/max altitude limit
         eww.current.navigator.range = alt
         WorldWind.BasicWorldWindowController.prototype.applyLimits = function () {
             eww.current.navigator.range = WorldWind.WWMath.clamp(eww.current.navigator.range, 1, 300000000);
+            console.log('limit')
         }
 
-        // define click/tap recognisers
+        // // define click/tap recognisers
 
-        let appDoubleClickRecognizer = new WorldWind.ClickRecognizer(eww.current, handleDoubleClick);
-        appDoubleClickRecognizer.numberOfClicks = 2;
-        appDoubleClickRecognizer.maxClickInterval = 200;
-        eww.current.worldWindowController.clickDownRecognizer.recognizeSimultaneouslyWith(appDoubleClickRecognizer);
+        // let appDoubleClickRecognizer = new WorldWind.ClickRecognizer(eww.current, handleDoubleClick);
+        // appDoubleClickRecognizer.numberOfClicks = 2;
+        // appDoubleClickRecognizer.maxClickInterval = 200;
+        // eww.current.worldWindowController.clickDownRecognizer.recognizeSimultaneouslyWith(appDoubleClickRecognizer);
         
-        // turning this block on will cause double drag to not be recognized anymore....
-        // let appClickRecognizer = new WorldWind.ClickRecognizer(eww.current, handleClick);
-        // appClickRecognizer.numberOfClicks = 1;
-        // eww.current.worldWindowController.clickDownRecognizer.recognizeSimultaneouslyWith(appClickRecognizer);
-        // appDoubleClickRecognizer.recognizeSimultaneouslyWith(appClickRecognizer);
-        // appClickRecognizer.requireRecognizerToFail(appDoubleClickRecognizer)
+        // // turning this block on will cause double drag to not be recognized anymore....
+        // // let appClickRecognizer = new WorldWind.ClickRecognizer(eww.current, handleClick);
+        // // appClickRecognizer.numberOfClicks = 1;
+        // // eww.current.worldWindowController.clickDownRecognizer.recognizeSimultaneouslyWith(appClickRecognizer);
+        // // appDoubleClickRecognizer.recognizeSimultaneouslyWith(appClickRecognizer);
+        // // appClickRecognizer.requireRecognizerToFail(appDoubleClickRecognizer)
 
 
-        let appDoubleTapRecognizer = new WorldWind.TapRecognizer(eww.current, handleDoubleClick);
-        appDoubleTapRecognizer.numberOfTaps = 2;
-        appDoubleTapRecognizer.name = 'double tap';
-        eww.current.worldWindowController.tapDownRecognizer.recognizeSimultaneouslyWith(appDoubleTapRecognizer);
+        // let appDoubleTapRecognizer = new WorldWind.TapRecognizer(eww.current, handleDoubleClick);
+        // appDoubleTapRecognizer.numberOfTaps = 2;
+        // appDoubleTapRecognizer.name = 'double tap';
+        // eww.current.worldWindowController.tapDownRecognizer.recognizeSimultaneouslyWith(appDoubleTapRecognizer);
 
-        // // next 2 lines: marche pas...
-        // eww.current.worldWindowController.panRecognizer.recognizeSimultaneouslyWith(appDoubleTapRecognizer);
-        // eww.current.worldWindowController.doublePanRecognizer.recognizeSimultaneouslyWith(appDoubleTapRecognizer);
+        // // // next 2 lines: marche pas...
+        // // eww.current.worldWindowController.panRecognizer.recognizeSimultaneouslyWith(appDoubleTapRecognizer);
+        // // eww.current.worldWindowController.doublePanRecognizer.recognizeSimultaneouslyWith(appDoubleTapRecognizer);
  
-        // tapRecognizer.recognizeSimultaneouslyWith(doubleTapRecognizer);
-        // doubleTapRecognizer.requireRecognizerToFail(tapRecognizer)
+        // // tapRecognizer.recognizeSimultaneouslyWith(doubleTapRecognizer);
+        // // doubleTapRecognizer.requireRecognizerToFail(tapRecognizer)
 
         
         WorldWind.configuration.baseUrl = window.location.href

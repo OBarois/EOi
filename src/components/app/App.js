@@ -46,7 +46,7 @@ function App() {
                 <AltitudeLabelContainer/>
                 <ControlPanel active="true" >
                     {/* <div class='logo'><img  src='./images/ESA_logo_2020_White.png' height="40" ></img></div> */}
-                    <div class='logo'><img  src='./images/EOi_logo.png' height="150" ></img></div>
+                    <div className='logo'><img alt='' src='./images/EOi_logo.png' height="150" ></img></div>
                 
                     <C_MissionSelector></C_MissionSelector>
                     <C_MapSelector ></C_MapSelector>

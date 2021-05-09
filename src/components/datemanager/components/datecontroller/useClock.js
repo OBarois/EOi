@@ -88,12 +88,12 @@ export function useClock({ autoStart, initdate }) {
 
      
     function forceDate(newdate) {
-        console.log('forcedate useclock: '+newdate.toJSON())
+        // console.log('forcedate useclock: '+newdate.toJSON())
         ldate.current = newdate.getTime()
     }
 
     useEffect(() => {
-        console.log('init start useclock '+initdate.toJSON())
+        // console.log('init start useclock '+initdate.toJSON())
         ldate.current = initdate.getTime()
     }, [initdate])
 
@@ -101,7 +101,7 @@ export function useClock({ autoStart, initdate }) {
 
     // didMount effect
     useEffect(() => {
-        console.log('render useclock')
+        // console.log('render useclock')
         // setDate((new Date()).getTime())
         ldate.current = new Date().getTime()
         if (autoStart) {

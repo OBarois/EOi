@@ -2,7 +2,7 @@ import React, {useEffect, useState, useGlobal } from 'reactn';
 import './Earth.css'
 import { useEww } from "./useEww"
 import { useHotkeys } from 'react-hotkeys-hook'
-import FluidWorldWindowController from './FluidWorldWindowController'
+import {FluidWorldWindowController} from './FluidWorldWindowController'
 
 
 
@@ -92,9 +92,7 @@ function Earth({ id, alt }) {
         setSat(satellites)
     }, [satellites]);
     
-    useEffect(() => {
-        console.log("eww changed")
-    }, [eww]);
+    
     
     useEffect(() => {
         console.log("world created"+' / '+position.clat+' / '+position.clon+' / '+altitude)

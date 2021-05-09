@@ -1,12 +1,9 @@
 import React, {useState, useEffect,useLayoutEffect, useRef} from 'react';
-import {useSpring, animated} from 'react-spring'
 import './DateSelector.css';
 
 function DateSelectorScale({date, zoomfactor}) {
 
     const scale = useRef()
-    const [opacity, setOpacity] = useState(1)    
-    const [active, setActive] = useState(false)    
     const [timescale, setTimescale] = useState('')    
     // const [zoom, setZoom] = useState(zoomfactor)    
 
@@ -25,9 +22,12 @@ function DateSelectorScale({date, zoomfactor}) {
         const MONTH_LEVEL = 1000*60*60*24*2
         const DAY5_LEVEL = 1000*60*60*8
         const DAY_LEVEL = 1000*60*70
+        const DAY_HOUR_LEVEL = 1000*60*30
         const HOUR3_LEVEL = 1000*60*7
         const HOUR_LEVEL = 1000*60*3
+        const MIN20_LEVEL = 1000*60
         const MIN10_LEVEL = 1000*40
+        const MIN2_LEVEL = 1000*4
         const MIN_LEVEL = 1000*2
 
         function pad(number, length) {  
@@ -70,9 +70,38 @@ function DateSelectorScale({date, zoomfactor}) {
                     }
                 break
 
+                case _zoom < MIN2_LEVEL:
+                    if(minute !== lastminute) {
+                        if( (minute !== 0 || hour !==0) && minute % 2 === 0) {
+                            tics.push({class:'HourTic', pos: i, label: pad(hour,2)+':'+pad(minute,2)})
+                        } else {
+                            if (minute === 0 && hour === 0) {
+                                tics.push({class:'DayTic_h', pos: i, label: pad(day,2)})
+                                tics.push({class:'MonthTic_h2', pos: i, label: monthcode[month]})
+                                //tics.push({class:'YearTic_h', pos: i, label: year})
+                            }     
+                        }
+                    }
+                break
+
+
                 case _zoom < MIN10_LEVEL:
                     if(minute !== lastminute) {
-                        if( (minute !== 0 || hour !=0) && minute % 10 === 0) {
+                        if( (minute !== 0 || hour !==0) && minute % 10 === 0) {
+                            tics.push({class:'HourTic', pos: i, label: pad(hour,2)+':'+pad(minute,2)})
+                        } else {
+                            if (minute === 0 && hour === 0) {
+                                tics.push({class:'DayTic_h', pos: i, label: pad(day,2)})
+                                tics.push({class:'MonthTic_h2', pos: i, label: monthcode[month]})
+                                //tics.push({class:'YearTic_h', pos: i, label: year})
+                            }     
+                        }
+                    }
+                break
+
+                case _zoom < MIN20_LEVEL:
+                    if(minute !== lastminute) {
+                        if( (minute !== 0 || hour !==0) && minute % 20 === 0) {
                             tics.push({class:'HourTic', pos: i, label: pad(hour,2)+':'+pad(minute,2)})
                         } else {
                             if (minute === 0 && hour === 0) {
@@ -111,6 +140,15 @@ function DateSelectorScale({date, zoomfactor}) {
                     }    
                 break
 
+                case _zoom < DAY_HOUR_LEVEL:
+                    if(day !== lastday) {
+                        tics.push({class:'DayTic_h', pos: i, label: pad(day,2)})
+                        tics.push({class:'MonthTic_h2', pos: i, label: monthcode[month]})
+
+                    }    
+                break
+
+
                 case _zoom < DAY_LEVEL:
                     if(day !== lastday) {
                         if ( day !== 1 ) {
@@ -129,7 +167,7 @@ function DateSelectorScale({date, zoomfactor}) {
                         if ( day !== 1 && day !== 30 && day % 5 === 0 ) {
                             tics.push({class:'DayTic', pos: i, label: day})
                         } else {
-                            if (day == 1) {
+                            if (day === 1) {
                                 // tics.push({class:'DayTic', pos: i, label: day})
                                 tics.push({class:'MonthTic_h', pos: i, label: monthcode[month]})
                                 if (month === 0) tics.push({class:'YearTic_h2', pos: i, label: year})
@@ -158,7 +196,7 @@ function DateSelectorScale({date, zoomfactor}) {
                         if (month !== 0 && month !== 11 && (month) % 3 === 0 ) {
                             tics.push({class:'MonthTic', pos: i, label: monthcode[month]})
                         } else {
-                            if (month == 0) {
+                            if (month === 0) {
                                 tics.push({class:'MonthTic_h', pos: i, label: monthcode[month]})
                                 tics.push({class:'YearTic_h2', pos: i, label: year})
                             }
@@ -189,7 +227,7 @@ function DateSelectorScale({date, zoomfactor}) {
             lastminute = minute
         }
       
-        return tics.map(item => ( <animated.div className={item.class} key={item.class+item.pos} style={{top:item.pos,opacity:opacity}}>{item.label}</animated.div>))
+        return tics.map(item => ( <div className={item.class} key={item.class+item.pos} style={{top:item.pos,opacity:1}}>{item.label}</div>))
     }
 
 
@@ -205,9 +243,9 @@ function DateSelectorScale({date, zoomfactor}) {
 
 
     return (
-        <animated.div ref={scale} className='DateSelectorScale' >
+        <div ref={scale} className='DateSelectorScale' >
             {timescale}
-        </animated.div>
+        </div>
     )
 }
 export default DateSelectorScale

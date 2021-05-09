@@ -6,12 +6,12 @@ function DateLabel({date, highlight, animated}) {
 
     return (
         <div className='LabelContainer' >
-            <hi className={highlight ==='year'?'Highlighted':''}>{date.getUTCFullYear()}</hi>-
-            <hi className={highlight ==='month'?'Highlighted':''}>{dateFormat(date,'UTC:mmm').toUpperCase()}</hi>-
-            <hi className={highlight ==='day'?'Highlighted':''}>{dateFormat(date,'UTC:dd')}</hi>&nbsp;/&nbsp;
-            <hi className={highlight ==='hour'?'Highlighted':''}>{dateFormat(date,'UTC:HH')}</hi>:
-            <hi className={highlight ==='minute'?'Highlighted':''}>{dateFormat(date,'UTC:MM')}</hi>:
-            <hi className={highlight ==='second'?'Highlighted':''}>{dateFormat(date,'UTC:ss')}</hi>  
+            <span className={highlight ==='year'?'Highlighted':''}>{date.getUTCFullYear()}</span>-
+            <span className={highlight ==='month'?'Highlighted':''}>{dateFormat(date,'UTC:mmm').toUpperCase()}</span>-
+            <span className={highlight ==='day'?'Highlighted':''}>{dateFormat(date,'UTC:dd')}</span>&nbsp;/&nbsp;
+            <span className={highlight ==='hour'?'Highlighted':''}>{dateFormat(date,'UTC:HH')}</span>:
+            <span className={highlight ==='minute'?'Highlighted':''}>{dateFormat(date,'UTC:MM')}</span>:
+            <span className={highlight ==='second'?'Highlighted':''}>{dateFormat(date,'UTC:ss')}</span>  
         </div>
     )
 }

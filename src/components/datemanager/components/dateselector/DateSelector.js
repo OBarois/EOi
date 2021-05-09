@@ -1,9 +1,9 @@
 import React, {useState, useEffect, useRef} from 'react'
 import {useSpring, animated} from 'react-spring'
-import { useGesture, useDrag } from 'react-use-gesture'
-import { add, scale } from 'vec-la'
+import { useGesture } from 'react-use-gesture'
+// import { add, scale } from 'vec-la'
 import DateSelectorScale from './DateSelectorScale'
-import useLog from '../../../../hooks/useLog.js';
+// import useLog from '../../../../hooks/useLog.js';
 
 
 
@@ -41,9 +41,7 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
     const button = useRef()
 
     const startingdate = useRef(startdate)
-    const runningdate = useRef(startdate)
     const discreetdate = useRef(startdate)
-    const lastPos = useRef(0)
 
     const detectDoubleTap = (e) => {
         const now = Date.now();
@@ -57,56 +55,87 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
     }
 
 
-    const [{ posxy_drag}, setyOnDrag] = useSpring(() => ({ posxy_drag: [0,0]  }))
     const [{ xy2 }, sety2] = useSpring(() => ({ xy2: [0,0] }))
     const [{ posy_wheel }, setyOnWheel] = useSpring(() => ({posy_wheel: 0 }))
-    // const [{ zoom }, setz] = useSpring(() => ({ zoom: DEFZOOM }))
+    const [{ zoom }, springzoom] = useSpring(() => ({ zoom: 0 }))
 
     const [{ test }, springtest] = useSpring(() => ({ test: 0 }))
-    const [{ y }, springtest2] = useSpring(() => ({ y: 0 }))
     
     const bind = useGesture({
 
-        onDragEnd: () => { // sert a rien!
+        onDragEnd: () => { 
             // setstatus(false)
+            onFinalDateChange(discreetdate.current)
 
                 // lastZoom.current = zoomfactor
         },
 
-        // va trop vite !!
-        onWheel: ( {active, delta, first, down, direction, velocity, xy, movement, memo = posy_wheel.get() } ) => {
+        onWheel: ( {active, delta, first, down, direction, velocity, xy, movement, scrolling, ctrlKey } ) => {
             // console.log(down)
             // console.log(first)
-            setstatus(active)
-            setyOnWheel.start({                 
-                posy_wheel: movement[1]/2 + lastPos.current, 
-                immediate: true, 
-                config: { mass: 1, tension: 100, friction: 80, precision:0.1 },
-                onChange: ()=>{
-                    console.log('y / posy / movement / memo:  '+xy[1]+'/ '+posy_wheel.get()+'/ '+movement[1]+'/ '+lastPos.current)
-                    if (!first) {
-                        // let newdate = new Date(lastStartdate.getTime() + Math.ceil(posy_wheel.getValue() * zoomfactor  / step) * step)
-                        let newdate = new Date(discreetdate.current.getTime() + Math.ceil(movement[1] * zoomfactor  / step[0]) * step[0]) 
-                        discreetdate.current = newdate
-                        onDateChange(newdate)
-                        }
-                        lastPos.current = posy_wheel.get()
+            
+            if (first) {
+                springtest.stop()
+            //   setstatus(true)
+              discreetdate.current = scaledate
+            }
 
-                    // setlLastStartdate(newdate)
+            if (ctrlKey) {
+                springzoom.start({
+                    zoom: delta[1],
+                    immediate: down,
+                    config: { mass: 1, tension: 100, friction: 25, precision: 0.1 },
+                    onChange: () => {
+                        let newzoom = lastZoom.current + lastZoom.current / 200 *  zoom.get() * ZOOMDIR
+                        // let newzoom = lastZoom.current + zoom.get() * ZOOMDIR *5000
+                        if (newzoom < MINZOOM) newzoom = MINZOOM
+                        if (newzoom > MAXZOOM) newzoom = MAXZOOM
+                        setZoomfactor(newzoom)
+                        lastZoom.current = newzoom
+        
+                    }
+                })
+                return
+            }
+
+            setyOnWheel.start({                 
+                posy_wheel: delta[1], 
+                immediate: scrolling, 
+                config: { mass: 1, tension: 100, friction: 25},
+                onChange: ()=>{
+                    setstatus(true)
+                    let newdate
+                    if(stepLabel==='month') {
+                        let nbstep = Math.ceil(posy_wheel.get() * zoomfactor  / step[0])
+                        // setlog({olddate:discreetdate.current.toJSON()})
+                        newdate = new Date(discreetdate.current.getTime())
+                        newdate.setUTCMonth( newdate.getUTCMonth()-nbstep )
+                        // setlog({newdate:discreetdate.current.toJSON()})
+                    } else {
+                        newdate = new Date(discreetdate.current.getTime() - Math.ceil(posy_wheel.get() * zoomfactor  / step[0]) * step[0]) 
+                    }
+                    discreetdate.current = newdate
+                    setScaledate(newdate)
+                    onDateChange(newdate)
                 },
                 onRest: ()=>{
-                    if (!down) {
-                        // setstatus(false)
-                        let newdate = new Date(discreetdate.current.getTime() + Math.ceil(posy_wheel.get() * zoomfactor  / step[0]) * step[0]) 
-                        onFinalDateChange(newdate)
-                        discreetdate.current = newdate
-                        setScaledate(newdate)
-                        onDateChange(newdate)
-                        lastPos.current=0
+                    if (!scrolling) {
+                        console.log('wheel finished  ')
+                        onFinalDateChange(discreetdate.current)
+                        setstatus(false)
+
                     }
+                    // if (!down) {
+                    //     // setstatus(false)
+                    //     let newdate = new Date(discreetdate.current.getTime() + Math.ceil(posy_wheel.get() * zoomfactor  / step[0]) * step[0]) 
+                    //     onFinalDateChange(newdate)
+                    //     discreetdate.current = newdate
+                    //     setScaledate(newdate)
+                    //     onDateChange(newdate)
+                    //     lastPos.current=0
+                    // }
                 }
             })
-        return memo
         },
 
 
@@ -114,14 +143,9 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
             setstatus(active)
 
             if (first) {
-                // setstatus(true)
-
-                // setstatus(active)
-                // handleDoubleTap()
+                setyOnWheel.stop()
                 detectDoubleTap(event)
-
-                // setlLastStartdate(scaledate)
-                startingdate.current = scaledate
+                startingdate.current = discreetdate.current
                 // setlog2({ startingdate: startingdate.current.toJSON()  })
 
    
@@ -130,13 +154,27 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
             // setlog2({velocity1: velocity})
             velocity = (velocity < 0.2)?0:velocity
 
-            if (doubleTap.current || shiftKey) {
-                let zoom = lastZoom.current + lastZoom.current / 50 *  delta[1] * ZOOMDIR
-                if (zoom < MINZOOM) zoom = MINZOOM
-                if (zoom > MAXZOOM) zoom = MAXZOOM
-                setZoomfactor(zoom)
-                // temp.xy = [0,0]
-                lastZoom.current = zoom
+            if (doubleTap.current || shiftKey || button.current === 2) {
+                // let zoom = lastZoom.current + lastZoom.current / 50 *  delta[1] * ZOOMDIR
+                // if (zoom < MINZOOM) zoom = MINZOOM
+                // if (zoom > MAXZOOM) zoom = MAXZOOM
+                // setZoomfactor(zoom)
+                // lastZoom.current = zoom
+
+                springzoom.start({
+                    zoom: delta[1],
+                    immediate: down,
+                    config: { mass: 1, tension: 100, friction: 25, precision: 0.1 },
+                    onChange: () => {
+                        let newzoom = lastZoom.current + lastZoom.current / 50 *  zoom.get() * ZOOMDIR
+                        if (newzoom < MINZOOM) newzoom = MINZOOM
+                        if (newzoom > MAXZOOM) newzoom = MAXZOOM
+                        setZoomfactor(newzoom)
+                        lastZoom.current = newzoom
+        
+                    }
+                })
+
                 // setlog({zoomfactor:zoomfactor})
                 // temp.lastdelta = delta
                 return
@@ -156,7 +194,7 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
                     setstatus(true)
                     // if(Math.floor(Math.abs(test.get()*zoomfactor   / step[0]))==0) test.stop()
 
-                    let even = (test.get()<0 ? Math.ceil:Math.floor)
+                    // let even = (test.get()<0 ? Math.ceil:Math.floor)
                         // setlog({anim:test.get(), velocity: velocity*5})
 
                         if(stepLabel==='month') {
@@ -181,9 +219,8 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
                     setScaledate(discreetdate.current)
                     onDateChange(discreetdate.current)
                 },
-                onRest: (spring) => {
+                onRest: () => {
                     if (!down) {
-                        console.log('res2t')
                         onFinalDateChange(discreetdate.current)
                         setstatus(false)
                     }
@@ -203,33 +240,42 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
 
 
     const moveToDate = (newdate) => {
-        // console.log('go to')
-        if (!status) {
-            let deltaoffset = [0,(discreetdate.current.getTime() - newdate.getTime())  / zoomfactor]
+        // console.log('go from: '+discreetdate.current.toJSON()+' to: '+newdate.toJSON())
+        let fromtime = discreetdate.current.getTime()
+        // sety2.stop()
+        // if (!status) {
+            let deltaoffset = [0,(fromtime - newdate.getTime())  / zoomfactor]
             
-            sety2({ 
-                xy2: deltaoffset,
+            sety2.start({ 
+                from: {xy2: [0,0]},
+                to: {xy2: deltaoffset},
                 immediate: false, 
-                config: {reset: false, config: {duration: 200} },
+                config: {reset: true, duration: 300 },
+                // config: { mass: 1, tension: 100, friction: 25, precision: 0.1 },
                 onChange: ()=>{
                     // setlog(({animgoto: xy2.get()[1]}))
-                    let adate = new Date(discreetdate.current.getTime() - xy2.get()[1] * zoomfactor)
-                    // discreetdate.current = adate
+                    // setstatus(true)
+
+                    let adate = new Date(fromtime - xy2.get()[1] * zoomfactor)
+                    // console.log('adate: '+adate.toJSON() )
+                    discreetdate.current = adate
                     setScaledate(adate)
                     onDateChange(adate)
                 },
-                onRest: (spring)=>{
-                //     // setActive(false)
-                    onFinalDateChange(discreetdate.current)
-                }
+                // onRest: ()=>{
+                //     // setstatus(false)
+                // console.log("rest move")
+                //     onFinalDateChange(discreetdate.current)
+                // }
             })
-        }
+        // }
 
     }
 
     useEffect(() => {
-        console.log('startdate changed')
+        // console.log('startdate changed')
         if(!status) {
+            // console.log(startdate.toJSON())
             moveToDate(startdate)
         }
     },[startdate])
