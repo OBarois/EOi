@@ -1,14 +1,21 @@
-import React, {  useGlobal } from 'reactn';
+import React, {  useEffect, useGlobal } from 'reactn';
 
 import DateManager from "../components/datemanager"
 
-function C_DateManager() {
+function DateManagerContainer() {
 
-    const [viewDate, setViewDate] = useGlobal('viewDate')
+    const [, setViewDate] = useGlobal('viewDate')
+    const [SearchDate, setSearchDate] = useGlobal('SearchDate')
+
+    useEffect(() => {
+        console.log('Searching: '+SearchDate)
+    }, [SearchDate]);
+
+
 
     return (
-        <DateManager onDateChange={setViewDate} onFinalDateChange={setViewDate} /> 
+        <DateManager onDateChange={setViewDate} onFinalDateChange={setSearchDate} /> 
      )
 }
 
-export default C_DateManager;
+export default DateManagerContainer;

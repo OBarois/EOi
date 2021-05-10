@@ -5,12 +5,12 @@ import './App.css'
 import Earth from '../earth'
 import { useHotkeys } from 'react-hotkeys-hook'
 import ControlPanel from "../controlpanel"
-import C_MissionSelector from "../../containers/MissionSelectorContainer"
-import C_MapSelector from "../../containers/MapSelectorContainer"
+import MissionSelectorContainer from "../../containers/MissionSelectorContainer"
+import MapSelectorContainer from "../../containers/MapSelectorContainer"
 import ColorSelectorContainer from "../../containers/ColorSelectorContainer"
 import AltitudeLabelContainer from "../../containers/AltitudeLabelContainer"
 
-import C_DateManager from '../../containers/DateManagerContainer'
+import DateManagerContainer from '../../containers/DateManagerContainer'
 import useFullscreen from "@rooks/use-fullscreen"
 
 
@@ -19,7 +19,7 @@ function App() {
     
 
     const [ mission,  ] = useGlobal('mission');
-    const [ mapSettings, ] = useGlobal('mapSettings')
+    // const [ mapSettings, ] = useGlobal('mapSettings')
 
     const container = useRef();
     const {
@@ -42,14 +42,14 @@ function App() {
              {/* <FullScreen handle={fshandle}> */}
                 <Earth id="globe" />
                 {/* <DateManager startdate={startdate} onDateChange={changeDate} onFinalDateChange={finalChangeDate} animated={searching}/> */}
-                <C_DateManager></C_DateManager>
+                <DateManagerContainer></DateManagerContainer>
                 <AltitudeLabelContainer/>
                 <ControlPanel active="true" >
                     {/* <div class='logo'><img  src='./images/ESA_logo_2020_White.png' height="40" ></img></div> */}
                     <div className='logo'><img alt='' src='./images/EOi_logo.png' height="150" ></img></div>
                 
-                    <C_MissionSelector></C_MissionSelector>
-                    <C_MapSelector ></C_MapSelector>
+                    <MissionSelectorContainer></MissionSelectorContainer>
+                    <MapSelectorContainer ></MapSelectorContainer>
                     <ColorSelectorContainer></ColorSelectorContainer>
                 </ControlPanel>
                 <div className='MissionLabel'>{mission}</div>

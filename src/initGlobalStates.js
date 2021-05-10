@@ -25,6 +25,7 @@ export  function initGlobalStates() {
             clat:'45' 
         },
         viewDate: new Date(),
+        searchDate: new Date(),
         mapSettings: {
             atmosphere: false,
             starfield: true,

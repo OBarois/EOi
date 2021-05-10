@@ -2,7 +2,7 @@ import React, {  useGlobal } from 'reactn';
 
 import MissionSelector from "../components/missionselector"
 
-function C_MissionSelector() {
+function MissionSelectorContainer() {
 
     const [mission, setMission] = useGlobal('mission')
 
@@ -11,4 +11,4 @@ function C_MissionSelector() {
      )
 }
 
-export default C_MissionSelector;
+export default MissionSelectorContainer;

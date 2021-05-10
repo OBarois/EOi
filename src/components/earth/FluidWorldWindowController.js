@@ -215,7 +215,7 @@ export const FluidWorldWindowController = memo( ({world}) => {
     const handlepinch = (event, da, vdva, origin, pinching, delta, first, initial, direction, previous, memo, velocity) => {
 
         if(pinchmode.current === 'undefined' && !first) {
-            pinchmode.current = (Math.abs(direction[0]) > Math.abs(direction[1]))?'zoom':'rotation'
+            pinchmode.current = (Math.abs(direction[0]) > Math.abs(direction[1]*1.2))?'zoom':'rotation'
             clearTimeout(tilttimeout.current)    
         }
 
@@ -249,8 +249,10 @@ export const FluidWorldWindowController = memo( ({world}) => {
             // config: config.stiff,
             config: { mass: 1, tension: 100, friction: 40 },
             onChange: ()=>{
-                let tiltfactor = (pinching)?0.5:0.2
-                world.current.navigator.tilt -= pinchtiltvalue.get()[1] * tiltfactor
+                let enabler = 1
+                // if (!pinching) enabler = (pinchtiltvalue.get()[1] < 0.2)?0:1
+                let tiltfactor = (pinching)?0.5:0.2 
+                world.current.navigator.tilt -= pinchtiltvalue.get()[1] * tiltfactor * enabler
                 applyLimits()
                 world.current.redraw()
 
@@ -292,13 +294,13 @@ export const FluidWorldWindowController = memo( ({world}) => {
             pinchzoomvalue: delta[0],
             immediate: pinching,
             // config: config.stiff,
-            config: {...config.molasses},
-            // config: { mass: 1, tension: 100, friction: 40, duration: 200 },
+            // config: {...config.molasses},
+            config: { mass: 1, tension: 100, friction: 40 },
             onChange: ()=>{
                 if(!pinching) pinchmode.current = 'undefined'
-
-                moveZoom(gesturestartposition.current,1-pinchzoomvalue.get()/300 )
-                world.current.navigator.range *= 1-pinchzoomvalue.get()/300 * enabler
+                let rangefactor = 1-pinchzoomvalue.get()/300 * enabler
+                moveZoom(gesturestartposition.current,rangefactor)
+                world.current.navigator.range *= rangefactor
                 // world.current.navigator.heading -= hpinchval.get()  
                 applyLimits()
 
@@ -317,7 +319,7 @@ export const FluidWorldWindowController = memo( ({world}) => {
             pinchrotatevalue: delta[1],
             immediate: pinching,
             // config: config.stiff,
-            config: {...config.molasses},
+            config: { mass: 1, tension: 100, friction: 40 },
             // config: { mass: 1, tension: 100, friction: 40, duration: 200 },
             onChange: ()=>{
                     world.current.navigator.heading -= pinchrotatevalue.get() * enabler 
@@ -336,6 +338,8 @@ export const FluidWorldWindowController = memo( ({world}) => {
     const [{ tiltvalue }, tiltspring] = useSpring(() => ({ tiltvalue: [0,0] }))
 
     const handletilt = (down, delta, dorotation ) => {
+        // let enabler = 1
+        // if (!pinching) enabler = (Math.abs(vdva[1]) < 0.2)?0:1
         tiltspring.start({
             to: {tiltvalue: delta},
             immediate: down,
@@ -345,9 +349,11 @@ export const FluidWorldWindowController = memo( ({world}) => {
                 let tiltoffset = -90 * tiltvalue.get()[1]*2 / world.current.canvas.clientHeight
                 let headingoffset = -90 * tiltvalue.get()[0]*2 / world.current.canvas.clientWidth
                 // world.current.navigator.tilt += tiltvalue.get()[1]/8
-                world.current.navigator.tilt -= tiltoffset
-                if(dorotation) world.current.navigator.heading -= headingoffset
-                if(world.current.navigator.heading !== 0) rotationmode.current = true
+                world.current.navigator.tilt -= tiltoffset 
+                if(dorotation) {
+                    world.current.navigator.heading -= headingoffset
+                    if(world.current.navigator.heading !== 0) rotationmode.current = true
+                }
                 applyLimits()
                 world.current.redraw()
 
@@ -424,9 +430,9 @@ export const FluidWorldWindowController = memo( ({world}) => {
         try {
             if(first){
                 // can crash the drag:
-                if(gesturestartposition.current.latitude>70 || gesturestartposition.current.latitude<-70 || world.current.navigator.heading > 2 ) {
+                // if(Math.abs(gesturestartposition.current.latitude) > 85 || world.current.navigator.heading > 2 ) {
+                if(Math.abs(gesturestartposition.current.latitude) > 80 || world.current.navigator.heading > 2 ) {
                     rotationmode.current = true
-                    console.log('rotation true')
                 }
             }
         } catch {
@@ -445,7 +451,8 @@ export const FluidWorldWindowController = memo( ({world}) => {
             // to: {panvalue: (down)?movement:movement[1]+movement[1]*velocity*5},
             immediate: down,
             // config: config.stiff,
-            config: { mass: 1, tension: 150, friction: 80 },
+            // config: { mass: 1, tension: 150, friction: 80 },
+            config: { mass: 1, tension: 100, friction: 40 },
             onChange: ()=>{
                 try{
                     let lookatxy = [world.current.canvas.clientWidth/2, world.current.canvas.clientHeight/2]
@@ -464,13 +471,16 @@ export const FluidWorldWindowController = memo( ({world}) => {
                     let rotationAngle = computeRotationVectorAndAngle( nextpoint,currentpoint, rotationVector);
                     // logdebug({delta: panvalue.get()[1]})
 
-                    if(nextposition && (nextposition.latitude > 80 || nextposition.latitude < -80) && rotationmode.current == false) {
+                    if(nextposition && (nextposition.latitude > 80 || nextposition.latitude < -80) && rotationmode.current === false) {
                         console.log('out')
                         panspring.stop()
                         return
                     }
+                    // nextposition.latitude = WorldWind.WWMath.clamp(nextposition.latitude,-80,80)
+
+
                     rotateShpere(rotationVector, rotationAngle, nextpoint, nextposition)
-                    if(rotationmode.current == false) world.current.navigator.heading = 0
+                    if(rotationmode.current === false) world.current.navigator.heading = 0
                     world.current.redraw()
                 }
                 catch {
@@ -489,10 +499,10 @@ export const FluidWorldWindowController = memo( ({world}) => {
     const handlezoom = (event,initial,down,delta,offset,movement,velocity, direction, xy, previous,first,scrolling) => {
 
         let enabler = 1
-        if (!down) enabler = (velocity < 0.2)?0:1
+        if (!down) enabler = (velocity < 0.2)?0:0.5
 
         zoomspring.start({
-            to: {range: [1-delta[1]/100,0]},
+            to: {range: [1-delta[1]/200,0]},
             immediate: (down||scrolling),
             // config: config.stiff,
             config: { mass: 1, tension: 100, friction: 40 },
@@ -628,12 +638,16 @@ export const FluidWorldWindowController = memo( ({world}) => {
         }
 
         var params = viewMatrix.extractViewingParameters(nextpoint, navigator.roll, wwd.globe, {});
-        if (Math.abs(navigator.heading) < 5 && Math.abs(navigator.lookAtLocation.latitude < 70) && Math.abs(nextposition.latitude) < 70) {
-            navigator.heading = Math.round(params.heading);
-        }
-        else {
-            navigator.heading = params.heading;
-        }
+        // if (Math.abs(navigator.heading) < 5 && Math.abs(navigator.lookAtLocation.latitude < 70) && Math.abs(nextposition.latitude) < 70) {
+        //     navigator.heading = Math.round(params.heading);
+        //     console.log('rounding')
+        // }
+        // else {
+        //     navigator.heading = params.heading;
+        // }
+
+        navigator.heading = params.heading;
+
         navigator.lookAtLocation.copy(params.origin);
         navigator.lookAtLocation.altitude = altitude;
         navigator.tilt = tilt;
@@ -650,6 +664,7 @@ export const FluidWorldWindowController = memo( ({world}) => {
             world.current.globe.elevationAtLocation(nav.lookAtLocation.latitude, nav.lookAtLocation.longitude) + EYE_ALT, 
             MAX_ALT 
         )
+        nav.tilt = WorldWind.WWMath.clamp(nav.tilt,0,80)
         // logdebug({
         //     range: nav.range, 
         //     lookAtlat: nav.lookAtLocation.latitude, 

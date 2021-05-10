@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react'
-import {useSpring, animated} from 'react-spring'
+import {useSpring} from 'react-spring'
 import { useGesture } from 'react-use-gesture'
 // import { add, scale } from 'vec-la'
 import DateSelectorScale from './DateSelectorScale'
@@ -31,7 +31,7 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
 
     // const [lastStartdate, setlLastStartdate ] = useState(startdate)
     
-    const [status, setstatus ] = useState(false)
+    const [Selector_is_active, setSelector_is_active ] = useState(false)
     const [step, setStep ] = useState([60000])
     const [stepLabel, setStepLabel ] = useState('hour')
 
@@ -55,7 +55,6 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
     }
 
 
-    const [{ xy2 }, sety2] = useSpring(() => ({ xy2: [0,0] }))
     const [{ posy_wheel }, setyOnWheel] = useSpring(() => ({posy_wheel: 0 }))
     const [{ zoom }, springzoom] = useSpring(() => ({ zoom: 0 }))
 
@@ -63,27 +62,27 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
     
     const bind = useGesture({
 
-        onDragEnd: () => { 
-            // setstatus(false)
-            onFinalDateChange(discreetdate.current)
+        // onWheelEnd: () => { 
+        //     setSelector_is_active(false)
+        //     onFinalDateChange(discreetdate.current)
+        //     console.log('finaldate')
+        //         // lastZoom.current = zoomfactor
+        // },
 
-                // lastZoom.current = zoomfactor
-        },
-
-        onWheel: ( {active, delta, first, down, direction, velocity, xy, movement, scrolling, ctrlKey } ) => {
+        onWheel: ( {active, delta, first, down, direction, velocity, xy, movement, wheeling, ctrlKey, shiftKey } ) => {
             // console.log(down)
             // console.log(first)
             
             if (first) {
                 springtest.stop()
-            //   setstatus(true)
+            //   setSelector_is_active(true)
               discreetdate.current = scaledate
             }
 
-            if (ctrlKey) {
+            if (ctrlKey || shiftKey) {
                 springzoom.start({
                     zoom: delta[1],
-                    immediate: down,
+                    immediate: wheeling,
                     config: { mass: 1, tension: 100, friction: 25, precision: 0.1 },
                     onChange: () => {
                         let newzoom = lastZoom.current + lastZoom.current / 200 *  zoom.get() * ZOOMDIR
@@ -100,33 +99,40 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
 
             setyOnWheel.start({                 
                 posy_wheel: delta[1], 
-                immediate: scrolling, 
-                config: { mass: 1, tension: 100, friction: 25},
+                immediate: false, 
+                config: { mass: 1, tension: 100, friction: 80},
                 onChange: ()=>{
-                    setstatus(true)
+                    setSelector_is_active(true)
                     let newdate
+                    const rounder = (posy_wheel.get() < 0)?Math.ceil:Math.floor
+                    let nbstep = rounder(posy_wheel.get() * zoomfactor  / step[0])
+                    if(nbstep === 0) {
+                        // onFinalDateChange(discreetdate.current)
+                        // setSelector_is_active(false)
+                        setyOnWheel.stop()
+                        // return
+                    }
                     if(stepLabel==='month') {
-                        let nbstep = Math.ceil(posy_wheel.get() * zoomfactor  / step[0])
+                        
                         // setlog({olddate:discreetdate.current.toJSON()})
                         newdate = new Date(discreetdate.current.getTime())
                         newdate.setUTCMonth( newdate.getUTCMonth()-nbstep )
                         // setlog({newdate:discreetdate.current.toJSON()})
-                    } else {
-                        newdate = new Date(discreetdate.current.getTime() - Math.ceil(posy_wheel.get() * zoomfactor  / step[0]) * step[0]) 
+                    } else { 
+                        newdate = new Date(discreetdate.current.getTime() - nbstep * step[0]) 
                     }
                     discreetdate.current = newdate
                     setScaledate(newdate)
                     onDateChange(newdate)
                 },
                 onRest: ()=>{
-                    if (!scrolling) {
-                        console.log('wheel finished  ')
+                    if (!wheeling) {
                         onFinalDateChange(discreetdate.current)
-                        setstatus(false)
+                        setSelector_is_active(false)
 
                     }
                     // if (!down) {
-                    //     // setstatus(false)
+                    //     // setSelector_is_active(false)
                     //     let newdate = new Date(discreetdate.current.getTime() + Math.ceil(posy_wheel.get() * zoomfactor  / step[0]) * step[0]) 
                     //     onFinalDateChange(newdate)
                     //     discreetdate.current = newdate
@@ -140,7 +146,7 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
 
 
         onDrag: ({  event, active, first, down, touches, delta, initial, distance, velocity, direction, shiftKey, xy, movement,vxvy}) => {
-            setstatus(active)
+            setSelector_is_active(active)
 
             if (first) {
                 setyOnWheel.stop()
@@ -191,7 +197,7 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
                 immediate: down,
                 config: { mass: 1, tension: 100, friction: 25, precision: 0.1 },
                 onChange: () => {
-                    setstatus(true)
+                    setSelector_is_active(true)
                     // if(Math.floor(Math.abs(test.get()*zoomfactor   / step[0]))==0) test.stop()
 
                     // let even = (test.get()<0 ? Math.ceil:Math.floor)
@@ -222,30 +228,36 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
                 onRest: () => {
                     if (!down) {
                         onFinalDateChange(discreetdate.current)
-                        setstatus(false)
+                        setSelector_is_active(false)
                     }
                 },
                 // stop: (spring)=>{
                 //     let even = (test.get()<0 ? Math.ceil:Math.floor)
                 //     return (even(test.get()*zoomfactor   / step[0])<=0)
                 // }
-            })   
+            }) 
 
 
+        },
+        onDragEnd: () => { 
+            // setSelector_is_active(false)
+            onFinalDateChange(discreetdate.current)
+            setSelector_is_active(false)
+                // lastZoom.current = zoomfactor
         }
     },
     // {initial: ()=> [0,test.get()],drag: {useTouch: true} }
     {drag: {useTouch: true} }
     )
 
-
+    const [{ xy2 }, sety2] = useSpring(() => ({ xy2: [0,0] }))
     const moveToDate = (newdate) => {
         // console.log('go from: '+discreetdate.current.toJSON()+' to: '+newdate.toJSON())
         let fromtime = discreetdate.current.getTime()
         // sety2.stop()
-        // if (!status) {
-            let deltaoffset = [0,(fromtime - newdate.getTime())  / zoomfactor]
-            
+        // if (!Selector_is_active) {
+            let deltaoffset = [0,(fromtime - newdate.getTime())  ]
+
             sety2.start({ 
                 from: {xy2: [0,0]},
                 to: {xy2: deltaoffset},
@@ -254,16 +266,16 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
                 // config: { mass: 1, tension: 100, friction: 25, precision: 0.1 },
                 onChange: ()=>{
                     // setlog(({animgoto: xy2.get()[1]}))
-                    // setstatus(true)
+                    // setSelector_is_active(true)
 
-                    let adate = new Date(fromtime - xy2.get()[1] * zoomfactor)
+                    let adate = new Date(fromtime - xy2.get()[1] )
                     // console.log('adate: '+adate.toJSON() )
                     discreetdate.current = adate
                     setScaledate(adate)
                     onDateChange(adate)
                 },
                 // onRest: ()=>{
-                //     // setstatus(false)
+                //     // setSelector_is_active(false)
                 // console.log("rest move")
                 //     onFinalDateChange(discreetdate.current)
                 // }
@@ -274,7 +286,7 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
 
     useEffect(() => {
         // console.log('startdate changed')
-        if(!status) {
+        if(!Selector_is_active) {
             // console.log(startdate.toJSON())
             moveToDate(startdate)
         }
@@ -285,13 +297,13 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
     // },[lastStartdate])
 
     // useEffect(() => {
-    //     console.log('Selector active: '+status)
-    // },[status])
+    //     console.log('Selector active: '+Selector_is_active)
+    // },[Selector_is_active])
 
 
     useEffect(() => {
         onStepChange(stepLabel)
-    },[stepLabel])
+    },[stepLabel,onStepChange])
 
     
     useEffect(() => {
@@ -340,9 +352,9 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
 
     return (
         <div>
-            <animated.div className='DateSelector' ref={selector} >
-                <div className="Mask"  >
-                    <div {...bind()} className="touchMask"> </div>
+            <div className='DateSelector' ref={selector} >
+            <div {...bind()} className="touchMask"> </div>
+            <div className="Mask"  >
 
                     <DateSelectorScale className='scale' date={scaledate} zoomfactor={zoomfactor} ></DateSelectorScale>
                     
@@ -352,7 +364,7 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
                         </svg> 
                     </div>        
                 </div>
-            </animated.div>
+            </div>
             {/* {renderlog()}
             {renderlog2()} */}
         </div>

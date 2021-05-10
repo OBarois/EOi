@@ -2,7 +2,7 @@ import React, {  useGlobal } from 'reactn';
 
 import MapSelector from "../components/mapselector"
 
-function C_MapSelector() {
+function MapSelectorContainer() {
 
     // const [starfield, setStarfield] = useGlobal('starfield')
     // const [atmosphere, setAtmosphere] = useGlobal('atmosphere')
@@ -15,4 +15,4 @@ function C_MapSelector() {
      )
 }
 
-export default C_MapSelector;
+export default MapSelectorContainer;

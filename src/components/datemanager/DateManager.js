@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useCallback} from 'react';
 import DateLabel from './components/datelabel'
 import DateController from './components/datecontroller'
 import DateSelector from './components/dateselector'
@@ -12,12 +12,12 @@ function DateManager({ onDateChange, onFinalDateChange, animated}) {
     const [labeldate, setLabelDate] = useState(startdate)
     const [dateLabelHighlight,setDateLabelHighlight] = useState(1)
 
-    const handleSelectorDateChange = (date) => {
+    const handleSelectorDateChange = useCallback( (date) => {
         // console.log('handleSelectorDateChange:' + date.toJSON())
         setLabelDate(date)
         onDateChange(date)
         // setscontrollerStartdate(date)
-    }
+    }, [])
 
     const handleSelectorFinalDateChange = (date) => {
         // console.log('handleSelectorFinalDateChange:' + date.toJSON())
@@ -25,11 +25,11 @@ function DateManager({ onDateChange, onFinalDateChange, animated}) {
         onFinalDateChange(date)
     }
     
-    const handleControllerDateChange = (date) => {
+    const handleControllerDateChange = useCallback( (date) => {
         // console.log('handleControllerDateChange' + date.toJSON())
         setselectorStartdate(date)
         // onFinalDateChange(date)
-    }
+    }, [])
 
     const handleSelectorStepChange = (step) => {
         // console.log('handleSelectorStepChange' + step)

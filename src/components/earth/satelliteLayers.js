@@ -1,6 +1,5 @@
-import WorldWind from 'webworldwind-esa';
+// import WorldWind from 'webworldwind-esa';
 import wwx from 'webworldwind-x';
-import Model from './wwwxx/shapes/satellites/Model'
 import satConfig from './satConfig'
 // import SatelliteModel from './wwwx/shapes/satellites/Model';
 import SatelliteModelLayer from './wwwxx/layer/SatelliteModelLayer'
@@ -43,9 +42,9 @@ import SatelliteModelLayer from './wwwxx/layer/SatelliteModelLayer'
 // );
 
 // export default SentinelCloudlessLayer;
-const {
-    Position,
-} = WorldWind;
+// const {
+//     Position,
+// } = WorldWind;
 const {
     EoUtils,
 } = wwx;

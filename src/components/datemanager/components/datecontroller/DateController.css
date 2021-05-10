@@ -12,13 +12,28 @@
 
 
   position: absolute;
-  top: 0px;
-  left:0px;
+  top: 25px;
   /* margin-top: -15px; */
   width: 100%;
   height: 30px;
   z-index: 200;
   /* background: rgba(82, 164, 219, 0.123); */
+  display: flex; 
+  justify-content: center;
+  flex-direction: row;
 
 
+}
+
+.buttoncontainer {
+  width: 120px;
+  /* background: rgba(157, 82, 219, 0.507); */
+  display: flex; 
+  justify-content: space-between;
+  flex-direction: row;
+}
+
+.controlbuttons {
+  height: 30px;
+  width: 30px;
 }
