@@ -82,10 +82,10 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
             if (ctrlKey || shiftKey) {
                 springzoom.start({
                     zoom: delta[1],
-                    immediate: wheeling,
+                    immediate: true,
                     config: { mass: 1, tension: 100, friction: 25, precision: 0.1 },
                     onChange: () => {
-                        let newzoom = lastZoom.current + lastZoom.current / 200 *  zoom.get() * ZOOMDIR
+                        let newzoom = lastZoom.current + lastZoom.current / 300 * zoom.get() * ZOOMDIR
                         // let newzoom = lastZoom.current + zoom.get() * ZOOMDIR *5000
                         if (newzoom < MINZOOM) newzoom = MINZOOM
                         if (newzoom > MAXZOOM) newzoom = MAXZOOM
@@ -99,8 +99,8 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
 
             setyOnWheel.start({                 
                 posy_wheel: delta[1], 
-                immediate: false, 
-                config: { mass: 1, tension: 100, friction: 80},
+                immediate: true, 
+                config: { mass: 1, tension: 100, friction: 40},
                 onChange: ()=>{
                     setSelector_is_active(true)
                     let newdate
