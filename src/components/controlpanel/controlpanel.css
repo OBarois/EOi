@@ -1,21 +1,29 @@
 
 .ControlPanel {
     position: fixed ;
-    background-color: #003b94d5;
+    background-color: #1b4e91d5;
+    color: rgb(239, 244, 247);
     /* background-color: var(--color); */
-    height: 100%;
-    width: 300px;
-    top: 0px;
-    bottom: 0px;
-    right:0px;
-
+    height: 300px;
+    width: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    align-content: space-between;
+    flex-wrap: wrap;
+    /* justify-content: space-between; */
+    /* align-content: space-between; */
     /* color: white; */
     z-index: 300; 
     user-select: none;
+}
+.ControlPanelMask {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  z-index: 400; 
+  display: none;
+  /* background-image: url("EOi_logo.png"); */
+  background-color: #77bd35c9;
+  color: var(--color);
 }
 .Logo {
   position: absolute;
@@ -32,21 +40,41 @@
 }
 
 .PanelControl {
-    position: absolute;
-    -webkit-user-drag: none;
-    -khtml-user-drag: none;
-    -moz-user-drag: none;
-    -o-user-drag: none;
-    -webkit-user-drag: none;
-    height: 50px;
-    width: 50px;
-    bottom: 30px;
-    left: -80px;
-    z-index: 300; 
-    /* background-image: url("EOi_logo.png"); */
-    /* background-color: #77bd35c9; */
-    color: var(--color);
-  }
+  position: absolute;
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  -webkit-user-drag: none;
+  height: 50px;
+  width: 50px;
+  bottom: 330px;
+  left: 10px;
+  z-index: 300; 
+  /* background-image: url("EOi_logo.png"); */
+  /* background-color: #77bd35c9; */
+  color: var(--color);
+}
+
+
+.verticalContainer {
+  /* position: absolute; */
+  display: flex; 
+  /* justify-content: left; */
+  flex-direction: row;
+  flex-wrap: wrap;
+  z-index: 3;
+  /* background:  rgba(0, 255, 34, 0.315); */
+}
+.horizontalContainer {
+  /* position: absolute; */
+  display: flex; 
+  /* justify-content: center; */
+  flex-direction: column;
+  flex-wrap: wrap;
+  z-index: 3;
+  /* background:  rgba(0, 255, 34, 0.315); */
+}
 
   .shadow {
     -webkit-filter: drop-shadow(  var(--shadow) );

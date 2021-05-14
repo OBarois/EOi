@@ -26,13 +26,15 @@ export  function initGlobalStates() {
         },
         viewDate: new Date(),
         searchDate: new Date(),
+        searchPoint: 'POINT(40 40)',
+        geojson: null,
         mapSettings: {
             atmosphere: false,
             starfield: true,
             names: false,
             background: 1,
             overlay:2,
-            dem: true
+            dem: false
         }
     })
     

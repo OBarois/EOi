@@ -26,23 +26,12 @@
 .MissionLabel {
   position: fixed;
   bottom: 0px;
-  left: 5px;
+  left: 30%;
   color: var(--color);
   /* width: 100px; */
   height: 30px;
   margin: auto;
-  z-index: 2;
-
-}
-.AltitudeLabel {
-  position: fixed;
-  bottom: 40px;
-  left: 5px;
-  color: var(--color);
-  /* width: 100px; */
-  height: 30px;
-  margin: auto;
-  z-index: 2;
+  /* z-index: 2; */
 
 }
 .Debug {
@@ -63,9 +52,9 @@
 
 
 .logo {
-  align-self: flex-start;
+  align-self: flex-end;
   flex-grow:1;
-  width: 100%;
+  width: 100px;
   margin: none;
   z-index: 2;
   background: rgba(131, 52, 177, 0);

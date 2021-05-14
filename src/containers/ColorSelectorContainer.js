@@ -20,12 +20,12 @@ function ColorSelectorContainer() {
     }, [appcolor]);
     
     const handleChangeComplete = (color) => {
-        if(!color) return
+        if(color === null) return
         console.log('set color: '+color)
         document.documentElement.style.setProperty('--color', color);
          
         document.documentElement.style.setProperty('--colort', color+'66');
-        setAppcolor(color.hex );
+        setAppcolor(color );
       };
     
     //console.log('mission rendering')

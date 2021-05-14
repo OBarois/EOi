@@ -1,0 +1,12 @@
+.AltitudeLabel {
+    position: fixed;
+    bottom: 0px;
+    left: 50%;
+    color: var(--color);
+    width: 100px;
+    height: 30px;
+    margin: auto;
+    /* z-index: 2; */
+  
+  }
+  

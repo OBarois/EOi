@@ -1,5 +1,5 @@
 import React, {  useGlobal } from 'reactn';
-import './Altitude.css' 
+import './AltitudeLabel.css' 
 
 function AltitudeLabelContainer() {
 

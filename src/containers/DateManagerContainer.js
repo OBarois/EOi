@@ -5,11 +5,11 @@ import DateManager from "../components/datemanager"
 function DateManagerContainer() {
 
     const [, setViewDate] = useGlobal('viewDate')
-    const [SearchDate, setSearchDate] = useGlobal('SearchDate')
+    const [SearchDate, setSearchDate] = useGlobal('searchDate')
 
-    useEffect(() => {
-        console.log('Searching: '+SearchDate)
-    }, [SearchDate]);
+    // useEffect(() => {
+    //     console.log('Searching: '+SearchDate)
+    // }, [SearchDate]);
 
 
 

@@ -14,6 +14,8 @@ function Earth({ id, alt }) {
     const [ position, setPosition] = useGlobal('position')
     const [ altitude, setAltitude] = useGlobal('altitude')
     const [ viewDate, setViewDate] = useGlobal('viewDate')
+    const [ geojson, setgeojson] = useGlobal('geojson')
+    const [ searchPoint, setSearchPoint] = useGlobal('searchPoint')
     const [ satellites, setSatellites ] = useGlobal('satellites')
 
     const [mapSet, setMapSet] = useState(mapSettings)
@@ -70,10 +72,21 @@ function Earth({ id, alt }) {
         setAltitude(ewwstate.altitude)
     },[ewwstate.altitude])
 
+    useEffect(() => {
+        setSearchPoint(ewwstate.viewpoint)
+    },[ewwstate.viewpoint])
+
 
     useEffect(() => {
         setTime(viewDate.getTime())
     },[viewDate])
+
+    useEffect(() => {
+        if(geojson) {
+            // removeGeojson()
+            addGeojson(geojson,viewDate.getTime())
+         } else removeGeojson()
+    },[geojson])
 
     useEffect(() => {
         setMapSettings(mapSet)

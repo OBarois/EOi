@@ -67,14 +67,10 @@ export const FluidWorldWindowController = memo( ({world}) => {
         onDrag: ({  event, xy, vxvy, previous, first, down, initial, delta, movement, offset, velocity, direction, tap, scrolling, touches, pinching, origin}) => {
 
             if(first) {
-
                 gesturestartposition.current = positionAtPickPoint(xy[0],xy[1])
-                // logdebug({startlat: gesturestartposition.current.latitude})
-                // logdebug({startlon: gesturestartposition.current.longitude})
                 if(!gesturestartposition.current) {
                     gesturestartposition.current = positionAtPickPoint(world.current.canvas.clientWidth/2,world.current.canvas.clientHeight/2)
                 }
-
 
                 detectDoubleTap(event)
                 if(doubleTap.current) clearTimeout(clicktimeout.current)
@@ -133,7 +129,7 @@ export const FluidWorldWindowController = memo( ({world}) => {
     
         
                 default:
-                console.log("default ")
+                // console.log("default ")
 
             }
 
@@ -145,8 +141,8 @@ export const FluidWorldWindowController = memo( ({world}) => {
             if(first) {
                 gesturestartposition.current = positionAtPickPoint(event.clientX,event.clientY)
             }
-            delta[1] *= 0.1         
-            delta[0] *= 0.1         
+            // delta[1] *= 0.1         
+            // delta[0] *= 0.1         
             handlezoom(event,initial,down,delta,offset,movement,velocity, direction, xy, previous,first,scrolling)
         },
         onPinchStart: (origin)=>{
@@ -160,17 +156,18 @@ export const FluidWorldWindowController = memo( ({world}) => {
             // gesturestartposition.current = positionAtPickPoint(origin[0],origin[1])
             pinchmode.current = 'undefined'
 
-            tilttimeout.current = setTimeout(() => {
-                pinchmode.current = 'tilt'
-                }, 300);        
+            // tilttimeout.current = setTimeout(() => {
+            //     pinchmode.current = 'tilt'
+            //     }, 300);        
                 
         },
-        onPinch: ({event, da, vdva, origin, pinching, delta, first, initial, direction, previous, memo = {lastY:0} }, velocity) => {
-            handlepinch(event, da, vdva, origin, pinching, delta, first, initial, direction, previous, memo, velocity)
+        onPinch: ({event, da, vdva, origin, pinching, delta, first, initial, direction, previous, elapsedTime, memo = {lastY:0} }) => {
+            handlepinch(event, da, vdva, origin, pinching, delta, first, initial, direction, previous, memo, elapsedTime)
             memo.lastY = origin[1]
             return memo
         },
         onPinchEnd: () => { 
+            clearTimeout(dragtimeout.current)
             dragtimeout.current = setTimeout(() => {
                 dragenabled.current = true
                 // logdebug({drag: (dragenabled.current)?'true':'false'})
@@ -212,12 +209,21 @@ export const FluidWorldWindowController = memo( ({world}) => {
     }
 
     // pinching
-    const handlepinch = (event, da, vdva, origin, pinching, delta, first, initial, direction, previous, memo, velocity) => {
-
-        if(pinchmode.current === 'undefined' && !first) {
+    const handlepinch = (event, da, vdva, origin, pinching, delta, first, initial, direction, previous, memo, elapsedTime) => {
+        // if(first) console.log(event)
+        // console.log(elapsedTime)
+        if(pinchmode.current === 'undefined' && elapsedTime >= 100) {
+            // console.log(initial)
             pinchmode.current = (Math.abs(direction[0]) > Math.abs(direction[1]*1.2))?'zoom':'rotation'
-            clearTimeout(tilttimeout.current)    
-        }
+            if(Math.abs(origin[1]-memo.lastY) > 4) pinchmode.current = 'tilt'
+            // console.log(origin)
+            // if(da[1]>3) pinchmode.current = 'rotation'
+            // else if(da[0]>10) pinchmode.current = 'zoom'
+        } 
+        // if(pinchmode.current === 'undefined' && !first) {
+        //     pinchmode.current = (Math.abs(direction[0]) > Math.abs(direction[1]*1.2))?'zoom':'rotation'
+        //     clearTimeout(tilttimeout.current)    
+        // }
 
         switch (pinchmode.current) {
 
@@ -250,6 +256,7 @@ export const FluidWorldWindowController = memo( ({world}) => {
             config: { mass: 1, tension: 100, friction: 40 },
             onChange: ()=>{
                 let enabler = 1
+                if(!pinching) pinchmode.current = 'undefined'
                 // if (!pinching) enabler = (pinchtiltvalue.get()[1] < 0.2)?0:1
                 let tiltfactor = (pinching)?0.5:0.2 
                 world.current.navigator.tilt -= pinchtiltvalue.get()[1] * tiltfactor * enabler
@@ -457,9 +464,9 @@ export const FluidWorldWindowController = memo( ({world}) => {
                 try{
                     let lookatxy = [world.current.canvas.clientWidth/2, world.current.canvas.clientHeight/2]
                     let nextlookatxy = sub(lookatxy,scale(panvalue.get(),correction*enabler))
-                    let currentposition = positionAtPickPoint(lookatxy[0],lookatxy[1])
+                    let currentposition = positionAtPickPoint2(lookatxy[0],lookatxy[1])
                     if(!currentposition) console.log('no currentpos !')
-                    let nextposition = positionAtPickPoint(nextlookatxy[0],nextlookatxy[1])
+                    let nextposition = positionAtPickPoint2(nextlookatxy[0],nextlookatxy[1])
                     if(!nextposition) console.log('no nextposition !')
 
                     let currentpoint = new WorldWind.Vec3(0,0,0)
@@ -664,7 +671,7 @@ export const FluidWorldWindowController = memo( ({world}) => {
             world.current.globe.elevationAtLocation(nav.lookAtLocation.latitude, nav.lookAtLocation.longitude) + EYE_ALT, 
             MAX_ALT 
         )
-        nav.tilt = WorldWind.WWMath.clamp(nav.tilt,0,80)
+        nav.tilt = WorldWind.WWMath.clamp(nav.tilt,0,60)
         // logdebug({
         //     range: nav.range, 
         //     lookAtlat: nav.lookAtLocation.latitude, 
