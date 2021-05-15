@@ -90,11 +90,13 @@ export function useClock({ autoStart, initdate }) {
     function forceDate(newdate) {
         // console.log('forcedate useclock: '+newdate.toJSON())
         ldate.current = newdate.getTime()
+        setDate(new Date(ldate.current))
     }
 
     useEffect(() => {
         // console.log('init start useclock '+initdate.toJSON())
         ldate.current = initdate.getTime()
+        setDate(new Date(ldate.current))
     }, [initdate])
 
 

@@ -338,8 +338,9 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
             let renderable = productlayer.renderables[j]
             if (time != 0) {
                 let renderableStartDate = (new Date(renderable.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStartTime)).getTime()
-                let renderableStopDate = (new Date(renderable.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStopTime)).getTime()
-                renderable.enabled = (renderableStartDate <= time+timeOffset/2 && renderableStopDate >= time-timeOffset/2) ? true : false   
+                // let renderableStopDate = (new Date(renderable.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStopTime)).getTime()
+                // renderable.enabled = (renderableStartDate <= time+timeOffset/2 && renderableStopDate >= time-timeOffset/2) ? true : false   
+                renderable.enabled = (renderableStartDate > time-timeOffset && renderableStartDate <= time) ? true : false   
             } else {
                 renderable.enabled = false
             }         

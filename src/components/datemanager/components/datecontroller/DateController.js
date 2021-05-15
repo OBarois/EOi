@@ -24,7 +24,7 @@ function DateController({startdate, onDateChange}) {
         reset,
         increaseSpeed,
         decreaseSpeed,
-        // forceDate
+        forceDate
     } = useClock({
         autoStart: false,
         initdate: startdate
@@ -47,12 +47,12 @@ function DateController({startdate, onDateChange}) {
         //setAppdate({appdate: new Date(date)})
     },[date, onDateChange]);
 
-    // useEffect(() => {
-    //     // console.log("date from datemanager: "+new Date(date).toJSON())
-    //     // forceDate(startdate)
-    //     //forceDate(date)
-    //     //setAppdate({appdate: new Date(date)})
-    // },[startdate]);
+    useEffect(() => {
+        console.log(" force date: "+startdate)
+        // forceDate(startdate)
+        //forceDate(date)
+        //setAppdate({appdate: new Date(date)})
+    },[startdate]);
 
     const [lastTap, setLasttap] = useState()
     const handleDoubleTap = () => {

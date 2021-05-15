@@ -25,6 +25,7 @@ export  function initGlobalStates() {
             clat:'45' 
         },
         viewDate: new Date(),
+        goToDate: new Date(),
         searchDate: new Date(),
         searchPoint: 'POINT(40 40)',
         geojson: null,

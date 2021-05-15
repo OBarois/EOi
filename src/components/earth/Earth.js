@@ -85,7 +85,7 @@ function Earth({ id, alt }) {
         if(geojson) {
             // removeGeojson()
             addGeojson(geojson,viewDate.getTime())
-         } else removeGeojson()
+        } else removeGeojson()
     },[geojson])
 
     useEffect(() => {
