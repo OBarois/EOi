@@ -6,6 +6,7 @@ function DateManagerContainer() {
 
     const [, setViewDate] = useGlobal('viewDate')
     const [SearchDate, setSearchDate] = useGlobal('searchDate')
+    const [GoToDate, setGoToDate] = useGlobal('goToDate')
 
     // useEffect(() => {
     //     console.log('Searching: '+SearchDate)
@@ -14,7 +15,7 @@ function DateManagerContainer() {
 
 
     return (
-        <DateManager onDateChange={setViewDate} onFinalDateChange={setSearchDate} /> 
+        <DateManager onDateChange={setViewDate} onFinalDateChange={setSearchDate} startdate={GoToDate}/> 
      )
 }
 

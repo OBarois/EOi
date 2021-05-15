@@ -140,7 +140,7 @@ export default function useDatahub()  {
     }
 
     useEffect(() => {
-        console.log('newurl')
+        if(searchUrl === null) return
         const fetchURL = async (url,index) => {
             setLoading(true)
             controller.current = new AbortController()

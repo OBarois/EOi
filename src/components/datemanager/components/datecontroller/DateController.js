@@ -47,12 +47,12 @@ function DateController({startdate, onDateChange}) {
         //setAppdate({appdate: new Date(date)})
     },[date, onDateChange]);
 
-    useEffect(() => {
-        console.log(" force date: "+startdate)
-        // forceDate(startdate)
-        //forceDate(date)
-        //setAppdate({appdate: new Date(date)})
-    },[startdate]);
+    // useEffect(() => {
+    //     console.log(" force date: "+startdate)
+    //     // forceDate(startdate)
+    //     //forceDate(date)
+    //     //setAppdate({appdate: new Date(date)})
+    // },[startdate]);
 
     const [lastTap, setLasttap] = useState()
     const handleDoubleTap = () => {

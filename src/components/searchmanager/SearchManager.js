@@ -17,6 +17,8 @@ function SearchManager({searchdate, searchpoint, mission, altitude, onPageSearch
     const [ searching, setsearching ] = useState(false);
     const [ searchtrigger, setsearchtrigger ] = useState(0);
     const searchtimeout = useRef()
+    const firstresultdate = useRef(new Date(0))
+
 
     const [param, setparam] = useState({})
 
@@ -46,16 +48,26 @@ function SearchManager({searchdate, searchpoint, mission, altitude, onPageSearch
     // }, [geojsonResults]);
 
     useEffect(() => {
-        onPageSearch(geojsonResults)
+        if(geojsonResults) {
+            // console.log(geojsonResults)
+            onPageSearch(geojsonResults)
+            let firstitemdate = (new Date(geojsonResults.features[0].properties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStartTime))
+            if(firstresultdate.current.getTime() < firstitemdate.getTime() || firstresultdate.current === null) {
+                firstresultdate.current = firstitemdate
+            }
+        }
     }, [geojsonResults]);
 
     useEffect(() => {
         setsearching(loading)
-        if(loading === false) onSearchComplete()
+        if(loading === false && firstresultdate.current.getTime() !== 0 ) {
+            onSearchComplete(firstresultdate.current)
+        }
     }, [loading]);
 
     useEffect(() => {
         onPageSearch()
+        firstresultdate.current = new Date(0)
         search(param)
     }, [searchtrigger]);
 
