@@ -19,7 +19,7 @@ export  function initGlobalStates() {
         mission: 'S1',
         altitude: '5000000',
         satellites: true,
-        appColor: '#ebd1d1',
+        appColor: '#e84fad',
         position: {
             clon:'0.5',
             clat:'45' 
@@ -29,6 +29,13 @@ export  function initGlobalStates() {
         searchDate: new Date(),
         searchPoint: 'POINT(40 40)',
         geojson: null,
+        resultDesc: {
+            firstItemDate: null,
+            lastItemDate: null,
+            totalResults: null
+        },
+        animated: false,
+        clearGeojsonTrigger: null,
         mapSettings: {
             atmosphere: false,
             starfield: true,

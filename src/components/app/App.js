@@ -37,8 +37,6 @@ function App() {
 
     useHotkeys("f", ()=>{toggle(container.current)} )  
 
-
-
     return (
         <div className="App" ref={container} id="container">
              {/* <FullScreen handle={fshandle}> */}

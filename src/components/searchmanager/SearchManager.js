@@ -6,18 +6,20 @@ import useDatahub from "./useDatahub"
  
 // npm install --save-dev @iconify/react @iconify-icons/ic
 import { Icon, InlineIcon } from '@iconify/react';
-import outlineSync from '@iconify-icons/ic/outline-sync';
+import outlineRefresh from '@iconify-icons/ic/outline-refresh';
 
 
 
-function SearchManager({searchdate, searchpoint, mission, altitude, onPageSearch, onSearchComplete}) {
+function SearchManager({searchdate, searchpoint, mission, altitude, onSearchStart, onPageSearch, onSearchComplete}) {
 
 
     // const [results, setresults] = useState([])
     const [ searching, setsearching ] = useState(false);
+    const [ searchmode, setsearchmode ] = useState('backward');
     const [ searchtrigger, setsearchtrigger ] = useState(0);
     const searchtimeout = useRef()
     const firstresultdate = useRef(new Date(0))
+    const lastresultdate = useRef(new Date())
 
 
     const [param, setparam] = useState({})
@@ -49,25 +51,41 @@ function SearchManager({searchdate, searchpoint, mission, altitude, onPageSearch
 
     useEffect(() => {
         if(geojsonResults) {
-            // console.log(geojsonResults)
+            // if(parseInt(geojsonResults.properties.startIndex) < 2) {
+            //     onSearchStart()
+            // }
+
             onPageSearch(geojsonResults)
+
+            // saves first and last item dates
             let firstitemdate = (new Date(geojsonResults.features[0].properties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStartTime))
             if(firstresultdate.current.getTime() < firstitemdate.getTime() || firstresultdate.current === null) {
+                // console.log('most recent: '+firstitemdate)
                 firstresultdate.current = firstitemdate
             }
+            let lastitemdate = (new Date(geojsonResults.features[geojsonResults.features.length-1].properties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStartTime))
+            if(lastresultdate.current.getTime() > lastitemdate.getTime() || lastitemdate.current === null) {
+                // console.log('oldest: '+lastitemdate)
+                lastresultdate.current = lastitemdate
+                // console.log(geojsonResults.features)
+            }
+
+
         }
     }, [geojsonResults]);
 
     useEffect(() => {
         setsearching(loading)
         if(loading === false && firstresultdate.current.getTime() !== 0 ) {
-            onSearchComplete(firstresultdate.current)
+            onSearchComplete(firstresultdate.current, lastresultdate.current)
         }
     }, [loading]);
 
     useEffect(() => {
-        onPageSearch()
+        // onPageSearch()
         firstresultdate.current = new Date(0)
+        lastresultdate.current = new Date()
+        onSearchStart()
         search(param)
     }, [searchtrigger]);
 
@@ -94,7 +112,7 @@ function SearchManager({searchdate, searchpoint, mission, altitude, onPageSearch
         <div>
             <div className={searching === true?'SearchController Active':'SearchController'} onClick={()=>{setsearchtrigger(Math.random())}}>
                 {/* {searching === true?<Icon icon={outlineSync} width='50px'/>:<span/>} */}
-                <Icon icon={outlineSync} width='50px'/>
+                <Icon icon={outlineRefresh} width='50px'/>
             </div>
         </div>
     )
