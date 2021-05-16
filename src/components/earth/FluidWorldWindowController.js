@@ -151,6 +151,7 @@ export const FluidWorldWindowController = memo( ({world}) => {
             zoomspring.stop()
             pinchzoomspring.stop()
             pinchrotatespring.stop()
+            pinchzoomrotatespring.stop()
             pinchtiltspring.stop()
             // memo.lastY = origin[1]
             // gesturestartposition.current = positionAtPickPoint(origin[0],origin[1])
@@ -214,8 +215,10 @@ export const FluidWorldWindowController = memo( ({world}) => {
         // console.log(elapsedTime)
         if(pinchmode.current === 'undefined' && elapsedTime >= 100) {
             // console.log(initial)
-            pinchmode.current = (Math.abs(direction[0]) > Math.abs(direction[1]*1.2))?'zoom':'rotation'
-            if(Math.abs(origin[1]-memo.lastY) > 4) pinchmode.current = 'tilt'
+            // pinchmode.current = (Math.abs(direction[0]) > Math.abs(direction[1]*1.2))?'zoom':'rotation'
+            if(Math.abs(origin[1]-memo.lastY) > 4) {
+                pinchmode.current = 'tilt' 
+            } else pinchmode.current = 'zoomrotate' 
             // console.log(origin)
             // if(da[1]>3) pinchmode.current = 'rotation'
             // else if(da[0]>10) pinchmode.current = 'zoom'
@@ -231,17 +234,22 @@ export const FluidWorldWindowController = memo( ({world}) => {
                 handlepinchtilt(pinching, delta, origin, initial, memo)
                 break
 
-            case 'zoom':
-                // handlezoomrotate(pinching,delta)
-                handlepinchzoom(pinching,delta,vdva)
-                break
+            // case 'zoom':
+            //     // handlezoomrotate(pinching,delta)
+            //     handlepinchzoom(pinching,delta,vdva)
+            //     break
 
-            case 'rotation':
-                handlepinchrotate(pinching,delta,vdva)
+            // case 'rotation':
+            //     handlepinchrotate(pinching, delta, vdva)
+            //     break
+
+            case 'zoomrotate':
+                handlezoomrotate(pinching, delta, origin)
                 break
 
             default:
-                break
+
+            break
         }
 
     }
@@ -274,8 +282,8 @@ export const FluidWorldWindowController = memo( ({world}) => {
         pinchzoomrotatespring.start({
             pinchzoomrotatevalue: delta,
             immediate: pinching,
-            // config: config.stiff,
-            config: {...config.molasses},
+            config: config.molasses,
+            // config: {...config.molasses},
             // config: { mass: 1, tension: 100, friction: 40, duration: 200 },
             onChange: ()=>{
                     moveZoom(gesturestartposition.current,1-pinchzoomrotatevalue.get()[0]/300 )
