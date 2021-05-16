@@ -19,7 +19,7 @@ export  function initGlobalStates() {
         mission: 'S1',
         altitude: '5000000',
         satellites: true,
-        appColor: '#e84fad',
+        appColor: '#edb06c',
         position: {
             clon:'0.5',
             clat:'45' 

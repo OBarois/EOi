@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 
 
-export function useClock({ autoStart, initdate }) {
+export function useClock({  initdate }) {
     // console.log('useClock renders')
     //const { autoStart, duration } = settings || {};
   
@@ -86,17 +86,6 @@ export function useClock({ autoStart, initdate }) {
     }, [initdate])
 
 
-
-    // didMount effect
-    useEffect(() => {
-        // console.log('render useclock')
-        // setDate((new Date()).getTime())
-        ldate.current = new Date().getTime()
-        if (autoStart) {
-            start();
-        }
-        //return reset;
-    }, [autoStart]);
 
   
   return { date, playing, togglePause, start, stop, reset, increaseSpeed, decreaseSpeed, forceDate };

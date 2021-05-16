@@ -14,7 +14,7 @@ import roundPlayArrow from '@iconify-icons/ic/round-play-arrow';
 
 import './DateController.css';
 
-function DateController({startdate, onDateChange, onStateChange}) {
+function DateController({startdate, onDateChange, onStateChange, animated}) {
 
     // useClock must be redone to support real time increments
     const {
@@ -27,11 +27,10 @@ function DateController({startdate, onDateChange, onStateChange}) {
         decreaseSpeed,
         forceDate
     } = useClock({
-        autoStart: false,
         initdate: startdate
     })
 
-    const [playing, setplaying ] = useState(false) 
+    const [playing, setplaying ] = useState(animated) 
 
     useHotkeys("t",()=>{setplaying((state)=>!state) })
     useHotkeys("r",()=>{reset() })

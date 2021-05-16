@@ -16,7 +16,7 @@ function DateManagerContainer() {
 
 
     return (
-        <DateManager onDateChange={setViewDate} onFinalDateChange={setSearchDate} startdate={GoToDate} onStateChange={setanimated}/> 
+        <DateManager onDateChange={setViewDate} onFinalDateChange={setSearchDate} startdate={GoToDate} onStateChange={setanimated} animated={animated}/> 
      )
 }
 

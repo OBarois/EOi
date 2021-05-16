@@ -44,7 +44,7 @@ function DateManager({ onDateChange, onFinalDateChange, onStateChange, animated,
 
     return (
         <div >
-          <DateController startdate={controllerStartdate}  onDateChange={handleControllerDateChange} onStateChange={onStateChange}/>
+          <DateController startdate={controllerStartdate}  onDateChange={handleControllerDateChange} onStateChange={onStateChange} animated={animated}/>
           <DateLabel date={labeldate} animated={animated} highlight={dateLabelHighlight}/>
           <DateSelector startdate={selectorStartdate} 
                 onDateChange={handleSelectorDateChange} 
