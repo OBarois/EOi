@@ -1,3 +1,5 @@
+//todo: replace hotkeys by rook useKey
+
 import React, {useRef} from 'react'
 import { useGlobal } from 'reactn'
 

@@ -37,7 +37,10 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
 
     // to detect double taps
     const lastTap = useRef()
+    const lastTapdate = useRef(new Date(0))
     const doubleTap = useRef()
+    const dragging = useRef(false)
+    const draggingTimeout = useRef()
     const button = useRef()
 
     const startingdate = useRef(startdate)
@@ -46,10 +49,13 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
     const detectDoubleTap = (e) => {
         const now = Date.now();
         button.current = e.button
-        if (lastTap.current && (now - lastTap.current) < 300) {
+        // console.log(lastTapdate.current.getTime()-discreetdate.current.getTime())
+        // if (lastTap.current && (now - lastTap.current) < 300  && Math.abs(lastTapdate.current.getTime()-scaledate.getTime()) < 1 ) {
+        if (lastTap.current && (now - lastTap.current) < 300 ) {
             doubleTap.current = true
         } else {
             lastTap.current = now
+            lastTapdate.current = scaledate
             doubleTap.current = false
         }
     }
@@ -129,25 +135,15 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
                     if (!wheeling) {
                         onFinalDateChange(discreetdate.current)
                         setSelector_is_active(false)
-
                     }
-                    // if (!down) {
-                    //     // setSelector_is_active(false)
-                    //     let newdate = new Date(discreetdate.current.getTime() + Math.ceil(posy_wheel.get() * zoomfactor  / step[0]) * step[0]) 
-                    //     onFinalDateChange(newdate)
-                    //     discreetdate.current = newdate
-                    //     setScaledate(newdate)
-                    //     onDateChange(newdate)
-                    //     lastPos.current=0
-                    // }
                 }
             })
         },
+        onDragStart: ()=>{
+            setSelector_is_active(true)
+        },
 
-
-        onDrag: ({  event, active, first, down, touches, delta, initial, distance, velocity, direction, shiftKey, xy, movement,vxvy}) => {
-            setSelector_is_active(active)
-
+        onDrag: ({  event, active, first, down, touches, delta, initial, distance, velocity, direction, shiftKey, ctrlKey, xy, movement,vxvy}) => {
             if (first) {
                 setyOnWheel.stop()
                 detectDoubleTap(event)
@@ -160,7 +156,7 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
             // setlog2({velocity1: velocity})
             velocity = (velocity < 0.2)?0:velocity
 
-            if (doubleTap.current || shiftKey || button.current === 2) {
+            if ((doubleTap.current || shiftKey || ctrlKey || button.current === 2) ) {
                 // let zoom = lastZoom.current + lastZoom.current / 50 *  delta[1] * ZOOMDIR
                 // if (zoom < MINZOOM) zoom = MINZOOM
                 // if (zoom > MAXZOOM) zoom = MAXZOOM
@@ -198,10 +194,16 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
                 config: { mass: 1, tension: 100, friction: 25, precision: 0.1 },
                 onChange: () => {
                     setSelector_is_active(true)
+                    
+
                     // if(Math.floor(Math.abs(test.get()*zoomfactor   / step[0]))==0) test.stop()
 
                     // let even = (test.get()<0 ? Math.ceil:Math.floor)
                         // setlog({anim:test.get(), velocity: velocity*5})
+
+                        // this avoids the double tap to be detected while touch dragging fast
+                        if(Math.abs(movement[1]) > 5) lastTap.current = new Date(0)
+
 
                         if(stepLabel==='month') {
                             let nbstep = Math.ceil(test.get() * zoomfactor  / step[0])
@@ -224,9 +226,11 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
                     
                     setScaledate(discreetdate.current)
                     onDateChange(discreetdate.current)
+                    // lastTapdate.current = new Date(0)
                 },
                 onRest: () => {
                     if (!down) {
+                        console.log('rest')
                         onFinalDateChange(discreetdate.current)
                         setSelector_is_active(false)
                     }
@@ -239,10 +243,12 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
 
 
         },
-        onDragEnd: () => { 
+        onDragEnd: (down) => { 
             // setSelector_is_active(false)
             onFinalDateChange(discreetdate.current)
             setSelector_is_active(false)
+
+
                 // lastZoom.current = zoomfactor
         }
     },
@@ -296,9 +302,9 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
     //     console.log('laststartdate changed: '+lastStartdate.toJSON())
     // },[lastStartdate])
 
-    // useEffect(() => {
-    //     console.log('Selector active: '+Selector_is_active)
-    // },[Selector_is_active])
+    useEffect(() => {
+        console.log('Selector active: '+Selector_is_active)
+    },[Selector_is_active])
 
 
     useEffect(() => {

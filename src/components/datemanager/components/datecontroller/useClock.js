@@ -23,20 +23,6 @@ export function useClock({ autoStart, initdate }) {
     const timeoutRef = useRef()
     
 
-    // function increaseSpeed() {
-    //     setStep ( () => {
-    //         let newstate = (step > 0)? step * 2:step / 2
-    //         if(Math.abs(newstate) < refreshrate) newstate = refreshrate
-    //         return newstate
-    //     })
-    // }
-    // function decreaseSpeed() {
-    //     setStep (() => {
-    //         let newstate = (step > 0)? step / 2:step * 2
-    //         if(Math.abs(newstate) < refreshrate) newstate = refreshrate
-    //         return newstate
-    //     })
-    // }
     function increaseSpeed() {
         // stop()
         step.current = (step.current > 0)? step.current *= 2:step.current /= 2
@@ -113,5 +99,5 @@ export function useClock({ autoStart, initdate }) {
     }, [autoStart]);
 
   
-  return { date, playing, togglePause, reset, increaseSpeed, decreaseSpeed, forceDate };
+  return { date, playing, togglePause, start, stop, reset, increaseSpeed, decreaseSpeed, forceDate };
 }

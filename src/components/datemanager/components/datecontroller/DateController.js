@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import { useClock } from "./useClock"
 import { useHotkeys } from 'react-hotkeys-hook'
 import { Icon } from '@iconify/react'
@@ -19,8 +19,9 @@ function DateController({startdate, onDateChange, onStateChange}) {
     // useClock must be redone to support real time increments
     const {
         date,
-        playing,
         togglePause,
+        start,
+        stop,
         reset,
         increaseSpeed,
         decreaseSpeed,
@@ -30,17 +31,24 @@ function DateController({startdate, onDateChange, onStateChange}) {
         initdate: startdate
     })
 
+    const [playing, setplaying ] = useState(false) 
 
-
-    useHotkeys("t",togglePause)
+    useHotkeys("t",()=>{setplaying((state)=>!state) })
     useHotkeys("r",()=>{reset() })
-    useHotkeys(".",increaseSpeed)
-    useHotkeys(",",decreaseSpeed)
+    useHotkeys(".",()=>{increaseSpeed() })
+    useHotkeys(",",()=>{decreaseSpeed() })
 
     
     useEffect(() => {
         onStateChange(playing)
+        if(playing === true) {
+            start()
+         } else stop()
     },[playing]);
+
+    // useEffect(() => {
+    //     console.log('weird')
+    // },[togglePause]);
 
     useEffect(() => {
         // console.log("date from useclock :"+date)
@@ -57,13 +65,17 @@ function DateController({startdate, onDateChange, onStateChange}) {
     // },[startdate]);
 
     const [lastTap, setLasttap] = useState()
+    const clicktimeout = useRef()
     const handleDoubleTap = () => {
         const now = Date.now();
-        if (lastTap && (now - lastTap) < 400) {
-          reset();
+        if (lastTap && (now - lastTap) < 300) {
+            clearTimeout(clicktimeout.current)   
+            reset();
         } else {
-            setLasttap(now)
-            togglePause()
+            setLasttap(now)    
+            clicktimeout.current = setTimeout(() => {
+                setplaying((state)=>!state)
+            }, 300);
         }
       }
 
