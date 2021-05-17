@@ -412,7 +412,13 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         enableRenderables(epoch)
 
         for(let l=0 ; l<satelliteLayers.length ; l++) {
-            satelliteLayers[l].setTime(new Date(epoch))
+            if(satelliteLayers[l].timeRange[0].getTime() > epoch || satelliteLayers[l].timeRange[1].getTime() < epoch) {
+                satelliteLayers[l].enabled = false
+                console.log('satstart: '+satelliteLayers[l].timeRange[0]+'  /  '+(new Date(epoch)))
+            } else {
+                satelliteLayers[l].enabled = true
+                satelliteLayers[l].setTime(new Date(epoch))
+            }
         }
         eww.current.redraw();
      }

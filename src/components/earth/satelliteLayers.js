@@ -61,8 +61,11 @@ var satelliteLayers = []
             translations: satConfig[i].translations,
             ignoreLocalTransforms: satConfig[i].ignoreLocalTransforms
         }
-
-        let layer = new SatelliteModelLayer({key: satConfig[i].key, time: new Date(), }, options)
+        let satstart = satConfig[i].launchDate
+        let satend = new Date(satstart.getTime())
+        satend.setUTCFullYear( satend.getUTCFullYear()+20 )
+        let layer = new SatelliteModelLayer({key: satConfig[i].key, time: new Date() }, options)
+        layer.timeRange = [satstart, satend]
 
         const satrec = EoUtils.computeSatrec(satConfig[i].tleLineOne, satConfig[i].tleLineTwo);
         const position = EoUtils.getOrbitPosition(satrec, new Date());
