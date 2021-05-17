@@ -1,29 +1,36 @@
 
 .ControlPanel {
     position: fixed ;
-    background-color: #1b4e91d5;
+    background-color: #2b65a8ec;
     color: rgb(239, 244, 247);
     /* background-color: var(--color); */
     height: 300px;
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
+    /* display: flex;
+    flex-direction: column; */
+    /* flex-wrap: wrap; */
     /* justify-content: space-between; */
     /* align-content: space-between; */
     /* color: white; */
     z-index: 300; 
     user-select: none;
 }
+.ControlPanelBlend {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  /* background-color: var(--colort); */
+  /* user-select: none; */
+}
 .ControlPanelMask {
   position: absolute;
   height: 100%;
   width: 100%;
   z-index: 400; 
-  display: none;
+  /* display: block; */
   /* background-image: url("EOi_logo.png"); */
-  background-color: #77bd35c9;
-  color: var(--color);
+  /* background-color: #77bd35c9; */
+  /* color: var(--color); */
 }
 .Logo {
   position: absolute;
@@ -63,16 +70,15 @@
   /* justify-content: left; */
   flex-direction: row;
   flex-wrap: wrap;
-  z-index: 3;
   /* background:  rgba(0, 255, 34, 0.315); */
 }
 .horizontalContainer {
   /* position: absolute; */
+  /* width:auto; */
   display: flex; 
   /* justify-content: center; */
-  flex-direction: column;
+  flex-direction: row;
   flex-wrap: wrap;
-  z-index: 3;
   /* background:  rgba(0, 255, 34, 0.315); */
 }
 

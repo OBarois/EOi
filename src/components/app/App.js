@@ -50,14 +50,14 @@ function App() {
                 <ControlPanel active="false" >
                     {/* <div class='logo'><img  src='./images/ESA_logo_2020_White.png' height="40" ></img></div> */}
                     {/* <div className='logo'><img alt='' src='./images/EOi_logo.png' height="100" ></img></div> */}
-                    {/* <div className='verticalContainer'> */}
+                    <div className='horizontalContainer'>
                         <MissionSelectorContainer></MissionSelectorContainer>
                         <MapSelectorContainer ></MapSelectorContainer>
                         <div className='horizontalContainer'>
-                            <DemSelectorContainer></DemSelectorContainer>
                             <ColorSelectorContainer></ColorSelectorContainer>
+                            <DemSelectorContainer></DemSelectorContainer>
                         </div>
-                    {/* </div> */}
+                    </div>
                 </ControlPanel>
                 <div className='MissionLabel'>{mission}</div>
             {/* </FullScreen> */}

@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {useSpring, animated} from 'react-spring'
 import { useGesture } from 'react-use-gesture'
 import "./controlpanel.css"
@@ -23,46 +23,54 @@ function ControlPanel(props) {
 
     const [{ mr },set] = useSpring(() =>({ mr:  -300 }))
     const bind = useGesture( {
+        onDragStart: ()=>setMask(true),
         onDrag: ({ down, delta, vxvy, movement }) => {
-            if(vxvy[1]>1 ) {
+            // if(vxvy[1]>1 ) {
+            //     openPanel()
+            //     // set.start({
+            //     //     mr: -300,
+            //     //     immediate: false,
+            //     //     onRest: ()=>{setTimeout(()=>setOpen( true),2000)} 
+            //     // })
+                
+            // } else {
                 set.start({
-                    mr: -300,
-                    immediate: false
+                    mr: down?-movement[1]:(movement[1]>100)?-300:open?-300:0,
+                    immediate: false,
+                    onChange: ()=>{ 
+                        setOpen( (mr.get() === 0)?true:false)
+                    },
+                    onRest: ()=> {
+                        if(!down) {
+                            setOpen( (mr.get() === 0)?true:false)
+                        }
+                    }
                 })
-                setOpen( true)
-            } else {
-                set.start({
-                    mr: down?-movement[1]:(movement[1]>50)?-300:0,
-                    immediate: false
-                })
-                setOpen( false)
-            }
+            // }
         },
-        onDragEnd: ({ down}) => {
-            if(!down) setMask(false)
-
-        }
+        onDragEnd: () => {
+            setTimeout( ()=>setMask(false), 600)
+        },
     },
     {
-        domTarget: panelcontrol
+        domTarget: panelcontrol,
+        drag: {useTouch: true},
+        pinch: {useTouch: true},
     })
-    
-    const handleclick = () =>{
-        setMask(true)
-        !open?set.start({mr:-300}):set.start({mr:0})
-    } 
 
-// {...bind()}
+
     return   (
 
         <animated.div  style={{ bottom: mr, left:0 }} className='ControlPanel'>
-            <div ref={panelcontrol} className='PanelControl shadow' onClick={()=>!open?set.start({mr:-300}):set.start({mr:0})} >
+            <div ref={panelcontrol} className='PanelControl shadow' >
                 {/* <img id='logo'className='Logo' src='./images/EOi_logo.png' alt='' onClick={()=>!open?set({mr:-300}):set({mr:0})} /> */}
                 {/* <div className='PanelControl' alt='' onClick={()=>!open?set({mr:-300}):set({mr:0})}></div> */}
                 <Icon icon={baselinePalette} width='100%'/>
             </div>
             <div className='ControlPanelMask' style={{display: !mask?'none':'block'}}/>
-            {props.children}
+            <div className='ControlPanelBlend'>
+                {props.children}
+                </div>
         
         </animated.div>
 

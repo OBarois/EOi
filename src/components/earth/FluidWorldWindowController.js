@@ -244,7 +244,7 @@ export const FluidWorldWindowController = memo( ({world}) => {
             //     break
 
             case 'zoomrotate':
-                handlezoomrotate(pinching, delta, origin)
+                handlezoomrotate(pinching, delta, origin, vdva)
                 break
 
             default:
@@ -278,7 +278,13 @@ export const FluidWorldWindowController = memo( ({world}) => {
 
 
     const [{ pinchzoomrotatevalue }, pinchzoomrotatespring] = useSpring(() => ({ pinchzoomrotatevalue: [0,0] }))
-    const handlezoomrotate = (pinching,delta) => {
+    const handlezoomrotate = (pinching,delta,origin, vdva) => {
+        let zenabler = 1
+        let tenabler = 1
+        if (!pinching) {
+            zenabler = (Math.abs(vdva[0]) < 0.2)?0:1
+            tenabler = (Math.abs(vdva[1]) < 0.2)?0:1
+        }
         pinchzoomrotatespring.start({
             pinchzoomrotatevalue: delta,
             immediate: pinching,
@@ -286,16 +292,19 @@ export const FluidWorldWindowController = memo( ({world}) => {
             // config: {...config.molasses},
             // config: { mass: 1, tension: 100, friction: 40, duration: 200 },
             onChange: ()=>{
-                    moveZoom(gesturestartposition.current,1-pinchzoomrotatevalue.get()[0]/300 )
-                    world.current.navigator.range *= 1-pinchzoomrotatevalue.get()[0]/300 
-                    // logdebug({angle: pinchzoomrotatevalue.get()[1]})
-                    // logdebug({dist: pinchzoomrotatevalue.get()[0]})
-                    
-                    world.current.navigator.heading -= pinchzoomrotatevalue.get()[1]
-                    // world.current.navigator.heading -= hpinchval.get()  
-                    applyLimits()
+                let rangefactor = 1-pinchzoomrotatevalue.get()[0]/300 * zenabler
+                moveZoom(gesturestartposition.current,rangefactor )
+                world.current.navigator.range *= rangefactor 
+                // logdebug({angle: pinchzoomrotatevalue.get()[1]})
+                // logdebug({dist: pinchzoomrotatevalue.get()[0]})
+                
+                world.current.navigator.heading -= pinchzoomrotatevalue.get()[1] * tenabler
+                if(world.current.navigator.heading !== 0) rotationmode.current = true
 
-                    world.current.redraw()
+                // world.current.navigator.heading -= hpinchval.get()  
+                applyLimits()
+
+                world.current.redraw()
 
             }
         })        

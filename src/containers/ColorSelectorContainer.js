@@ -31,7 +31,7 @@ function ColorSelectorContainer() {
     //console.log('mission rendering')
     return (
         <div className='ColorSelector'>
-            <HexColorPicker color={appcolor} onChange={handleChangeComplete}/>
+            <HexColorPicker color={appcolor} onChange={handleChangeComplete} style={{height:'150px', width:'140px'}}/>
         </div>
     )
     // <AlphaPicker />  
