@@ -17,10 +17,9 @@ function Earth({ id, alt }) {
     const [ geojson, setgeojson] = useGlobal('geojson')
     const [ clearGeojsonTrigger, ] = useGlobal('clearGeojsonTrigger')
     const [ searchPoint, setSearchPoint] = useGlobal('searchPoint')
-    const [ satellites, setSatellites ] = useGlobal('satellites')
+    // const [ satellites, setSatellites ] = useGlobal('satellites')
 
     const [mapSet, setMapSet] = useState(mapSettings)
-    const [sat, setSat] = useState(satellites)
 
 
     const {
@@ -45,7 +44,7 @@ function Earth({ id, alt }) {
         atmosphere: mapSettings.atmosphere,
         background: mapSettings.background,
         overlay: mapSettings.overlay,
-        satellites: satellites,
+        satellites: mapSettings.satellites,
         names: mapSettings.names,
         dem: mapSettings.dem
     })
@@ -54,7 +53,7 @@ function Earth({ id, alt }) {
     useHotkeys("c",removeGeojson)
     useHotkeys("u",northUp)
     useHotkeys("b",() => setMapSet((mapSet)=>({...mapSet, background:mapSet.background+1})))  
-    useHotkeys("m",() => setSat((sat)=>(!sat)))  
+    useHotkeys("m",() => setMapSet((mapSet)=>({...mapSet, satellites:!mapSet.satellites})))
     // useHotkeys("m",() => setSatellites((satellites)=>(!satellites)))  
     useHotkeys("d",() => setMapSet((mapSet)=>({...mapSet, dem:!mapSet.dem})))  
     useHotkeys("o",() => setMapSet((mapSet)=>({...mapSet, overlay:mapSet.overlay+1})))  
@@ -103,13 +102,6 @@ function Earth({ id, alt }) {
         setMapSet(mapSettings)
     }, [mapSettings]);
 
-    useEffect(() => {
-        setSatellites(sat)
-    }, [sat]);
-
-    useEffect(() => {
-        setSat(satellites)
-    }, [satellites]);
     
     
     

@@ -55,9 +55,9 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     const copDemOn = useRef(dem)
     const bgIndex = useRef(0)
     const ovIndex = useRef(0)
-    const copdemlayer = useRef(0)
-    const nasademlayer = useRef(0)
-
+    const [satOn, setsatOn] = useState(satellites)
+    const [starOn, setstarOn] = useState(starfield)
+    const [atmOn, setatmOn] = useState(atmosphere)
 
     // Turn the globe up north
     function northUp() {
@@ -408,16 +408,25 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     }
 
     function setTime(epoch) {
-        getLayerByName('StarField').time = getLayerByName('Atmosphere').time = new Date(epoch)
+        let adate = new Date(epoch)
+        if(starOn) {
+            getLayerByName('StarField').time = new Date(epoch)
+        }
+        if(atmOn) {
+            getLayerByName('Atmosphere').time = new Date(epoch)
+        }
+        
         enableRenderables(epoch)
 
-        for(let l=0 ; l<satelliteLayers.length ; l++) {
-            if(satelliteLayers[l].timeRange[0].getTime() > epoch || satelliteLayers[l].timeRange[1].getTime() < epoch) {
-                satelliteLayers[l].enabled = false
-                console.log('satstart: '+satelliteLayers[l].timeRange[0]+'  /  '+(new Date(epoch)))
-            } else {
-                satelliteLayers[l].enabled = true
-                satelliteLayers[l].setTime(new Date(epoch))
+        if(satOn) {
+            for(let l=0 ; l<satelliteLayers.length ; l++) {
+                if(satelliteLayers[l].timeRange[0].getTime() > epoch || satelliteLayers[l].timeRange[1].getTime() < epoch) {
+                    satelliteLayers[l].enabled = false
+                    // console.log('satstart: '+satelliteLayers[l].timeRange[0]+'  /  '+(new Date(epoch)))
+                } else {
+                    satelliteLayers[l].enabled = true
+                    satelliteLayers[l].setTime(new Date(epoch))
+                }
             }
         }
         eww.current.redraw();
@@ -633,7 +642,6 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
             { layer: atmosphereLayer, enabled: atmosphere },
             { layer: quicklookLayer, enabled: true },
             { layer: productLayer, enabled: true }
-            // { layer: modelsLayer, enabled: satellites }
         ];
     
         for (let l = 0; l < bgLayers.length; l++) {
@@ -652,7 +660,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
             eww.current.addLayer(layers[l].layer);
         }
         for (let l = 0; l < satelliteLayers.length; l++) {
-            satelliteLayers.enabled = satellites
+            satelliteLayers.enabled = satOn
             eww.current.addLayer(satelliteLayers[l]);
         }
 
@@ -699,6 +707,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         // console.log('atmosphere changed effect: '+satellites)
 
         toggleAtmosphere(atmosphere)
+        setatmOn(atmosphere)
     }, [atmosphere]);
 
     useEffect(() => {
@@ -710,6 +719,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         // console.log('sat changed effect: '+satellites)
 
         toggleModel(satellites)
+        setsatOn(satellites)
     }, [satellites]);
 
     useEffect(() => {

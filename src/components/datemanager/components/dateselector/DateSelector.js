@@ -10,7 +10,7 @@ import DateSelectorScale from './DateSelectorScale'
 import './DateSelector.css';
 // import { start } from 'repl';
 
-function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}) {
+function DateSelector({startdate, tics, onDateChange, onFinalDateChange, onStepChange}) {
 
 
     // const [ setlog, renderlog] = useLog()
@@ -302,9 +302,9 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
     //     console.log('laststartdate changed: '+lastStartdate.toJSON())
     // },[lastStartdate])
 
-    useEffect(() => {
-        console.log('Selector active: '+Selector_is_active)
-    },[Selector_is_active])
+    // useEffect(() => {
+    //     console.log('Selector active: '+Selector_is_active)
+    // },[Selector_is_active])
 
 
     useEffect(() => {
@@ -362,7 +362,7 @@ function DateSelector({startdate, onDateChange, onFinalDateChange, onStepChange}
             <div {...bind()} className="touchMask"> </div>
             <div className="Mask"  >
 
-                    <DateSelectorScale className='scale' date={scaledate} zoomfactor={zoomfactor} ></DateSelectorScale>
+                    <DateSelectorScale className='scale' date={scaledate} zoomfactor={zoomfactor} resulttics={tics}></DateSelectorScale>
                     
                     <div className="TriangleContainer" >
                         <svg height="40" width="20" className="Triangle">

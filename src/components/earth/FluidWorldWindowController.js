@@ -137,13 +137,13 @@ export const FluidWorldWindowController = memo( ({world}) => {
         onDragend: () => {
             console.log('drag end')
         },
-        onWheel: ({event, xy, previous, first, down, initial, delta, movement, offset, velocity, direction, tap, scrolling}) => {
+        onWheel: ({event, xy, previous, first, down, initial, delta, movement, offset, velocity, direction, tap, wheeling}) => {
             if(first) {
                 gesturestartposition.current = positionAtPickPoint(event.clientX,event.clientY)
             }
             // delta[1] *= 0.1         
             // delta[0] *= 0.1         
-            handlezoom(event,initial,down,delta,offset,movement,velocity, direction, xy, previous,first,scrolling)
+            handlezoom(event,initial,down,delta,offset,movement,velocity, direction, xy, previous,first,wheeling)
         },
         onPinchStart: (origin)=>{
             dragenabled.current = false
@@ -520,14 +520,14 @@ export const FluidWorldWindowController = memo( ({world}) => {
 
     // zooming
     const [{ range }, zoomspring] = useSpring(() => ({ range: [1,0] }))
-    const handlezoom = (event,initial,down,delta,offset,movement,velocity, direction, xy, previous,first,scrolling) => {
+    const handlezoom = (event,initial,down,delta,offset,movement,velocity, direction, xy, previous,first,wheeling) => {
 
         let enabler = 1
         if (!down) enabler = (velocity < 0.2)?0:0.5
 
         zoomspring.start({
             to: {range: [1-delta[1]/200,0]},
-            immediate: (down||scrolling),
+            immediate: (down||wheeling),
             // config: config.stiff,
             config: { mass: 1, tension: 100, friction: 40 },
             onChange: ()=>{

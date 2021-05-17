@@ -14,14 +14,12 @@ function ColorSelectorContainer() {
     const [ appcolor, setAppcolor ] = useGlobal('appColor');
 
     useEffect(() => {
-        console.log('color: '+appcolor)
         document.documentElement.style.setProperty('--color', appcolor);
         document.documentElement.style.setProperty('--colort', appcolor+'66');
     }, [appcolor]);
     
     const handleChangeComplete = (color) => {
         if(color === null) return
-        console.log('set color: '+color)
         document.documentElement.style.setProperty('--color', color);
          
         document.documentElement.style.setProperty('--colort', color+'66');

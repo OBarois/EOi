@@ -1,10 +1,12 @@
 import React, {useState, useEffect,useLayoutEffect, useRef} from 'react';
 import './DateSelector.css';
 
-function DateSelectorScale({date, zoomfactor}) {
+function DateSelectorScale({date, zoomfactor, resulttics}) {
 
     const scale = useRef(0)
+    const canvas = useRef(null)
     const [timescale, setTimescale] = useState('')   
+    // const [resultepochs, ] = useState(resulttics)   
     
     // saves the current zoom and date to handle the widow resize
     const izoom = useRef(zoomfactor)    
@@ -12,9 +14,19 @@ function DateSelectorScale({date, zoomfactor}) {
 
 
         
-    const scaleText = (_start, _zoom) => {
+    const scaleText = (_start, _zoom, _resulttics) => {
         // console.log('_start: '+_start.toJSON()+'  zoom: '+_zoom)
         // if(!scale.current) return
+
+        let ctx = canvas.current.getContext("2d");
+        ctx.font = "14px Arial"
+        ctx.shadowColor = "rgba(0,0,0,0.8"
+        ctx.shadowOffsetX = 1
+        ctx.shadowOffsetY = 1
+        ctx.shadowBlur = 2
+        ctx.fillStyle = "red";
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight)
+
             
         const monthcode = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']
         const YEAR_LEVEL = 1000*60*60*24*30*3
@@ -67,11 +79,13 @@ function DateSelectorScale({date, zoomfactor}) {
                     if(minute !== lastminute && i!==0) {
                         if (minute !== 0 || hour !== 0) {
                             tics.push({class:'HourTic', pos: i, label: pad(hour,2)+':'+pad(minute,2)})
+                            // ctx.fillText(pad(hour,2)+':'+pad(minute,2), 2, i);
                         } else {
                             if (minute === 0 && hour === 0) {
                                 tics.push({class:'DayTic_h', pos: i, label: pad(day,2)})
                                 tics.push({class:'MonthTic_h2', pos: i, label: monthcode[month]})
                                 //tics.push({class:'YearTic_h', pos: i, label: year})
+
                             }     
                         }
                     }
@@ -268,6 +282,27 @@ function DateSelectorScale({date, zoomfactor}) {
             lastticslength = tics.length
             // iteration +=1
         }
+        if(_resulttics) {
+            for ( let i=_resulttics.length ; i >= 0  ; i-=1 ) {
+            // for ( let i=0 ; i < _resulttics.length  ; i+=1 ) {
+            
+                let ticpos = (_resulttics[i] - _start.getTime() ) / _zoom + scale.current.offsetHeight/2
+                if(ticpos > 0 && ticpos < scale.current.offsetHeight) {
+                    // tics.push({class:'ResultTic', pos: ticpos, label: ''})
+                    // ctx.shadowColor = null
+                    // ctx.shadowOffsetX = null
+                    // ctx.shadowOffsetY = null
+                    // ctx.shadowBlur = null
+                    ctx.font = "30px Arial"
+
+            
+                    ctx.fillText('.', scale.current.offsetWidth -10, ticpos);
+
+                }
+            }
+        
+        }
+
     //   console.log('iterations: '+iteration)
         return tics.map(item => ( <div className={item.class} key={item.class+item.pos} style={{top:item.pos,opacity:1}}>{item.label}</div>))
     }
@@ -277,12 +312,16 @@ function DateSelectorScale({date, zoomfactor}) {
         setTimescale(scaleText(idate.current,izoom.current))
     }
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         // console.log('zoomfactor / date: '+zoomfactor + '/ ' + date)
         izoom.current = zoomfactor
         idate.current = date
-        setTimescale(scaleText(date,zoomfactor))
-    },[ zoomfactor,date])
+        setTimescale(scaleText(date,zoomfactor,resulttics))
+    },[ zoomfactor,date,resulttics])
+
+    // useEffect(() => {
+    //     console.log(resulttics)
+    // },[resulttics])
 
     useEffect(() => {
         window.addEventListener('resize', handleResize)
@@ -291,8 +330,11 @@ function DateSelectorScale({date, zoomfactor}) {
 
 
     return (
-        <div ref={scale} className='DateSelectorScale' id='DateSelectorScale' style={{fontSize:'14px'}}>
-            {timescale}
+        <div>
+            <canvas ref={canvas} className='DateSelectorCanvas' width='{window.innerWidth}' height={window.innerHeight}></canvas>
+            <div ref={scale} className='DateSelectorScale' id='DateSelectorScale' style={{fontSize:'14px'}}>
+                {timescale}
+            </div>
         </div>
     )
 }
