@@ -26,6 +26,7 @@ export  function initGlobalStates() {
         viewDate: new Date(),
         goToDate: new Date(),
         searchDate: new Date(),
+        pointSearchMaxAltitude: 3000000,
         searchPoint: 'POINT(40 40)',
         geojson: null,
         resultDesc: {

@@ -15,14 +15,6 @@
 
 }
 
-.buttoncontainer {
-  /* width: 50px; */
-  /* height: 50px;
-  background: rgba(157, 82, 219, 0.76);
-  display: flex; 
-  justify-content: center;
-  flex-direction: row; */
-}
 
 .flipped {
   -webkit-transform: scaleX(-1);

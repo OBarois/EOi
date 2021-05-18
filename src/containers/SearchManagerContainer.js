@@ -10,15 +10,18 @@ const SearchManagerContainer = () => {
   const [ goToDate, setgoToDate ] = useGlobal('goToDate');
   const [ clearGeojsonTrigger, setclearGeojsonTrigger ] = useGlobal('clearGeojsonTrigger');
   const [ searchPoint,  ] = useGlobal('searchPoint');
-    const [ mission,  ] = useGlobal('mission');
-    const [ altitude,  ] = useGlobal('altitude');
-    const [ animated,  ] = useGlobal('animated');
-    const [ geojson, setgeojson ] = useGlobal('geojson');
-    const [ resultDesc, setresultDesc ] = useGlobal('resultDesc');
+  const [ animated,  ] = useGlobal('animated');
+  const [ mission,  ] = useGlobal('mission');
+  const [ altitude,  ] = useGlobal('altitude');
+  const [ pointSearchMaxAltitude,  ] = useGlobal('pointSearchMaxAltitude');
+  const [ geojson, setgeojson ] = useGlobal('geojson');
+  const [ resultDesc, setresultDesc ] = useGlobal('resultDesc');
+
+  const [anim, setanim] = useState(animated)
 
     const handlePageSearch = useCallback ( (results, resultdesc) => {
       setgeojson(results)
-      console.log(resultdesc)
+      // console.log(resultdesc)
       // setresultDesc((desc)=>{return  {
       //   ...desc,...resultdesc
       // }})
@@ -31,18 +34,17 @@ const SearchManagerContainer = () => {
       setresultDesc({totalResults:0, totalLoaded:0 })
       }, [])
     
-      const handleSearchComplete = useCallback ( (searchDesc) => {
-        console.log(searchDesc)
-        if(altitude > 3000) setgoToDate(!animated?searchDesc.firstResultDate:searchDesc.lastResultDate)
+      const handleSearchComplete =  (searchDesc) => {
+        if(altitude > pointSearchMaxAltitude) setgoToDate(!animated?searchDesc.firstResultDate:searchDesc.lastResultDate)
         // setresultDesc(()=>{return {...resultDesc, ...searchDesc}})
-    }, [])
+    }
 
   //   useEffect(() => {
-  //     console.log('animated: '+animated)
+  //     setanim(animated)
   // }, [animated]);
 
-      
-      return (
+
+    return (
         <SearchManager 
           searchdate={searchDate} 
           searchpoint={searchPoint} 
