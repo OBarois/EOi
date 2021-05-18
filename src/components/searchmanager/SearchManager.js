@@ -3,6 +3,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { useHotkeys } from 'react-hotkeys-hook';
 import './SearchManager.css'
 import useDatahub from "./useDatahub"
+import useHandleDoubleTap from '../../hooks/useHandleDoubleTap'
+
  
 // npm install --save-dev @iconify/react @iconify-icons/ic
 import { Icon, InlineIcon } from '@iconify/react';
@@ -26,15 +28,18 @@ function SearchManager({searchdate, searchpoint, mission, altitude, onSearchStar
 
 
 
-    const { geojsonResults, loading, search } = useDatahub({
+    const { geojsonResults, loading, search, abort } = useDatahub({
     });
     
+    const {handleTap} = useHandleDoubleTap( ()=>{setsearchtrigger(Math.random())}, onSearchStart )
 
     // const search = () => {
     //     searchtimeout.current = setTimeout( ()=>{
     //         setsearching(false)
     //     }, 2000)
     // }
+
+    const handleTap2 = () => { setsearchtrigger(Math.random()) }
 
     useHotkeys("x",()=>setsearchtrigger(Math.random())) 
 
@@ -83,10 +88,15 @@ function SearchManager({searchdate, searchpoint, mission, altitude, onSearchStar
 
     useEffect(() => {
         // onPageSearch()
-        firstresultdate.current = new Date(0)
-        lastresultdate.current = new Date()
-        onSearchStart()
-        search(param)
+        if(loading) {
+            abort()
+        } else {
+            firstresultdate.current = new Date(0)
+            lastresultdate.current = new Date()
+            onSearchStart()
+            search(param)    
+        }
+
     }, [searchtrigger]);
 
     // useEffect(() => {
@@ -110,7 +120,7 @@ function SearchManager({searchdate, searchpoint, mission, altitude, onSearchStar
     //console.log('mission rendering')
     return (
         <div>
-            <div className={searching === true?'SearchController Active':'SearchController'} onClick={()=>{setsearchtrigger(Math.random())}}>
+            <div className={searching === true?'SearchController Active':'SearchController'} onClick={handleTap}>
                 {/* {searching === true?<Icon icon={outlineSync} width='50px'/>:<span/>} */}
                 <Icon icon={outlineRefresh} width='50px'/>
             </div>

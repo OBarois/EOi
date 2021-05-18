@@ -7,7 +7,7 @@ import eocatToGeojson from "./eocatToGeojson"
 export default function useDatahub()  {
 
     const searchparam = useRef({})
-    const controller = useRef()
+    const controller = useRef(null)
 
     const MAX_ITEMS = 1000
 
@@ -182,6 +182,12 @@ export default function useDatahub()  {
         }
     }
 
+    const abort = () => {
+        if(controller) {
+            controller.current.abort()
+        }
+    }
+
     const search = ({searchdate, mission, searchpoint}) => {
         let startdate, enddate = ''
         let target = getcollection(mission)
@@ -214,5 +220,5 @@ export default function useDatahub()  {
     
 
 
-    return {geojsonResults, loading, search}
+    return {geojsonResults, loading, search, abort}
 }

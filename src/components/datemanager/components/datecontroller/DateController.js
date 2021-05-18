@@ -9,6 +9,8 @@ import roundFastRewind from '@iconify-icons/ic/round-fast-rewind';
 
 import roundPlayArrow from '@iconify-icons/ic/round-play-arrow';
 
+import useHandleDoubleTap from '../../../../hooks/useHandleDoubleTap'
+
 
 
 
@@ -63,20 +65,23 @@ function DateController({startdate, onDateChange, onStateChange, animated}) {
     //     //setAppdate({appdate: new Date(date)})
     // },[startdate]);
 
-    const [lastTap, setLasttap] = useState()
-    const clicktimeout = useRef()
-    const handleDoubleTap = () => {
-        const now = Date.now();
-        if (lastTap && (now - lastTap) < 300) {
-            clearTimeout(clicktimeout.current)   
-            reset();
-        } else {
-            setLasttap(now)    
-            clicktimeout.current = setTimeout(() => {
-                setplaying((state)=>!state)
-            }, 300);
-        }
-      }
+    const {handleTap} = useHandleDoubleTap(()=>{setplaying((state)=>!state)}, reset)
+
+    // const [lastTap, setLasttap] = useState()
+    // const clicktimeout = useRef()
+
+    // const handleDoubleTap = () => {
+    //     const now = Date.now();
+    //     if (lastTap && (now - lastTap) < 300) {
+    //         clearTimeout(clicktimeout.current)   
+    //         reset();
+    //     } else {
+    //         setLasttap(now)    
+    //         clicktimeout.current = setTimeout(() => {
+    //             setplaying((state)=>!state)
+    //         }, 300);
+    //     }
+    //   }
 
 
     //   <div className='DateController' onClick={handleDoubleTap}>
@@ -86,7 +91,7 @@ function DateController({startdate, onDateChange, onStateChange, animated}) {
         <div className='DateController' >
             <div className='buttoncontainer'>
                 <Icon icon={roundFastRewind} onClick={decreaseSpeed} className='controlbuttons'/>
-                <Icon icon={roundPlayArrow} onClick={handleDoubleTap} className='controlbuttons'/>
+                <Icon icon={roundPlayArrow} onClick={handleTap} className='controlbuttons'/>
                 <Icon icon={roundFastForward} onClick={increaseSpeed} className='controlbuttons'/>
             </div>
         </div>
