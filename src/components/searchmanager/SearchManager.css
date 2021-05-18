@@ -15,6 +15,7 @@
     overflow: none;
     -webkit-filter: drop-shadow(  var(--shadow) );
     filter: drop-shadow(  var(--shadow));
+    -webkit-tap-highlight-color:  transparent;
 }
 
 .Active {

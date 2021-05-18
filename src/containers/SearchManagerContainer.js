@@ -16,20 +16,26 @@ const SearchManagerContainer = () => {
     const [ geojson, setgeojson ] = useGlobal('geojson');
     const [ resultDesc, setresultDesc ] = useGlobal('resultDesc');
 
-    const handlePageSearch = useCallback ( (results) => {
+    const handlePageSearch = useCallback ( (results, resultdesc) => {
       setgeojson(results)
-      }, [])
+      console.log(resultdesc)
+      // setresultDesc((desc)=>{return  {
+      //   ...desc,...resultdesc
+      // }})
+      setresultDesc(resultdesc)
+    }, [])
     
     const handleSearchStart = useCallback ( () => {
       // console.log('set clear trigger')
       setclearGeojsonTrigger(Math.random())
+      setresultDesc({totalResults:0, totalLoaded:0 })
       }, [])
     
-      const handleSearchComplete = (firstitemdate, lastitemdate) => {
-        console.log('Search Complete: [ '+ altitude + ', '+ firstitemdate + ', ' + lastitemdate + ' ]')
-        if(altitude > 3000) setgoToDate(animated?lastitemdate:firstitemdate)
-        setresultDesc({...resultDesc, firstItemDate: firstitemdate, lastItemDate: lastitemdate})
-    }
+      const handleSearchComplete = useCallback ( (searchDesc) => {
+        console.log(searchDesc)
+        if(altitude > 3000) setgoToDate(!animated?searchDesc.firstResultDate:searchDesc.lastResultDate)
+        // setresultDesc(()=>{return {...resultDesc, ...searchDesc}})
+    }, [])
 
   //   useEffect(() => {
   //     console.log('animated: '+animated)

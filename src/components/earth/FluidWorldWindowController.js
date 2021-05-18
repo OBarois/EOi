@@ -30,7 +30,7 @@ export const FluidWorldWindowController = memo( ({world}) => {
     const dragenabled = useRef(true)
     const rotationmode = useRef(false)
     const pinchmode = useRef('undefined')
-    const [logitems,setlogitems] = useState({})
+    // const [logitems,setlogitems] = useState({})
 
     // debug snippet
     // add {debughtml} in returned dom

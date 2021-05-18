@@ -1,5 +1,5 @@
 import React, {  useGlobal } from 'reactn';
-import './AltitudeLabel.css' 
+import './GenericLabel.css' 
 
 function AltitudeLabelContainer() {
 
@@ -10,7 +10,7 @@ function AltitudeLabelContainer() {
     }
 
     return (
-        <div className='AltitudeLabel'>{formatLat({altitude})}</div>
+        <div className='GenericLabel'>{formatLat({altitude})}</div>
      )
 }
 

@@ -22,22 +22,18 @@ function SearchManager({searchdate, searchpoint, mission, altitude, onSearchStar
     const searchtimeout = useRef()
     const firstresultdate = useRef(new Date(0))
     const lastresultdate = useRef(new Date())
+    const totalresults = useRef(0)
+    const totalloaded = useRef(0)
 
 
     const [param, setparam] = useState({})
 
 
 
-    const { geojsonResults, loading, search, abort } = useDatahub({
-    });
+    const { geojsonResults, loading, search, abort } = useDatahub({});
     
     const {handleTap} = useHandleDoubleTap( ()=>{setsearchtrigger(Math.random())}, onSearchStart )
 
-    // const search = () => {
-    //     searchtimeout.current = setTimeout( ()=>{
-    //         setsearching(false)
-    //     }, 2000)
-    // }
 
     const handleTap2 = () => { setsearchtrigger(Math.random()) }
 
@@ -56,25 +52,21 @@ function SearchManager({searchdate, searchpoint, mission, altitude, onSearchStar
 
     useEffect(() => {
         if(geojsonResults) {
-            // if(parseInt(geojsonResults.properties.startIndex) < 2) {
-            //     onSearchStart()
-            // }
-
-            onPageSearch(geojsonResults)
-
             // saves first and last item dates
             let firstitemdate = (new Date(geojsonResults.features[0].properties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStartTime))
             if(firstresultdate.current.getTime() < firstitemdate.getTime() || firstresultdate.current === null) {
-                // console.log('most recent: '+firstitemdate)
                 firstresultdate.current = firstitemdate
             }
             let lastitemdate = (new Date(geojsonResults.features[geojsonResults.features.length-1].properties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStartTime))
             if(lastresultdate.current.getTime() > lastitemdate.getTime() || lastitemdate.current === null) {
-                // console.log('oldest: '+lastitemdate)
                 lastresultdate.current = lastitemdate
-                // console.log(geojsonResults.features)
             }
-
+            totalloaded.current += geojsonResults.features.length
+            let resultdesc = {
+                totalResults: Number(geojsonResults.properties.totalResults), 
+                totalLoaded: totalloaded.current
+            }
+            onPageSearch(geojsonResults, resultdesc)
 
         }
     }, [geojsonResults]);
@@ -82,29 +74,30 @@ function SearchManager({searchdate, searchpoint, mission, altitude, onSearchStar
     useEffect(() => {
         setsearching(loading)
         if(loading === false && firstresultdate.current.getTime() !== 0 ) {
-            onSearchComplete(firstresultdate.current, lastresultdate.current)
+            onSearchComplete({
+                firstResultDate: firstresultdate.current, 
+                lastResultDate: lastresultdate.current,
+                totalResults: totalresults.current,
+                totalLoaded: totalloaded.current
+            })
         }
     }, [loading]);
 
     useEffect(() => {
-        // onPageSearch()
         if(loading) {
             abort()
         } else {
             firstresultdate.current = new Date(0)
             lastresultdate.current = new Date()
+            totalloaded.current = 0
+            totalresults.current = 0
+
             onSearchStart()
             search(param)    
         }
 
     }, [searchtrigger]);
 
-    // useEffect(() => {
-    //     clearTimeout(searchtimeout.current)
-    //     searchtimeout.current = setTimeout( () => {
-    //         setsearchtrigger(Math.random())
-    //     },1000)
-    // }, [param]);
 
     useEffect(() => {
         let sd = searchdate

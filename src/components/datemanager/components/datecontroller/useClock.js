@@ -7,6 +7,7 @@ export function useClock({  initdate }) {
   
     // let initDate = startdate
     const [date, setDate] = useState(initdate)
+    const [speed, setSpeed] = useState(1)
     const [playing, setplaying] = useState(false)
     // const [stepstate, setStepstate] = useState(1000*60*60)
     // const [refreshrate, setrefreshrate] = useState(200)
@@ -28,6 +29,7 @@ export function useClock({  initdate }) {
         step.current = (step.current > 0)? step.current *= 2:step.current /= 2
         if(Math.abs(step.current) < refreshrate.current) step.current = refreshrate.current
         console.log('step: '+step.current)
+        setSpeed(step.current/200)
         // setStepstate((st)=>st*2)
         // start()
     }
@@ -35,6 +37,7 @@ export function useClock({  initdate }) {
         step.current = (step.current > 0)? step.current /= 2:step.current *= 2
         if(Math.abs(step.current) < refreshrate.current) step.current = -1 * refreshrate.current
         console.log('step: '+step.current)
+        setSpeed(step.current/200)
         // setStepstate((st)=>st/2)
     }
 
@@ -88,5 +91,5 @@ export function useClock({  initdate }) {
 
 
   
-  return { date, playing, togglePause, start, stop, reset, increaseSpeed, decreaseSpeed, forceDate };
+  return { date, speed, playing, togglePause, start, stop, reset, increaseSpeed, decreaseSpeed, forceDate };
 }

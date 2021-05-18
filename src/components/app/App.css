@@ -24,11 +24,12 @@
 }
 
 .MissionLabel {
-  position: fixed;
+  /* position: fixed;
   top: 58px;
-  left: 5px;
+  left: 5px; */
   color: var(--color);
-  /* width: 100px; */
+  text-align: left;
+  width: 100px;
   /* height: 30px; */
   margin: auto;
   /* z-index: 2; */

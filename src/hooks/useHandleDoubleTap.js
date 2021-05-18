@@ -6,7 +6,9 @@
         const [lastTap, setLasttap] = useState()
         const clicktimeout = useRef()
     
-        const handleTap = () => {
+        const handleTap = (event) => {
+            // console.log(event)
+            event.stopPropagation()
             const now = Date.now();
             if (lastTap && (now - lastTap) < 300) {
                 clearTimeout(clicktimeout.current)   

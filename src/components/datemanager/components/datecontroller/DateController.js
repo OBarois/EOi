@@ -21,6 +21,7 @@ function DateController({startdate, onDateChange, onStateChange, animated}) {
     // useClock must be redone to support real time increments
     const {
         date,
+        speed,
         togglePause,
         start,
         stop,
@@ -67,34 +68,28 @@ function DateController({startdate, onDateChange, onStateChange, animated}) {
 
     const {handleTap} = useHandleDoubleTap(()=>{setplaying((state)=>!state)}, reset)
 
-    // const [lastTap, setLasttap] = useState()
-    // const clicktimeout = useRef()
-
-    // const handleDoubleTap = () => {
-    //     const now = Date.now();
-    //     if (lastTap && (now - lastTap) < 300) {
-    //         clearTimeout(clicktimeout.current)   
-    //         reset();
-    //     } else {
-    //         setLasttap(now)    
-    //         clicktimeout.current = setTimeout(() => {
-    //             setplaying((state)=>!state)
-    //         }, 300);
-    //     }
-    //   }
-
-
-    //   <div className='DateController' onClick={handleDoubleTap}>
+//     <div className='buttoncontainer'>
+//     <Icon icon={roundFastRewind} onClick={decreaseSpeed} className='smallcontrolbutton shadow' style={{display:playing?'block':'none'}}/>
+// </div>
+// <div className='buttoncontainer'>
+//     <Icon icon={roundPlayArrow} onClick={handleTap} className='controlbutton shadow'/>
+// </div>
+// <div className='buttoncontainer'>
+//     <Icon icon={roundFastForward} onClick={increaseSpeed} className='smallcontrolbutton shadow' style={{display:playing?'block':'none'}}/>
+// </div>
 
 
     return (
-        <div className='DateController' >
-            <div className='buttoncontainer'>
-                <Icon icon={roundFastRewind} onClick={decreaseSpeed} className='controlbuttons'/>
-                <Icon icon={roundPlayArrow} onClick={handleTap} className='controlbuttons'/>
-                <Icon icon={roundFastForward} onClick={increaseSpeed} className='controlbuttons'/>
-            </div>
+        <div className='DateController ' >
+                <Icon icon={roundFastRewind} onClick={decreaseSpeed} className='smallcontrolbutton shadow' style={{display:playing?'block':'none'}}/>
+                <div className={speed>0?'':'flipped'}>
+                    <Icon icon={roundPlayArrow} onClick={handleTap} className='controlbutton shadow'/>
+                </div>
+                <span className='Speed' style={{display:playing?'block':'none'}}>x{Math.abs(speed)}</span>
+                <Icon icon={roundFastForward} onClick={increaseSpeed} className='smallcontrolbutton shadow' style={{display:playing?'block':'none'}}/>
         </div>
     )
 }
 export default DateController
+
+

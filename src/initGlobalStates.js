@@ -31,7 +31,8 @@ export  function initGlobalStates() {
         resultDesc: {
             firstItemDate: null,
             lastItemDate: null,
-            totalResults: null
+            totalResults: 0,
+            totalLoaded: 0
         },
         animated: false,
         clearGeojsonTrigger: null,
