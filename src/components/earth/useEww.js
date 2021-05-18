@@ -59,6 +59,8 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     const [starOn, setstarOn] = useState(starfield)
     const [atmOn, setatmOn] = useState(atmosphere)
 
+    const lastepoch = useRef(new Date())
+
     // Turn the globe up north
     function northUp() {
         const wwd = eww.current
@@ -83,13 +85,11 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         // console.log(eww.current.layers)
         eww.current.redraw();
     }
+
     //toggle model
     function toggleModel(bool) {
         console.log('toggleModel: '+bool)
-        for (let l = 0; l < satelliteLayers.length; l++) {
-            satelliteLayers[l].enabled = (bool!= null)?bool:!satelliteLayers[l].enabled
-        }
-        // getLayerByName('Model').enabled = (bool!= null)?bool:!getLayerByName('Model').enabled
+        enableSatelliteLayers(lastepoch.current,bool)
         eww.current.redraw();
     }
 
@@ -331,15 +331,27 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         return null
     }
 
+    function enableSatelliteLayers(epoch,bool) {
+        for(let l=0 ; l<satelliteLayers.length ; l++) {
+            if(satelliteLayers[l].timeRange[0].getTime() > epoch || satelliteLayers[l].timeRange[1].getTime() < epoch) {
+                satelliteLayers[l].enabled = false
+                // console.log('satstart: '+satelliteLayers[l].timeRange[0]+'  /  '+(new Date(epoch)))
+            } else {
+                satelliteLayers[l].setTime(new Date(epoch))
+                satelliteLayers[l].enabled = (bool === null)?satOn:bool
+            }
+        }
+    }
+
+
     async function enableRenderables(time) {
         let productlayer = getLayerByName('Products')
         let timeOffset = 1000 * 60 * 60 * 24 // 3 hours
         for (let j = 0; j < productlayer.renderables.length; j++) {
             let renderable = productlayer.renderables[j]
             if (time != 0) {
-                let renderableStartDate = (new Date(renderable.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStartTime)).getTime()
-                // let renderableStopDate = (new Date(renderable.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStopTime)).getTime()
-                // renderable.enabled = (renderableStartDate <= time+timeOffset/2 && renderableStopDate >= time-timeOffset/2) ? true : false   
+                let productStart = renderable.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStartTime
+                let renderableStartDate = (new Date(productStart)).getTime()
                 renderable.enabled = (renderableStartDate > time-timeOffset && renderableStartDate <= time) ? true : false   
             } else {
                 renderable.enabled = false
@@ -408,7 +420,9 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     }
 
     function setTime(epoch) {
-        let adate = new Date(epoch)
+        epoch = (epoch)?epoch:lastepoch.current
+        // console.log(epoch)
+
         if(starOn) {
             getLayerByName('StarField').time = new Date(epoch)
         }
@@ -417,19 +431,12 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         }
         
         enableRenderables(epoch)
-
         if(satOn) {
-            for(let l=0 ; l<satelliteLayers.length ; l++) {
-                if(satelliteLayers[l].timeRange[0].getTime() > epoch || satelliteLayers[l].timeRange[1].getTime() < epoch) {
-                    satelliteLayers[l].enabled = false
-                    // console.log('satstart: '+satelliteLayers[l].timeRange[0]+'  /  '+(new Date(epoch)))
-                } else {
-                    satelliteLayers[l].enabled = true
-                    satelliteLayers[l].setTime(new Date(epoch))
-                }
-            }
+            enableSatelliteLayers(epoch,null)
         }
+
         eww.current.redraw();
+        lastepoch.current = epoch
      }
 
      function moveTo(clat, clon, alt) {
@@ -713,13 +720,13 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     useEffect(() => {
         // console.log('starfield changed effect: '+starfield)
         toggleStarfield(starfield)
+        setstarOn(starfield)
     }, [starfield]);
 
     useEffect(() => {
         // console.log('sat changed effect: '+satellites)
-
-        toggleModel(satellites)
         setsatOn(satellites)
+        toggleModel(satellites)
     }, [satellites]);
 
     useEffect(() => {

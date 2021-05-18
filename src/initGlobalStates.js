@@ -18,7 +18,7 @@ export  function initGlobalStates() {
     setGlobal({
         mission: 'S1',
         altitude: '5000000',
-        appColor: '#edb06c',
+        appColor: '#cc44cf',
         position: {
             clon:'0.5',
             clat:'45' 
