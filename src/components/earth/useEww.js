@@ -550,7 +550,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         eww.current.redraw()
     }
 
-    function setTime(epoch) {
+    async function setTime(epoch) {
         epoch = (epoch)?epoch:lastepoch.current
         // console.log(epoch)
 
