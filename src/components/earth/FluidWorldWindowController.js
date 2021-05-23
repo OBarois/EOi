@@ -519,20 +519,23 @@ export const FluidWorldWindowController = memo( ({world}) => {
 
 
     // zooming
-    const [{ range }, zoomspring] = useSpring(() => ({ range: [1,0] }))
+    const [{ range }, zoomspring] = useSpring(() => ({ range: [0,0] }))
     const handlezoom = (event,initial,down,delta,offset,movement,velocity, direction, xy, previous,first,wheeling) => {
 
         let enabler = 1
         if (!down) enabler = (velocity < 0.2)?0:0.5
 
         zoomspring.start({
-            to: {range: [1-delta[1]/200,0]},
+            // to: {range: [1-delta[1]/200,0]},
+            range: delta,
             immediate: (down||wheeling),
+            // immediate: (down),
             // config: config.stiff,
             config: { mass: 1, tension: 100, friction: 40 },
             onChange: ()=>{
                     // logdebug({rangefactor: spring.value.range})
-                    let rangefactor = (enabler === 0)?1:range.get()[0]
+                    // let rangefactor = (enabler === 0)?1:range.get()[0]
+                    let rangefactor = (enabler === 0)?1:1-range.get()[1]/(wheeling?700:300)
                     moveZoom(gesturestartposition.current,rangefactor)
                     world.current.navigator.range *= rangefactor
                     applyLimits()
@@ -716,7 +719,7 @@ export const FluidWorldWindowController = memo( ({world}) => {
             {/* <animated.div {...bind2()} style={{ x, y }}  className='Debug'>
                 {debugtext}
             </animated.div> */}
-            {debughtml}
+            {/* {debughtml} */}
             {/* <LogPanel items={logitems}/> */}
         </div>
     )

@@ -20,3 +20,20 @@
   touch-action: none;
 }
 
+.Quiklook {
+  position: absolute;
+  /* top: 50px;
+  left: 5px; */
+  width: 100px;
+  height: 100px;
+  /* background: rgba(189, 12, 224, 0.384); */
+  border-radius: 8px;
+  /* z-index: 600; */
+  /* touch-action: none;
+  pointer-events: none;
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none; */
+
+}

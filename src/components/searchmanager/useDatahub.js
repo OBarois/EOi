@@ -21,7 +21,27 @@ export default function useDatahub()  {
             code: 'S1',
             //templateUrl: 'https://131.176.236.55/dhus/search?q=( footprint:"Intersects({polygon})" AND beginposition:[{start} TO {end}] AND platformname:Sentinel-1 AND producttype:GRD)&start={startindex}&rows=100&sortedby=beginposition&order=desc&format=json',
             templateUrl: 'https://scihub.copernicus.eu/dhus/search?q=( footprint:"Intersects({polygon})" AND beginposition:[{start} TO {end}] AND platformname:Sentinel-1 AND producttype:GRD)&start={startindex}&rows=100&orderby=beginposition desc&format=json',
-            name: 'Sentinel-1 A/B GRD' ,
+            name: 'Sentinel-1 GRD' ,
+            startIndexOrigin: 0,
+            dateOff: ' beginposition:[{start} TO {end}] AND',
+            areaOff:  ' footprint:"Intersects({polygon})" AND',
+            windowSize: 1000 * 60 * 60 * 18 
+        },
+        {
+            code: 'S1A',
+            //templateUrl: 'https://131.176.236.55/dhus/search?q=( footprint:"Intersects({polygon})" AND beginposition:[{start} TO {end}] AND platformname:Sentinel-1 AND producttype:GRD)&start={startindex}&rows=100&sortedby=beginposition&order=desc&format=json',
+            templateUrl: 'https://scihub.copernicus.eu/dhus/search?q=( footprint:"Intersects({polygon})" AND beginposition:[{start} TO {end}] AND platformname:Sentinel-1 AND filename:S1A* AND producttype:GRD)&start={startindex}&rows=100&orderby=beginposition desc&format=json',
+            name: 'Sentinel-1A GRD' ,
+            startIndexOrigin: 0,
+            dateOff: ' beginposition:[{start} TO {end}] AND',
+            areaOff:  ' footprint:"Intersects({polygon})" AND',
+            windowSize: 1000 * 60 * 60 * 18 
+        },
+        {
+            code: 'S1B',
+            //templateUrl: 'https://131.176.236.55/dhus/search?q=( footprint:"Intersects({polygon})" AND beginposition:[{start} TO {end}] AND platformname:Sentinel-1 AND producttype:GRD)&start={startindex}&rows=100&sortedby=beginposition&order=desc&format=json',
+            templateUrl: 'https://scihub.copernicus.eu/dhus/search?q=( footprint:"Intersects({polygon})" AND beginposition:[{start} TO {end}] AND platformname:Sentinel-1 AND filename:S1B* AND producttype:GRD)&start={startindex}&rows=100&orderby=beginposition desc&format=json',
+            name: 'Sentinel-1B GRD' ,
             startIndexOrigin: 0,
             dateOff: ' beginposition:[{start} TO {end}] AND',
             areaOff:  ' footprint:"Intersects({polygon})" AND',
@@ -35,6 +55,15 @@ export default function useDatahub()  {
             dateOff: ' beginposition:[{start} TO {end}] AND',
             areaOff:  ' footprint:"Intersects({polygon})" AND',
             windowSize: 1000 * 60 * 60 *3
+        },
+        {
+            code: 'S2A',
+            templateUrl: 'https://scihub.copernicus.eu/dhus/search?q=( footprint:"Intersects({polygon})" AND beginposition:[{start} TO {end}] AND platformname:Sentinel-2 AND filename:S2A_MSIL1C*)&start={startindex}&rows=100&orderby=beginposition desc&format=json',
+            name: 'Sentinel-2 A/B Level 1C',
+            startIndexOrigin: 0,
+            dateOff: ' beginposition:[{start} TO {end}] AND',
+            areaOff:  ' footprint:"Intersects({polygon})" AND',
+            windowSize: 1000 * 60 * 60 * 3
         },
         {
             code: 'S2B',
@@ -55,8 +84,17 @@ export default function useDatahub()  {
             windowSize: 1000 * 60 * 60 * 24
         },
         {
-            code: 'S3/OLCI',
-            templateUrl: 'https://scihub.copernicus.eu/dhus/search?q=( footprint:"Intersects({polygon})" AND beginposition:[{start} TO {end}] AND platformname:Sentinel-3 AND (producttype:OL_1_ERR___))&start={startindex}&rows=100&orderby=beginposition desc&format=json',
+            code: 'S3A/OLCI/LFR',
+            templateUrl: 'https://scihub.copernicus.eu/dhus/search?q=( footprint:"Intersects({polygon})" AND beginposition:[{start} TO {end}] AND platformname:Sentinel-3 AND filename:S3A_*  AND (producttype:OL_2_LFR___))&start={startindex}&rows=100&orderby=beginposition desc&format=json',
+            name: 'Sentinel-3 A/B, OLCI' ,
+            startIndexOrigin: 0,
+            dateOff: ' beginposition:[{start} TO {end}] AND',
+            areaOff:  ' footprint:"Intersects({polygon})" AND',
+            windowSize: 1000 * 60 * 60 * 24
+        },
+        {
+            code: 'S3B/OLCI/LFR',
+            templateUrl: 'https://scihub.copernicus.eu/dhus/search?q=( footprint:"Intersects({polygon})" AND beginposition:[{start} TO {end}] AND platformname:Sentinel-3 AND filename:S3B_* AND (producttype:OL_2_LFR___))&start={startindex}&rows=100&orderby=beginposition desc&format=json',
             name: 'Sentinel-3 A/B, OLCI' ,
             startIndexOrigin: 0,
             dateOff: ' beginposition:[{start} TO {end}] AND',

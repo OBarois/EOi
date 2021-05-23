@@ -29,6 +29,7 @@ export  function initGlobalStates() {
         pointSearchMaxAltitude: 3000000,
         searchPoint: 'POINT(40 40)',
         geojson: null,
+        closestItem: null,
         resultDesc: {
             firstItemDate: null,
             lastItemDate: null,
@@ -44,7 +45,8 @@ export  function initGlobalStates() {
             background: 1,
             overlay:2,
             dem: false,
-            satellites: true
+            satellites: false,
+            quicklooks: false
         }
     })
     

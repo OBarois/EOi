@@ -17,8 +17,7 @@ import SearchLabelContainer from "../../containers/SearchLabelContainer"
 
 import DateManagerContainer from '../../containers/DateManagerContainer'
 import SearchManagerContainer from '../../containers/SearchManagerContainer'
-import useFullscreen from "@rooks/use-fullscreen"
-
+import { useFullscreen } from 'rooks';
 
 function App() {
     

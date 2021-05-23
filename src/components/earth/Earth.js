@@ -1,14 +1,18 @@
-import React, {useEffect, useState, useGlobal } from 'reactn';
+import React, {useEffect, useState, useGlobal, useRef } from 'reactn';
 import './Earth.css'
 import { useEww } from "./useEww"
 import { useHotkeys } from 'react-hotkeys-hook'
+import { useDebounce } from '../../hooks/useDebounce';
 import {FluidWorldWindowController} from './FluidWorldWindowController'
+import InfoPanel from "../infopanel"
 
 
 
 
 
-function Earth({ id, alt }) {
+
+const Earth = ({ id, alt }) => {
+
 
     const [mapSettings, setMapSettings] = useGlobal('mapSettings')
     const [ position, setPosition] = useGlobal('position')
@@ -17,17 +21,22 @@ function Earth({ id, alt }) {
     const [ geojson, setgeojson] = useGlobal('geojson')
     const [ clearGeojsonTrigger, ] = useGlobal('clearGeojsonTrigger')
     const [ searchPoint, setSearchPoint] = useGlobal('searchPoint')
+    const [ closestItem, setclosestItem] = useGlobal('closestItem')
     // const [ satellites, setSatellites ] = useGlobal('satellites')
 
     const [mapSet, setMapSet] = useState(mapSettings)
 
+    const debouncedclosestItem = useDebounce(closestItem, 200)
 
     const {
         eww,
+        QL,
         ewwstate,
         moveTo,
         addGeojson,
         removeGeojson,
+        addQuicklook,
+        removeQuicklooks,
         addWMS,
         toggleProjection,
         toggleOv,
@@ -68,6 +77,8 @@ function Earth({ id, alt }) {
     // const toggleNames = () => setMapSettings((mapSettings)=>({...mapSettings, names:!mapSettings.names}))
     // const toggleBg = () => setMapSettings((mapSettings)=>({...mapSettings, background:Math.random()}))
 
+    // const [QLimage,setQLimage] = useState(ewwstate.image)
+
     useEffect(() => {
         setAltitude(ewwstate.altitude)
     },[ewwstate.altitude])
@@ -75,6 +86,15 @@ function Earth({ id, alt }) {
     useEffect(() => {
         setSearchPoint(ewwstate.viewpoint)
     },[ewwstate.viewpoint])
+
+    // useEffect(() => {
+    //     setQLimage(ewwstate.image)
+    //     // qlzone.current.src = ewwstate.image
+    // },[ewwstate.image])
+    useEffect(() => {
+        setclosestItem(ewwstate.closestRenderable)
+    },[ewwstate.closestRenderable])
+
 
 
     useEffect(() => {
@@ -91,6 +111,7 @@ function Earth({ id, alt }) {
 
     useEffect(() => {
         removeGeojson()
+        removeQuicklooks()
     }, [clearGeojsonTrigger]);
 
     useEffect(() => {
@@ -101,6 +122,13 @@ function Earth({ id, alt }) {
         // console.log(mapSettings)
         setMapSet(mapSettings)
     }, [mapSettings]);
+
+    useEffect(() => {
+        // console.log('edclosestItem)
+        if(mapSettings.quicklooks)
+            addQuicklook(debouncedclosestItem)
+
+    }, [debouncedclosestItem]);
 
     
     
@@ -139,6 +167,9 @@ function Earth({ id, alt }) {
             <canvas className={'Earth'} id={id} />
             {/* <canvas id={id} style={globeStyle} /> */}
             <FluidWorldWindowController world={eww}/>
+            {/* <InfoPanel top= '100px' left= '5px'>
+                <div className='Quiklook'><img src={QLimage?QLimage.src:''}  alt='' width='150px'/></div>
+            </InfoPanel> */}
         </div>
     );
 }

@@ -1,12 +1,21 @@
-import  { useState, useEffect, useRef } from "react";
 import WorldWind from "webworldwind-esa";
+import './wwwxx/www-overrides/DrawContext';
+import './wwwxx/www-overrides/SurfaceShapeTileBuilder';
+import SurfaceShape from './wwwxx/www-overrides/SurfaceShape';
+import './wwwxx/www-overrides/SurfaceShapeTile';
+import './wwwxx/www-overrides/TiledImageLayer';
+import './wwwxx/www-overrides/GeoJSONParser';
+import  WorldWindow  from './wwwxx/WorldWindow';
+import  { useState, useEffect, useRef } from "react";
 import StarFieldLayer from "./wwwxx/layer/starfield/StarFieldLayer" // import a custom one as the base url is not set when using wwwx
-// import TexturedSurfacePolygon from './wwwx/shapes/TexturedSurfacePolygon'
-import wwwx from "webworldwind-x";
+import TexturedSurfacePolygon from './wwwxx/textured/TexturedSurfacePolygon'
+// import wwwx from "webworldwind-x";
+
 // import modelsLayer from './satelliteLayer';
 import satelliteLayers from './satelliteLayers';
 
 import {bgLayers, ovLayers} from './layerConfig';
+// import SurfaceShape from './wwwxx/www-overrides/SurfaceShape';
 
 
 // BasicWorldWindowController.prototype.applyLimits = function () {
@@ -44,13 +53,15 @@ import {bgLayers, ovLayers} from './layerConfig';
 export function useEww({ id, clon, clat, alt, starfield, atmosphere, background, overlay, names, satellites, dem }) {
     // console.log('useEww renders')
     
+    const TRAIL_PRODUCT = 1000 * 60 * 60 * 24 //1 day
+    const TRAIL_QUICKLOOK = 1000 * 60 * 60  //1 hour
+
   
     const eww = useRef(null)
    
     const [projection, setProjection] = useState("3D")
     // const [aoi, setAoi] = useState({type: null, value: null})
     const [aoi, setAoi] = useState('')
-    const [quicklooklayers, setQuicklooklayers] = useState([])
     const [ewwstate, setEwwState] = useState({latitude: clat, longitude: clon, altitude: alt, aoi:'', pickedItems: []})
     const copDemOn = useRef(dem)
     const bgIndex = useRef(0)
@@ -211,7 +222,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     
     const addGeojson = (url,epoch) => {
 
-        // console.log('replace: '+replace)
+        console.log('adding geo: ')
 
         function shapeConfigurationCallback(geometry, properties) {
             let configuration = {};
@@ -257,15 +268,26 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
             return configuration;
         }
 
+        function setProductTimeRange(productlayer) {
+            for(let i=0; i<productlayer.renderables.length; i++) {
+                let visibilityEnd = productlayer.renderables[i].userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStartTime
+                let visibilityStart = new Date(visibilityEnd.getTime() - TRAIL_PRODUCT)
+                productlayer.renderables[i].timeRange = [visibilityStart, visibilityEnd]
+            }
+        }
         
         function loadCompleteCallback() {
             // console.log(renderableLayer)
-            enableRenderables(epoch) // uncomment to disable renderables
+            setProductTimeRange(productlayer)
+            enableRenderables(productlayer, epoch, TRAIL_PRODUCT)
+            // console.log(productlayer)
+
             eww.current.redraw();
         }
     
         let productlayer = getLayerByName('Products')
-
+        // we use a custom version of GeoJson Parser which only creates TexturedSurfacePolygon renderables extending our custom SurfaceShape
+        // !!! Only Polygon and multi-Polygon geometries are supported. Other types will cause the worldwind engine to crash in endless loops...
         let geoJson = new WorldWind.GeoJSONParser(url);
         geoJson.load(loadCompleteCallback, shapeConfigurationCallback, productlayer);
     }
@@ -343,75 +365,184 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         }
     }
 
-
-    async function enableRenderables(time) {
-        let productlayer = getLayerByName('Products')
-        let timeOffset = 1000 * 60 * 60 * 24 // 3 hours
-        for (let j = 0; j < productlayer.renderables.length; j++) {
-            let renderable = productlayer.renderables[j]
+    function enableRenderables(layer, time, trailduration) {
+        if(layer.renderables.length === 0) return
+        let closestrenderableindex = 0
+        let lastrenderableepoch = 0
+        for (let j = 0; j < layer.renderables.length; j++) {
+            let renderable = layer.renderables[j]
             if (time != 0) {
-                let productStart = renderable.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStartTime
-                let renderableStartDate = (new Date(productStart)).getTime()
-                renderable.enabled = (renderableStartDate > time-timeOffset && renderableStartDate <= time) ? true : false   
+
+                let visibilityend = renderable.timeRange[1].getTime()
+
+                // find closest
+                if( visibilityend > lastrenderableepoch && visibilityend <= time) {
+                    closestrenderableindex = j
+                    lastrenderableepoch = visibilityend
+                }
+
+                renderable.enabled = (time-trailduration < visibilityend && visibilityend <= time) ? true : false   
             } else {
                 renderable.enabled = false
             }         
         }
+        // make the closest one visible regardless
+        layer.renderables[closestrenderableindex].enabled = true
 
+        return (layer.renderables[closestrenderableindex])
     }
 
-    function addQuicklook(renderable) {
 
-        function imageLoader(url, useCredentials) {
+
+
+    const controller = useRef(null)
+
+    //  const flipImage = async (img) => {
+    //     let canvas = document.createElement('canvas')
+    //     let ctx = canvas.getContext("2d")
+    //     let width = img.width
+    //     let height = img.height 
+    //     console.log('flipping')
+    //     ctx.save(); // Save the current state
+    //     ctx.scale(1, -1); // Set scale to flip the image
+    //     ctx.drawImage(img, 1, 0, width, height); // draw the image
+    //     ctx.restore(); // Restore the last saved state
+    //     let newimg = new Image()
+    //     newimg.src = canvas.toDataURL()
+    //     return newimg
+    // };
+    const flipImage = (srcBase64, callback) => {
+        const img = new Image();
+    
+        // https://stackoverflow.com/questions/20600800/js-client-side-exif-orientation-rotate-and-mirror-jpeg-images
+        // https://stackoverflow.com/questions/7584794/accessing-jpeg-exif-rotation-data-in-javascript-on-the-client-side/32490603#32490603
+        const srcOrientation = 4;
+        img.onload = function() {
+            var width = img.width,
+                height = img.height,
+                canvas = document.createElement('canvas'),
+                ctx = canvas.getContext("2d");
+        
+            // set proper canvas dimensions before transform & export
+            if (4 < srcOrientation && srcOrientation < 9) {
+              canvas.width = height;
+              canvas.height = width;
+            } else {
+              canvas.width = width;
+              canvas.height = height;
+            }
+            // transform context before drawing image
+            switch (srcOrientation) {
+              case 2: ctx.transform(-1, 0, 0, 1, width, 0); break;
+              case 3: ctx.transform(-1, 0, 0, -1, width, height); break;
+              case 4: ctx.transform(1, 0, 0, -1, 0, height); break;
+            //   case 4: ctx.scale(1,-1); break;
+              case 5: ctx.transform(0, 1, 1, 0, 0, 0); break;
+              case 6: ctx.transform(0, 1, -1, 0, height, 0); break;
+              case 7: ctx.transform(0, -1, -1, 0, height, width); break;
+              case 8: ctx.transform(0, -1, 1, 0, 0, width); break;
+              default: break;
+            }
+        
+            // draw image
+            ctx.drawImage(img, 0, 0);
+        
+            // export base64
+            callback(canvas.toDataURL());
+
+          };
+    
+          img.src = srcBase64;
+        //   return(img)
+          
+    }
+
+
+
+
+    const createQL = async (url, footprint, timerange, attributes, quicklookLayer) => {
+
+        async function createImage(url) {
             return new Promise((resolve, reject) => {
-                const img = new Image();
-        
-                img.onload = function() {
-                    resolve(img);
-                };
-        
-                img.onerror = function(e){
-                    reject(e);
-                };
-        
-                img.crossOrigin = useCredentials ? 'Use-Credentials' : 'Anonymous';
-                img.src = url;
-                console.log(' adding QL')
+                flipImage(url, (base64src) => {
+                    const imageOfQuickLook = new Image();
+                    imageOfQuickLook.addEventListener('load', () => {
+                        resolve(imageOfQuickLook);
+                    }, false);
+                    imageOfQuickLook.src = base64src;
+                });
             });
         }
+    
 
 
-        // console.log(' adding QL')
-        //  console.log(renderable.attributes)
-        // let quicklook =  new TexturedSurfacePolygon(renderable.sector)
-        // let quicklookLayer = new WorldWind.RenderableLayer('Quicklooks')
-        // // quicklookLayer.addRenderable(quicklook)
-        // // setQuicklooklayers((quicklooklayers)=>[...quicklooklayers,quicklookLayer])
-        // // eww.current.addLayer(quicklookLayer)
-        // let ql = new Image()
-        // ql.src = renderable.userProperties.quicklookUrl
-        // quicklook.image = ql
-        
-        imageLoader(renderable.userProperties.quicklookUrl,true).then(image => {
-            let quicklookLayer = getLayerByName('Quicklooks')
-            removeQuicklooks()
-            let footprint = [
-                renderable.boundaries[0][0],
-                renderable.boundaries[0][3],
-                renderable.boundaries[0][2],
-                renderable.boundaries[0][1]
-            ]
-            // footprint[0].pop()
-            console.log(footprint)
-            let quicklook =  new wwwx.TexturedSurfacePolygon(footprint,renderable.attributes)
-            quicklook.maxImageWidth = 64
-            quicklook.maxImageHeight = 64
+        controller.current = new AbortController()
+
+        // if quicklook is already there, do nothing
+        for(let i = 0; i < quicklookLayer.renderables.length; i++) {
+            if(quicklookLayer.renderables[i].displayName === timerange[1].toUTCString()) return
+        }
+
+        try {
+            
+            let response = await fetch (url, {mode: 'cors', credentials: 'include', signal: controller.current.signal, cache: "force-cache"})
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            let blob = await response.blob()
+            let objectURL = URL.createObjectURL(blob)
+            let image = await createImage(objectURL)
+            
+            let quicklook =  new TexturedSurfacePolygon(footprint,attributes)
+            // quicklook.maxImageWidth = 64
+            // quicklook.maxImageHeight = 64
+            quicklook.maximumNumEdgeIntervals = 2;
+            quicklook.polarThrottle = 1;
+            quicklook.timeRange = timerange
+            quicklook.displayName = timerange[1].toUTCString()
+    
             
             quicklook.image = image
+
+            // setEwwState((ewwstate) => { return {...ewwstate, image: image}})
             quicklookLayer.addRenderable(quicklook)
-            eww.current.addLayer(quicklookLayer)
+            URL.revokeObjectURL(objectURL)
+
             eww.current.redraw()
-        })
+            
+        } catch(err) {
+            console.log("Error contacting server...")
+            console.log(err)
+        }
+    }
+
+
+    const addQuicklook = async (renderable) => {
+        if(renderable) {
+
+            let url = renderable.userProperties.quicklookUrl
+            // console.log(renderable)
+            let footprint = renderable.boundaries[0]
+            let timerange =[]
+            timerange[1] = renderable.timeRange[1]
+            timerange[0] = new Date(timerange[1].getTime() - TRAIL_QUICKLOOK)
+            let attributes = renderable.attributes
+            let quicklookLayer = getLayerByName('Quicklooks')
+
+            createQL(url, footprint, timerange, attributes, quicklookLayer)
+            decacheQuicklooks()
+        }
+    }
+
+    function decacheQuicklooks() {
+        // getLayerByName('Quicklooks').removeAllRenderables()
+        let qlarray = getLayerByName('Quicklooks').renderables
+        while (qlarray.length > 50) {
+            qlarray.shift()
+        }
+
+        eww.current.redraw()
     }
 
     function removeQuicklooks() {
@@ -430,13 +561,18 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
             getLayerByName('Atmosphere').time = new Date(epoch)
         }
         
-        enableRenderables(epoch)
+        let closestrenderable = enableRenderables(getLayerByName('Products'), epoch, TRAIL_PRODUCT)
+        enableRenderables(getLayerByName('Quicklooks'), epoch, TRAIL_QUICKLOOK)
+
         if(satOn) {
             enableSatelliteLayers(epoch,null)
         }
 
         eww.current.redraw();
         lastepoch.current = epoch
+        setEwwState((ewwstate) => { return {...ewwstate, closestRenderable: closestrenderable}})
+
+        // return closestrenderable
      }
 
      function moveTo(clat, clon, alt) {
@@ -586,9 +722,9 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         // eww.current = new WorldWind.WorldWindow(id, elevationModel);
 
 
-        eww.current = new WorldWind.WorldWindow(id);
+        eww.current = new WorldWindow(id);
         // eww.current.worldWindowController = null;
-        eww.current.redrawCallbacks.push(setGlobeStates)
+        eww.current.redrawCallbacks().push(setGlobeStates)
 
         // Define a min/max altitude limit
         eww.current.navigator.range = alt
@@ -647,8 +783,8 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
             // { layer: new WorldWind.WmsLayer(wmsConfigNames, ""), enabled: names },
             { layer: starFieldLayer, enabled: starfield },
             { layer: atmosphereLayer, enabled: atmosphere },
+            { layer: productLayer, enabled: true },
             { layer: quicklookLayer, enabled: true },
-            { layer: productLayer, enabled: true }
         ];
     
         for (let l = 0; l < bgLayers.length; l++) {
@@ -684,7 +820,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         //     }, 2000)
     
         eww.current.redraw();
-        eww.current.deepPicking = true;
+        // eww.current.deepPicking = true;
         // eww.current.orderedRenderingFilters.push(declutterByTime)
     }, []); // effect runs only once
         
@@ -733,5 +869,5 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         toggleDem(dem)
     }, [dem]); 
 
-  return { eww, ewwstate, moveTo, removeGeojson, addGeojson, addWMS, toggleStarfield, toggleAtmosphere, setTime, toggleProjection, toggleNames, toggleModel, toggleBg, toggleOv, toggleDem, northUp };
+  return { eww, ewwstate, moveTo, removeGeojson, addGeojson, addWMS, removeQuicklooks, addQuicklook, toggleStarfield, toggleAtmosphere, setTime, toggleProjection, toggleNames, toggleModel, toggleBg, toggleOv, toggleDem, northUp };
 }
