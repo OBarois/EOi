@@ -230,7 +230,7 @@ function DateSelector({startdate, tics, onDateChange, onFinalDateChange, onStepC
                 },
                 onRest: () => {
                     if (!down) {
-                        console.log('rest')
+                        // console.log('rest')
                         onFinalDateChange(discreetdate.current)
                         setSelector_is_active(false)
                     }

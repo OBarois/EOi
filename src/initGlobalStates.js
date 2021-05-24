@@ -27,6 +27,7 @@ export  function initGlobalStates() {
         goToDate: new Date(),
         searchDate: new Date(),
         pointSearchMaxAltitude: 3000000,
+        selectedProduct: [],
         searchPoint: 'POINT(40 40)',
         geojson: null,
         closestItem: null,
@@ -40,13 +41,13 @@ export  function initGlobalStates() {
         clearGeojsonTrigger: null,
         mapSettings: {
             atmosphere: false,
-            starfield: true,
+            starfield: false,
             names: false,
             background: 1,
             overlay:2,
             dem: false,
-            satellites: false,
-            quicklooks: false
+            satellites: true,
+            quicklooks: true
         }
     })
     

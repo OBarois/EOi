@@ -2,6 +2,18 @@ import wellknown from 'wellknown';
 
 export default function dhusToGeojson(response) {
 
+    function gmlToWkt(gmlfootprint) {
+        let coord = gmlfootprint.slice(gmlfootprint.indexOf('<gml:coordinates>')+17,gmlfootprint.indexOf('</gml:coordinates>'))
+        let coordlist = coord.replaceAll(',',' ')
+        let coordarray = coordlist.split(' ')
+        let wkt = 'MULTIPOLYGON((('
+        for(let i=0; i< coordarray.length; i+=2) {
+            wkt = wkt + coordarray[i+1] + ' ' + coordarray[i] + ','
+        }
+        wkt = wkt.slice(0,-1)
+        wkt = wkt+')))'
+        return wkt
+    }
     
     function mapFromHubOpenSearch(item) {    
         function reshuffle(array) {
@@ -41,10 +53,11 @@ export default function dhusToGeojson(response) {
 
             }
             
+            // console.log(gmlToWkt(hubItem.gmlfootprint))
 
             var newItem = {
                 id: item.title,
-                geometry: wellknown(hubItem.footprint),
+                geometry: wellknown(gmlToWkt(hubItem.gmlfootprint)),
                 type: "Feature",
                 properties: {
                     updated: new Date(hubItem.ingestiondate),
@@ -85,6 +98,7 @@ export default function dhusToGeojson(response) {
                         productInformation: {
                             productType: hubItem.producttype,
                             //timeliness: indexes["product"]["Timeliness Category"],
+                            tile: hubItem.tileid,
                             size: sizeInBytes
                         }
                     }

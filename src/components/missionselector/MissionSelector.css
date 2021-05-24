@@ -11,7 +11,7 @@
     display: flex; 
     justify-content: left;
     flex-direction: row;
-    overflow: scroll; 
+    /* overflow: scroll;  */
     width: 1000px;
     /* flex-wrap: wrap; */
     /* width: auto;

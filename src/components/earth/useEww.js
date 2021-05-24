@@ -69,6 +69,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     const [satOn, setsatOn] = useState(satellites)
     const [starOn, setstarOn] = useState(starfield)
     const [atmOn, setatmOn] = useState(atmosphere)
+    const s2lut = useRef([])
 
     const lastepoch = useRef(new Date())
 
@@ -458,7 +459,49 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     }
 
 
+    const getS2LUT = async (url) => {
+        try {
+            
+            let response = await fetch (url, {cache: "force-cache"})
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            let text = await response.text()
 
+            let templut= text.split('\n')
+            let lut = []
+            let extract = []
+            for( let i= 0; i< templut.length; i++) {
+                extract = templut[i].split(':')
+                lut[i] = {tile:extract[0], footprint: extract[1]}
+
+            }
+            // console.log(s2lut)
+            s2lut.current = lut
+        }
+        catch (err) {
+            console.log('error getting LUT')
+        }
+    }
+
+    const getPolygonbyS2tile = (tile) => {
+        let i= 0
+        while(s2lut.current[i].tile !== tile) {
+            i++
+        }
+        let coordstring = s2lut.current[i].footprint.slice(15,s2lut.current[i].footprint.length-3)
+        let coordlist = coordstring.split(',')
+        let boundaries = []
+        for(let j = 0; j < coordlist.length; j++) {
+            let coord = coordlist[j].split(' ')
+            let lat = coord[1]
+            let lon = coord[0]
+            boundaries.push({latitude: lat, longitude: lon})
+        }
+        let multiboundaries = []
+        multiboundaries[0] = boundaries
+        return multiboundaries
+    }
 
     const createQL = async (url, footprint, timerange, attributes, quicklookLayer) => {
 
@@ -523,7 +566,22 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
 
             let url = renderable.userProperties.quicklookUrl
             // console.log(renderable)
-            let footprint = renderable.boundaries[0]
+            let footprint 
+            console.log(renderable.boundaries[0])
+            if(renderable.userProperties.earthObservation.productInformation.tile) {
+                footprint = getPolygonbyS2tile(renderable.userProperties.earthObservation.productInformation.tile)
+            } else {
+                footprint = renderable.boundaries[0]
+            }
+            
+
+            // try to filter the quicklook that crashes the shape
+            if(Math.abs(renderable._sector.maxLatitude) > 84) {
+                console.log('I refuse')
+                console.log(renderable.boundaries[0])
+                return
+            }
+
             let timerange =[]
             timerange[1] = renderable.timeRange[1]
             timerange[0] = new Date(timerange[1].getTime() - TRAIL_QUICKLOOK)
@@ -585,6 +643,17 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
             // }, 1000)
         }
 
+
+    function getRenderables(x,y) {
+        let pickList = eww.current.pick(eww.current.canvasCoordinates(x, y))
+        let pickedItems = []
+        for (let i = 0; i < pickList.objects.length; i++) {
+            if (pickList.objects[i].userObject instanceof TexturedSurfacePolygon && pickList.objects[i].parentLayer.displayName==='Products') {
+                pickedItems.push(pickList.objects[i].userObject) 
+            }
+        }
+        return pickedItems
+    }
 
     function toggleProjection() {
         setProjection( prevProj => {
@@ -676,7 +745,6 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     }
     const handleDoubleClick  = (recognizer) => {
         console.log('double click')
-        northUp()
     }
 
     const handleDoubleClick2  = (recognizer) => {
@@ -820,6 +888,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         //     }, 2000)
     
         eww.current.redraw();
+        getS2LUT('./data/s2lut.txt')
         // eww.current.deepPicking = true;
         // eww.current.orderedRenderingFilters.push(declutterByTime)
     }, []); // effect runs only once
@@ -869,5 +938,5 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         toggleDem(dem)
     }, [dem]); 
 
-  return { eww, ewwstate, moveTo, removeGeojson, addGeojson, addWMS, removeQuicklooks, addQuicklook, toggleStarfield, toggleAtmosphere, setTime, toggleProjection, toggleNames, toggleModel, toggleBg, toggleOv, toggleDem, northUp };
+  return { eww, ewwstate, moveTo, removeGeojson, addGeojson, getRenderables, addWMS, removeQuicklooks, addQuicklook, toggleStarfield, toggleAtmosphere, setTime, toggleProjection, toggleNames, toggleModel, toggleBg, toggleOv, toggleDem, northUp };
 }

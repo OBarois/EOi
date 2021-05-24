@@ -32,7 +32,8 @@ function DemSelectorContainer() {
     
     //console.log('mission rendering')
     return (
-        <div className='DemSelector verticalContainer'>
+        <div className='DemSelectorContainer'>
+          <div className='verticalContainer DemSelector' >
             <div className='Selector horizontalContainer'>
                 <Switch id='satellites' onChange={handleSatChange} checked={mapset.satellites} />
                 <span className='Label'>Satellites</span>
@@ -53,6 +54,7 @@ function DemSelectorContainer() {
               <Switch id='quicklooks' onChange={handleQuicklooksChange} checked={mapset.quicklooks} />
                 <span className='Label'>Quicklooks</span>
             </div>
+          </div>
         </div>
     )
     // <AlphaPicker />  

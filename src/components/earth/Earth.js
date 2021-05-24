@@ -1,10 +1,11 @@
-import React, {useEffect, useState, useGlobal, useRef } from 'reactn';
+import React, {useEffect, useState, useGlobal, useRef, useMemo } from 'reactn';
 import './Earth.css'
 import { useEww } from "./useEww"
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useDebounce } from '../../hooks/useDebounce';
 import {FluidWorldWindowController} from './FluidWorldWindowController'
 import InfoPanel from "../infopanel"
+import LookAtWidget from './LookAtWidget'
 
 
 
@@ -22,11 +23,21 @@ const Earth = ({ id, alt }) => {
     const [ clearGeojsonTrigger, ] = useGlobal('clearGeojsonTrigger')
     const [ searchPoint, setSearchPoint] = useGlobal('searchPoint')
     const [ closestItem, setclosestItem] = useGlobal('closestItem')
-    // const [ satellites, setSatellites ] = useGlobal('satellites')
+    const [ pointSearchMaxAltitude, ] = useGlobal('pointSearchMaxAltitude')
+    const [ selectedProduct, setselectedProduct] = useGlobal('selectedProduct')
+    const [ goToDate, setgoToDate ] = useGlobal('goToDate')
+    
 
     const [mapSet, setMapSet] = useState(mapSettings)
+    const [lookwidget, setlookwidget] = useState(false)
 
     const debouncedclosestItem = useDebounce(closestItem, 200)
+
+    const handleSimpleClick = (e) => {
+        let selection = getRenderables(e.pageX,e.pageY)
+        setselectedProduct( selection )
+
+    }
 
     const {
         eww,
@@ -37,6 +48,7 @@ const Earth = ({ id, alt }) => {
         removeGeojson,
         addQuicklook,
         removeQuicklooks,
+        getRenderables,
         addWMS,
         toggleProjection,
         toggleOv,
@@ -130,8 +142,18 @@ const Earth = ({ id, alt }) => {
 
     }, [debouncedclosestItem]);
 
-    
-    
+    useEffect(() => {
+        setlookwidget(()=>(altitude<pointSearchMaxAltitude))
+     }, [pointSearchMaxAltitude,altitude]);
+ 
+     useEffect(() => {
+        // console.log(selectedProduct)
+        if(selectedProduct.length > 0) {
+            setgoToDate(selectedProduct[0].timeRange[1])
+            console.log(selectedProduct)
+        }
+    }, [selectedProduct]);
+ 
     
     useEffect(() => {
         console.log("world created"+' / '+position.clat+' / '+position.clon+' / '+altitude)
@@ -164,9 +186,13 @@ const Earth = ({ id, alt }) => {
         
     return (
         <div>
-            <canvas className={'Earth'} id={id} />
+            {useMemo(
+                () => { return(<canvas className={'Earth'} id={id} />)},
+                [mapSettings]
+            )}
             {/* <canvas id={id} style={globeStyle} /> */}
-            <FluidWorldWindowController world={eww}/>
+            <FluidWorldWindowController world={eww} onSimpleClick={handleSimpleClick}/>
+            <LookAtWidget active={lookwidget}/>
             {/* <InfoPanel top= '100px' left= '5px'>
                 <div className='Quiklook'><img src={QLimage?QLimage.src:''}  alt='' width='150px'/></div>
             </InfoPanel> */}

@@ -11,7 +11,7 @@ import LogPanel from '../logpanel';
 //      set limits to the navigator.camera
 
 
-export const FluidWorldWindowController = memo( ({world}) => {
+export const FluidWorldWindowController = memo( ({world, onSimpleClick}) => {
 
     const controllerRef = useRef()
     const MAX_ALT = 100000000
@@ -92,6 +92,7 @@ export const FluidWorldWindowController = memo( ({world}) => {
                     // simple click or tap
                     clicktimeout.current = setTimeout(() => {
                         console.log("simple click")
+                        handleSimpleClick(event)
                     }, 300);
                     break
                 case (doubleTap.current && tap): {
@@ -190,6 +191,10 @@ export const FluidWorldWindowController = memo( ({world}) => {
     const normalize = (val,min,max)=> {
         var delta = max - min;
         return (val - min) / delta
+    }
+
+    function handleSimpleClick(event) {
+        onSimpleClick(event)
     }
 
     // north up

@@ -6,7 +6,7 @@ import './wwwxx/www-overrides/SurfaceShapeTile';
 import './wwwxx/www-overrides/TiledImageLayer';
 import './wwwxx/www-overrides/GeoJSONParser';
 import  WorldWindow  from './wwwxx/WorldWindow';
-import  { useState, useEffect, useRef } from "react";
+import  { useState, useEffect, useRef, memo } from "react";
 import StarFieldLayer from "./wwwxx/layer/starfield/StarFieldLayer" // import a custom one as the base url is not set when using wwwx
 import TexturedSurfacePolygon from './wwwxx/textured/TexturedSurfacePolygon'
 // import wwwx from "webworldwind-x";
@@ -18,7 +18,7 @@ import {bgLayers, ovLayers} from './layerConfig';
 import { useCallback } from "reactn";
 // import SurfaceShape from './wwwxx/www-overrides/SurfaceShape';
 
-export const useEww = ({ id, clon, clat, alt, starfield, atmosphere, background, overlay, names, satellites, dem }) => {
+const useEww = ({ id, clon, clat, alt, starfield, atmosphere, background, overlay, names, satellites, dem }) => {
     console.log('useEww renders')
     
     const TRAIL_PRODUCT = 1000 * 60 * 60 * 24 //1 day
@@ -28,7 +28,7 @@ export const useEww = ({ id, clon, clat, alt, starfield, atmosphere, background,
     const eww = useRef(null)
    
     const [projection, setProjection] = useState("3D")
-    // const [aoi, setAoi] = useState({type: null, value: null})
+    // const [aoi, setAoi] = useState({type: null, value: null}
     const [aoi, setAoi] = useState('')
     const [ewwstate, setEwwState] = useState({latitude: clat, longitude: clon, altitude: alt, aoi:'', pickedItems: []})
     const copDemOn = useRef(dem)
@@ -41,85 +41,85 @@ export const useEww = ({ id, clon, clat, alt, starfield, atmosphere, background,
     const lastepoch = useRef(new Date())
 
     // Turn the globe up north
-    function northUp() {
+    const  northUp =() => {
         console.log('northUp')
     }
 
     //toggle atmosphere
-    function toggleAtmosphere(bool) {
+    const toggleAtmosphere = (bool) => {
         console.log('toggleAtmosphere: '+bool)
     }
 
     //toggle model
-    function toggleModel(bool) {
+    const toggleModel = (bool) => {
         console.log('toggleModel: '+bool)
    }
 
     //toggle starField
-    function toggleStarfield(bool) {
+    const toggleStarfield =(bool) => {
         console.log('toggleStarfield: '+bool)
     }
 
     //toggle name overlay
-    function toggleNames(bool) {
+    const toggleNames =(bool) => {
         console.log('toggleNames: '+bool)
     }
+    
     //toggle background overlay
-    function setBg(background) {
+    const setBg =(background) => {
         console.log('setBg: '+background)
     }
-    function toggleBg(background) {
+
+    const toggleBg =(background) => {
         console.log("toggleBg: "+background)
     }
-    function toggleOv(overlay) {
+
+    const toggleOv =(overlay) => {
         console.log("toggleOv: "+overlay)
     }
     
     //toggle DEM 
-    function toggleDem(dem) {
+    const toggleDem =(dem) => {
         console.log("toggleDem: "+dem)
     }
 
- 
-    function  getViewPolygon () {
-    }
-    
-    const addGeojson = (url,epoch) => {
-
+   
+    const addGeojson =(url,epoch) => {
         console.log('addGeojson')
     }
 
-    function removeGeojson() {
+    const removeGeojson =() => {
         console.log('removeGeojson')
     }
 
-    function addWMS() {
+    const addWMS =() => {
+        console.log('addWMS')
     }
 
-    function addQuicklookWMS(renderable) {
+    const addQuicklookWMS =(renderable) => {
     }
 
-    const addQuicklook = async (renderable) => {
+    const addQuicklook =async (renderable) => {
         console.log('addQuicklook')
 
     }
 
 
-    function removeQuicklooks() {
+    const removeQuicklooks =() => {
         console.log('removeQuicklooks')
     }
 
-    const  setTime = useCallback( (epoch) => {
-        console.log('setTime')
-     })
+    const  setTime =(epoch) => {
+        // console.log('setTime')
+    }
 
-     function moveTo(clat, clon, alt) {
+    const moveTo =(clat, clon, alt) => {
         console.log('moveTo: '+clat+' / '+clon+' / '+ alt)
-        }
+    }
 
 
-    function toggleProjection() {
-      }
+    const toggleProjection =() => {
+    }
 
 
     // didMount effect
@@ -175,6 +175,10 @@ export const useEww = ({ id, clon, clat, alt, starfield, atmosphere, background,
     useEffect(() => {
         toggleDem(dem)
     }, [dem]); 
+    
 
   return { eww, ewwstate, moveTo, removeGeojson, addGeojson, addWMS, removeQuicklooks, addQuicklook, toggleStarfield, toggleAtmosphere, setTime, toggleProjection, toggleNames, toggleModel, toggleBg, toggleOv, toggleDem, northUp };
 }
+
+
+export {useEww}
