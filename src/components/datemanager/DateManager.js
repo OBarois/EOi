@@ -38,7 +38,7 @@ function DateManager({ onDateChange, onFinalDateChange, onStateChange, animated,
 
     useEffect(() => {
         // console.log('startdate changed '+startdate)
-        setcontrollerStartdate(startdate)
+        if(startdate !== null) setcontrollerStartdate(startdate)
     }, [startdate]);
 
 

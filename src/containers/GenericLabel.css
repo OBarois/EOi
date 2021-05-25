@@ -6,7 +6,14 @@
     width: 100px;
     /* height: 30px; */
     margin: auto;
+    overflow: wrap;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
     /* z-index: 2; */
   
+  }
+
+  .Small {
+    font-size: 10px;
   }
   

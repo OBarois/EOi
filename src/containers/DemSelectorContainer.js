@@ -54,6 +54,7 @@ function DemSelectorContainer() {
               <Switch id='quicklooks' onChange={handleQuicklooksChange} checked={mapset.quicklooks} />
                 <span className='Label'>Quicklooks</span>
             </div>
+            <div height='200px' flexgrow='2'>&nbsp;</div>
           </div>
         </div>
     )

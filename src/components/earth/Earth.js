@@ -6,11 +6,7 @@ import { useDebounce } from '../../hooks/useDebounce';
 import {FluidWorldWindowController} from './FluidWorldWindowController'
 import InfoPanel from "../infopanel"
 import LookAtWidget from './LookAtWidget'
-
-
-
-
-
+import ViewProductControl from './ViewProductControl'
 
 const Earth = ({ id, alt }) => {
 
@@ -149,10 +145,21 @@ const Earth = ({ id, alt }) => {
      useEffect(() => {
         // console.log(selectedProduct)
         if(selectedProduct.length > 0) {
+            console.log(selectedProduct[0])
+            let p = selectedProduct[0]
+            let lat = p._sector.minLatitude
+            let lon = p._sector.minLongitude
+            console.log('lat/lon: '+lat+' / '+lon)
+            // moveTo(lat, lon)
+            setPosition({clat: lat, clon: lon})
             setgoToDate(selectedProduct[0].timeRange[1])
-            console.log(selectedProduct)
         }
     }, [selectedProduct]);
+
+    useEffect(() => {
+        moveTo(position.clat, position.clon)
+     }, [position.clat,position.clon]);
+ 
  
     
     useEffect(() => {
@@ -193,6 +200,7 @@ const Earth = ({ id, alt }) => {
             {/* <canvas id={id} style={globeStyle} /> */}
             <FluidWorldWindowController world={eww} onSimpleClick={handleSimpleClick}/>
             <LookAtWidget active={lookwidget}/>
+            <ViewProductControl active='true'/>
             {/* <InfoPanel top= '100px' left= '5px'>
                 <div className='Quiklook'><img src={QLimage?QLimage.src:''}  alt='' width='150px'/></div>
             </InfoPanel> */}

@@ -367,29 +367,51 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     }
 
     function enableRenderables(layer, time, trailduration) {
-        if(layer.renderables.length === 0) return
-        let closestrenderableindex = 0
-        let lastrenderableepoch = 0
+        if(layer.renderables.length === 0) {
+            return null
+        }
+        let closestrenderableindex = -1
+        let oldestrenderableindex = -1
+        let youngestrenderableindex = -1
+        let youngestrenderableepoch= 0
+        let oldestrenderableepoch = (new Date(2100,0)).getTime()
+        let closestrenderableepoch = 0
         for (let j = 0; j < layer.renderables.length; j++) {
             let renderable = layer.renderables[j]
-            if (time != 0) {
+            if (time !== 0) {
 
                 let visibilityend = renderable.timeRange[1].getTime()
 
                 // find closest
-                if( visibilityend > lastrenderableepoch && visibilityend <= time) {
+                if( visibilityend > closestrenderableepoch && visibilityend <= time) {
                     closestrenderableindex = j
-                    lastrenderableepoch = visibilityend
+                    closestrenderableepoch = visibilityend
+                } 
+                if( visibilityend <= oldestrenderableepoch) {
+                    oldestrenderableindex = j
+                    oldestrenderableepoch = visibilityend
                 }
+
+                if( visibilityend >= youngestrenderableepoch) {
+                    youngestrenderableindex = j
+                    youngestrenderableepoch = visibilityend
+                }
+
 
                 renderable.enabled = (time-trailduration < visibilityend && visibilityend <= time) ? true : false   
             } else {
                 renderable.enabled = false
             }         
         }
-        // make the closest one visible regardless
-        layer.renderables[closestrenderableindex].enabled = true
-
+        // make the closest one always visible 
+        if(closestrenderableindex !== -1) {
+            layer.renderables[closestrenderableindex].enabled = true
+        }
+        // make the youngest one visible if closest not found
+        if(time <= oldestrenderableepoch && closestrenderableindex === -1) {
+            layer.renderables[oldestrenderableindex].enabled = true
+            closestrenderableindex = oldestrenderableindex
+        } 
         return (layer.renderables[closestrenderableindex])
     }
 
@@ -567,16 +589,19 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
             let url = renderable.userProperties.quicklookUrl
             // console.log(renderable)
             let footprint 
-            console.log(renderable.boundaries[0])
+            // console.log(renderable.boundaries[0])
             if(renderable.userProperties.earthObservation.productInformation.tile) {
                 footprint = getPolygonbyS2tile(renderable.userProperties.earthObservation.productInformation.tile)
             } else {
                 footprint = renderable.boundaries[0]
             }
             
-
+            let highestlat = 0
+            for(let i = 0 ; i < footprint.length ; i++) {
+                if(Math.abs(footprint[i].latitude) > highestlat) highestlat = footprint[i].latitude
+            }
             // try to filter the quicklook that crashes the shape
-            if(Math.abs(renderable._sector.maxLatitude) > 84) {
+            if(highestlat > 84) {
                 console.log('I refuse')
                 console.log(renderable.boundaries[0])
                 return
@@ -633,10 +658,11 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         // return closestrenderable
      }
 
-     function moveTo(clat, clon, alt) {
+    async function moveTo(lat, lon, alt) {
         // setTimeout(() => {
+            console.log('move to: '+lat)
             eww.current.goToAnimator.travelTime = 1000;
-            eww.current.goTo(new WorldWind.Position(clat, clon));
+            eww.current.goTo(new WorldWind.Position(lat, lon));
             eww.current.navigator.range = alt;
             eww.current.navigator.camera.applyLimits()
             eww.current.redraw();
@@ -840,6 +866,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         //atmosphereLayer.minActiveAltitude = 5000000
 
         let quicklookLayer = new WorldWind.RenderableLayer('Quicklooks')
+        quicklookLayer.pickEnabled = false
         // console.log(satelliteLayers)
 
         let productLayer =  new WorldWind.RenderableLayer('Products')

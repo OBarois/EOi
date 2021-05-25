@@ -296,7 +296,7 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
                     ctx.font = "30px Arial"
 
             
-                    ctx.fillText('.', scale.current.offsetWidth -10, ticpos);
+                    ctx.fillText('.', scale.current.offsetWidth -8, ticpos +5);
 
                 }
             }

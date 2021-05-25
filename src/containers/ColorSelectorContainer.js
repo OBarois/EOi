@@ -24,6 +24,8 @@ function ColorSelectorContainer() {
          
         document.documentElement.style.setProperty('--colort', color+'66');
         setAppcolor(color );
+        console.log(appcolor)
+
       };
     
     //console.log('mission rendering')

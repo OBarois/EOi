@@ -16,6 +16,9 @@ const SearchManagerContainer = () => {
   const [ pointSearchMaxAltitude,  ] = useGlobal('pointSearchMaxAltitude');
   const [ geojson, setgeojson ] = useGlobal('geojson');
   const [ resultDesc, setresultDesc ] = useGlobal('resultDesc');
+  const [ selectedProduct, setselectedProduct] = useGlobal('selectedProduct')
+  const [ closestItem, setclosestItem] = useGlobal('closestItem')
+
 
   const [anim, setanim] = useState(animated)
 
@@ -32,10 +35,18 @@ const SearchManagerContainer = () => {
       // console.log('set clear trigger')
       setclearGeojsonTrigger(Math.random())
       setresultDesc({totalResults:0, totalLoaded:0 })
+      setselectedProduct([])
+      setclosestItem(null)
+
+
       }, [])
     
       const handleSearchComplete =  (searchDesc) => {
-        if(altitude > pointSearchMaxAltitude) setgoToDate(!animated?searchDesc.firstResultDate:searchDesc.lastResultDate)
+        if(altitude > pointSearchMaxAltitude) {
+          setgoToDate(!animated?searchDesc.firstResultDate:searchDesc.lastResultDate)
+        } else {
+          if(animated) setgoToDate(searchDesc.lastResultDate)
+        }
         // setresultDesc(()=>{return {...resultDesc, ...searchDesc}})
     }
 

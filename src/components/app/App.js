@@ -18,6 +18,7 @@ import SearchLabelContainer from "../../containers/SearchLabelContainer"
 import DateManagerContainer from '../../containers/DateManagerContainer'
 import SearchManagerContainer from '../../containers/SearchManagerContainer'
 import { useFullscreen } from 'rooks';
+import ProductInfolContainer from '../../containers/ProductInfolContainer'
 
 function App() {
     
@@ -63,6 +64,7 @@ function App() {
                     <div className='MissionLabel'>{mission}</div>
                     <AltitudeLabelContainer/>
                     <SearchLabelContainer/>
+                    <ProductInfolContainer/>
 
                 </InfoPanel>
 
