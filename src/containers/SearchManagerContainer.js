@@ -37,6 +37,7 @@ const SearchManagerContainer = () => {
       setresultDesc({totalResults:0, totalLoaded:0 })
       setselectedProduct([])
       setclosestItem(null)
+      setgoToDate(null)
 
 
       }, [])

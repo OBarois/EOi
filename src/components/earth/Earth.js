@@ -7,6 +7,7 @@ import {FluidWorldWindowController} from './FluidWorldWindowController'
 import InfoPanel from "../infopanel"
 import LookAtWidget from './LookAtWidget'
 import ViewProductControl from './ViewProductControl'
+import { useKey } from 'rooks'
 
 const Earth = ({ id, alt }) => {
 
@@ -21,10 +22,15 @@ const Earth = ({ id, alt }) => {
     const [ closestItem, setclosestItem] = useGlobal('closestItem')
     const [ pointSearchMaxAltitude, ] = useGlobal('pointSearchMaxAltitude')
     const [ selectedProduct, setselectedProduct] = useGlobal('selectedProduct')
-    const [ goToDate, setgoToDate ] = useGlobal('goToDate')
-    
+    const [ moveToClosestItemTrigger, setmoveToClosestItemTrigger ] = useGlobal('moveToClosestItemTrigger')
+    const [ resetStartDateTrigger, setresetStartDateTrigger] = useGlobal('resetStartDateTrigger')
 
-    const [mapSet, setMapSet] = useState(mapSettings)
+
+    const [ goToDate, setgoToDate ] = useGlobal('goToDate')
+    // const [atm, setAtm] = useGlobal('mapSettings.atmosphere')
+
+
+    // const [mapSet, setMapSet] = useState(mapSettings)
     const [lookwidget, setlookwidget] = useState(false)
 
     const debouncedclosestItem = useDebounce(closestItem, 200)
@@ -39,6 +45,7 @@ const Earth = ({ id, alt }) => {
         eww,
         QL,
         ewwstate,
+        initMap,
         moveTo,
         addGeojson,
         removeGeojson,
@@ -47,6 +54,10 @@ const Earth = ({ id, alt }) => {
         getRenderables,
         addWMS,
         toggleProjection,
+        toggleAtmosphere,
+        toggleStarfield,
+        toggleBg,
+        toggleNames,
         toggleOv,
         toggleModel,
         setTime,
@@ -54,29 +65,19 @@ const Earth = ({ id, alt }) => {
         northUp
     } = useEww({
         id: id,
-        clat: position.clat,
-        clon: position.clon,
-        alt: altitude,
-        starfield: mapSettings.starfield,
-        atmosphere: mapSettings.atmosphere,
-        background: mapSettings.background,
-        overlay: mapSettings.overlay,
-        satellites: mapSettings.satellites,
-        names: mapSettings.names,
-        dem: mapSettings.dem
     })
 
-    useHotkeys("p",toggleProjection)  
-    useHotkeys("c",removeGeojson)
-    useHotkeys("u",northUp)
-    useHotkeys("b",() => setMapSet((mapSet)=>({...mapSet, background:mapSet.background+1})))  
-    useHotkeys("m",() => setMapSet((mapSet)=>({...mapSet, satellites:!mapSet.satellites})))
-    // useHotkeys("m",() => setSatellites((satellites)=>(!satellites)))  
-    useHotkeys("d",() => setMapSet((mapSet)=>({...mapSet, dem:!mapSet.dem})))  
-    useHotkeys("o",() => setMapSet((mapSet)=>({...mapSet, overlay:mapSet.overlay+1})))  
-    useHotkeys("a",() => setMapSet((mapSet)=>({...mapSet, atmosphere:!mapSet.atmosphere})))  
-    useHotkeys("s",() => setMapSet((mapSet)=>({...mapSet, starfield:!mapSet.starfield})))  
-    useHotkeys("n",() => setMapSet((mapSet)=>({...mapSet, names:!mapSet.names})))  
+    useKey(['p'],() => setMapSettings({...mapSettings, projection:mapSettings.projection+1})) 
+    useKey(['c'],removeGeojson)
+    useKey(['u'],northUp)
+    useKey(['b'],() => setMapSettings({...mapSettings, background:mapSettings.background+1})) 
+    useKey(['m'],() => setMapSettings({...mapSettings, satellites:!mapSettings.satellites}))
+    useKey(['d'],() => setMapSettings({...mapSettings, dem:!mapSettings.dem}))
+    useKey(['o'],() => setMapSettings({...mapSettings, overlay:mapSettings.overlay+1}))
+    // useHotkeys("a",() => setMapSettings((mapSettings)=>({...mapSettings, atmosphere:!mapSettings.atmosphere})))  
+    useKey(['a'],() =>  setMapSettings({...mapSettings, atmosphere:!mapSettings.atmosphere}))
+    useKey(['s'],() => setMapSettings({...mapSettings, starfield:!mapSettings.starfield}))
+    useKey(['n'],() => setMapSettings({...mapSettings, names:!mapSettings.names}))
 
     // useHotkeys("a",(mapSettings) => setMapSettings({...mapSettings, atmosphere:!mapSettings.atmosphere}))
 
@@ -123,19 +124,43 @@ const Earth = ({ id, alt }) => {
     }, [clearGeojsonTrigger]);
 
     useEffect(() => {
-        setMapSettings(mapSet)
-    }, [mapSet]);
+        toggleAtmosphere(mapSettings.atmosphere)
+    }, [mapSettings.atmosphere]);
 
     useEffect(() => {
-        // console.log(mapSettings)
-        setMapSet(mapSettings)
-    }, [mapSettings]);
+        toggleModel(mapSettings.satellites)
+    }, [mapSettings.satellites]);
 
     useEffect(() => {
-        // console.log('edclosestItem)
+        toggleStarfield(mapSettings.starfield)
+    }, [mapSettings.starfield]);
+
+    useEffect(() => {
+        toggleNames(mapSettings.names)
+    }, [mapSettings.names]);
+
+    useEffect(() => {
+        toggleProjection(mapSettings.projection)
+    }, [mapSettings.projection]);
+
+    useEffect(() => {
+        console.log(mapSettings.background)
+        toggleBg(mapSettings.background)
+    }, [mapSettings.background]);
+
+    useEffect(() => {
+        console.log(mapSettings.overlay)
+        toggleOv(mapSettings.overlay)
+    }, [mapSettings.overlay]);
+
+    useEffect(() => {
+        toggleDem(mapSettings.dem)
+    }, [mapSettings.dem]);
+
+    useEffect(() => {
+        console.log('edclosestItem')
         if(mapSettings.quicklooks)
             addQuicklook(debouncedclosestItem)
-
     }, [debouncedclosestItem]);
 
     useEffect(() => {
@@ -145,26 +170,50 @@ const Earth = ({ id, alt }) => {
      useEffect(() => {
         // console.log(selectedProduct)
         if(selectedProduct.length > 0) {
-            console.log(selectedProduct[0])
             let p = selectedProduct[0]
             let lat = p._sector.minLatitude
             let lon = p._sector.minLongitude
-            console.log('lat/lon: '+lat+' / '+lon)
-            // moveTo(lat, lon)
-            setPosition({clat: lat, clon: lon})
+            console.log('selected product lat/lon: '+lat+' / '+lon)
             setgoToDate(selectedProduct[0].timeRange[1])
+            setresetStartDateTrigger(Math.random())
+            // setTime(selectedProduct[0].timeRange[1])
+            // setViewDate(selectedProduct[0].timeRange[1])
         }
     }, [selectedProduct]);
 
     useEffect(() => {
-        moveTo(position.clat, position.clon)
-     }, [position.clat,position.clon]);
+        if(closestItem !== null) {
+            let lat = closestItem._sector.minLatitude
+            let lon = closestItem._sector.minLongitude
+            moveTo(lat,lon)
+            setgoToDate(closestItem.timeRange[1])
+            setresetStartDateTrigger(Math.random())
+        }
+     }, [moveToClosestItemTrigger]);
+ 
+    //  useEffect(() => {
+    //     moveTo(position.clat, position.clon)
+    //  }, [position.clat,position.clon]);
  
  
     
     useEffect(() => {
         console.log("world created"+' / '+position.clat+' / '+position.clon+' / '+altitude)
         setTimeout(() => {
+            initMap({
+                clat: position.clat,
+                clon: position.clon,
+                alt: altitude,
+                starfield: mapSettings.starfield,
+                atmosphere: mapSettings.atmosphere,
+                background: mapSettings.background,
+                overlay: mapSettings.overlay,
+                satellites: mapSettings.satellites,
+                names: mapSettings.names,
+                projection: mapSettings.projection,
+                dem: mapSettings.dem
+            })
+    
             moveTo(position.clat, position.clon, altitude) 
         }, 1000)
 
@@ -195,7 +244,7 @@ const Earth = ({ id, alt }) => {
         <div>
             {useMemo(
                 () => { return(<canvas className={'Earth'} id={id} />)},
-                [mapSettings]
+                [id]
             )}
             {/* <canvas id={id} style={globeStyle} /> */}
             <FluidWorldWindowController world={eww} onSimpleClick={handleSimpleClick}/>

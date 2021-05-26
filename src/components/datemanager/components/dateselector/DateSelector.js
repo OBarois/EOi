@@ -10,7 +10,7 @@ import DateSelectorScale from './DateSelectorScale'
 import './DateSelector.css';
 // import { start } from 'repl';
 
-function DateSelector({startdate, tics, onDateChange, onFinalDateChange, onStepChange}) {
+function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, onFinalDateChange, onStepChange}) {
 
 
     // const [ setlog, renderlog] = useLog()
@@ -296,7 +296,7 @@ function DateSelector({startdate, tics, onDateChange, onFinalDateChange, onStepC
             // console.log(startdate.toJSON())
             moveToDate(startdate)
         }
-    },[startdate])
+    },[startdate, resetToStartDateTrigger])
 
     // useEffect(() => {
     //     console.log('laststartdate changed: '+lastStartdate.toJSON())

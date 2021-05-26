@@ -13,4 +13,7 @@
   /* background-image: url("EOi_logo.png"); */
   /* background-color: #77bd35c9; */
   color: var(--color);
+  -webkit-filter: drop-shadow(  var(--shadow) );
+  filter: drop-shadow(  var(--shadow));
+  -webkit-tap-highlight-color:  transparent;
 }

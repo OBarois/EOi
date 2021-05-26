@@ -8,20 +8,26 @@ import './ViewProductControl.css'
 function ViewProductControl({active}) {
     const [ selectedProduct, setselectedProduct] = useGlobal('selectedProduct')
     const [ closestItem, setclosestItem] = useGlobal('closestItem')
-    const closestitem = useRef(closestItem)
+    const [ resetStartDateTrigger, setresetStartDateTrigger] = useGlobal('resetStartDateTrigger')
+    
+    const [ moveToClosestItemTrigger, setmoveToClosestItemTrigger ] = useGlobal('moveToClosestItemTrigger')
+    // const closestitem = useRef(closestItem)
 
-    const handleClick = () => {
+    const handleClick = (event) => {
+        event.stopPropagation()
         let selection = []
         if(closestItem) {
             console.log('selected a product')
-            selection[0] = closestitem.current
+            selection[0] = closestItem
             setselectedProduct(selection)
+            setmoveToClosestItemTrigger(Math.random())
+            setresetStartDateTrigger(Math.random())
         }
     }
 
-    useEffect(() => {
-        closestitem.current=closestItem
-     }, [closestItem]);
+    // useEffect(() => {
+    //     closestitem.current=closestItem
+    //  }, [closestItem]);
  
 
     return (

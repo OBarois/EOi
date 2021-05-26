@@ -15,43 +15,8 @@ import TexturedSurfacePolygon from './wwwxx/textured/TexturedSurfacePolygon'
 import satelliteLayers from './satelliteLayers';
 
 import {bgLayers, ovLayers} from './layerConfig';
-// import SurfaceShape from './wwwxx/www-overrides/SurfaceShape';
 
-
-// BasicWorldWindowController.prototype.applyLimits = function () {
-//     var navigator = this.wwd.navigator;
-
-//     // Clamp latitude to between -90 and +90, and normalize longitude to between -180 and +180.
-//     navigator.lookAtLocation.latitude = WWMath.clamp(navigator.lookAtLocation.latitude, -90, 90);
-//     navigator.lookAtLocation.longitude = Angle.normalizedDegreesLongitude(navigator.lookAtLocation.longitude);
-
-//     // Clamp range to values greater than 1 in order to prevent degenerating to a first-person navigator when
-//     // range is zero.
-//     navigator.range = WWMath.clamp(navigator.range, 1, Number.MAX_VALUE);
-
-//     // Normalize heading to between -180 and +180.
-//     navigator.heading = Angle.normalizedDegrees(navigator.heading);
-
-//     // Clamp tilt to between 0 and +90 to prevent the viewer from going upside down.
-//     navigator.tilt = WWMath.clamp(navigator.tilt, 0, 90);
-
-//     // Normalize heading to between -180 and +180.
-//     navigator.roll = Angle.normalizedDegrees(navigator.roll);
-
-//     // Apply 2D limits when the globe is 2D.
-//     if (this.wwd.globe.is2D() && navigator.enable2DLimits) {
-//         // Clamp range to prevent more than 360 degrees of visible longitude. Assumes a 45 degree horizontal
-//         // field of view.
-//         var maxRange = 2  Math.PI  this.wwd.globe.equatorialRadius;
-//         navigator.range = WWMath.clamp(navigator.range, 1, maxRange);
-
-//         // Force tilt to 0 when in 2D mode to keep the viewer looking straight down.
-//         navigator.tilt = 0;
-//     }
-// };
-
-export function useEww({ id, clon, clat, alt, starfield, atmosphere, background, overlay, names, satellites, dem }) {
-    // console.log('useEww renders')
+export function useEww({ id }) {
     
     const TRAIL_PRODUCT = 1000 * 60 * 60 * 24 //1 day
     const TRAIL_QUICKLOOK = 1000 * 60 * 60  //1 hour
@@ -59,19 +24,34 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
   
     const eww = useRef(null)
    
-    const [projection, setProjection] = useState("3D")
     // const [aoi, setAoi] = useState({type: null, value: null})
     const [aoi, setAoi] = useState('')
-    const [ewwstate, setEwwState] = useState({latitude: clat, longitude: clon, altitude: alt, aoi:'', pickedItems: []})
-    const copDemOn = useRef(dem)
-    const bgIndex = useRef(0)
-    const ovIndex = useRef(0)
-    const [satOn, setsatOn] = useState(satellites)
-    const [starOn, setstarOn] = useState(starfield)
-    const [atmOn, setatmOn] = useState(atmosphere)
+    const [ewwstate, setEwwState] = useState({})
+    const bg = useRef(1)
+    const ov = useRef(0)
+    const sat = useRef(false)
+    const atm = useRef(false)
+    const star = useRef(false)
+    const na = useRef(false)
+    const dem = useRef(false)
+    const proj = useRef(0)
+
     const s2lut = useRef([])
 
     const lastepoch = useRef(new Date())
+    const lastmovetolat = useRef(0)
+    const lastmovetolon = useRef(0)
+    // Initialise mapsettings
+    function initMap({ clon, clat, alt, atmosphere, starfield, satellites, background, names, dem, projection}) {
+        toggleAtmosphere(atmosphere)
+        toggleStarfield(starfield)
+        toggleModel(satellites)
+        toggleBg(background)
+        toggleNames(names)
+        toggleDem(dem)
+        toggleProjection(projection)
+        moveTo(clat, clon, alt)
+    }
 
     // Turn the globe up north
     function northUp() {
@@ -92,65 +72,67 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
     //toggle atmosphere
     function toggleAtmosphere(bool) {
         console.log('toggleAtmosphere: '+bool)
-        getLayerByName('Atmosphere').enabled = (bool!= null)?bool:!getLayerByName('Atmosphere').enabled
-        // getLayerByName('Atmosphere').enabled = bool
-        // console.log(eww.current.layers)
+        let la = getLayerByName('Atmosphere')
+        atm.current = (bool!== null)?bool:!atm.current
+        la.enabled = atm.current
         eww.current.redraw();
     }
 
     //toggle model
     function toggleModel(bool) {
         console.log('toggleModel: '+bool)
-        enableSatelliteLayers(lastepoch.current,bool)
+        sat.current = (bool!= null)?bool:!sat.current
+
+        enableSatelliteLayers(lastepoch.current,sat.current)
         eww.current.redraw();
     }
 
     //toggle starField
     function toggleStarfield(bool) {
         console.log('toggleStarfield: '+bool)
-        getLayerByName('StarField').enabled = (bool !== null)?bool:!getLayerByName('StarField').enabled
+        let ls = getLayerByName('StarField')
+        star.current = (bool!= null)?bool:!star.current
+        ls.enabled = star.current
         eww.current.redraw();
     }
 
     //toggle name overlay
     function toggleNames(bool) {
         console.log('toggleNames: '+bool)
-        getLayerByName('overlay_bright').enabled = (bool !== null)?bool:!getLayerByName('overlay_bright').enabled
-        eww.current.redraw();
+        let lo = getLayerByName('overlay_bright')
+        na.current = (bool !== null)?bool:!na.current
+        lo.enabled = na.current
+        eww.current.redraw()
     }
-    //toggle background overlay
-    function setBg(background) {
-        getLayerByName(background).enabled = true
-        eww.current.layers[bgIndex.current].enabled=false
-        eww.current.redraw();
-    }
+
     function toggleBg(background) {
-        // console.log("toggleBg: "+background+"/"+bgLayers.length)
-        eww.current.layers[bgIndex.current].enabled=false
-        bgIndex.current = (background === null)?(bgIndex.current + 1):(background-1)%bgLayers.length
-        console.log("Background Layer ["+(bgIndex.current+1)+"/"+bgLayers.length+"]: "+eww.current.layers[bgIndex.current].displayName)
-        eww.current.layers[bgIndex.current].enabled=true
+        // console.log(bg.current)
+        eww.current.layers[bg.current].enabled=false
+        bg.current = (background === null)? (bg.current + 1)%bgLayers.length : (background)%bgLayers.length
+        // console.log('new bg: '+bg.current)
+        eww.current.layers[bg.current].enabled=true
         eww.current.redraw();
-        // setEwwState((ewwstate) => { return {...ewwstate, background: bgIndex.current}})
     }
+
     function toggleOv(overlay) {
         // console.log(overlay)
-        eww.current.layers[ovIndex.current+bgLayers.length].enabled=false
-        // ovIndex.current = (ovIndex.current + 1)%ovLayers.length
-        ovIndex.current = (overlay === null)?(ovIndex.current + 1):(overlay-1)%ovLayers.length
-        // console.log(ovIndex.current)
-        // console.log("Overlay Layer: "+eww.current.layers[ovIndex.current+bgLayers.length].displayName)
-        // console.log("Overlay Layer ["+(ovIndex.current+bgLayers.length+1)+"/"+ovLayers.length+"]: "+eww.current.layers[ovIndex.current+bgLayers.length].displayName)
+        eww.current.layers[ov.current+bgLayers.length].enabled=false
+        // ov.current = (ov.current + 1)%ovLayers.length
+        ov.current = (overlay === null)? (ov.current + 1)%ovLayers.length : (overlay)%ovLayers.length
+        // console.log(ov.current)
+        // console.log("Overlay Layer: "+eww.current.layers[ov.current+bgLayers.length].displayName)
+        // console.log("Overlay Layer ["+(ov.current+bgLayers.length+1)+"/"+ovLayers.length+"]: "+eww.current.layers[ov.current+bgLayers.length].displayName)
 
-        eww.current.layers[ovIndex.current+bgLayers.length].enabled=true
+        eww.current.layers[ov.current+bgLayers.length].enabled=true
         eww.current.redraw()
     }
     
     //toggle DEM 
-    function toggleDem(dem) {
-        copDemOn.current = (dem !== null)?dem:!copDemOn.current
+    function toggleDem(bool) {
+        console.log('toogleDem: '+bool)
+        dem.current = (bool !== null)?bool:!dem.current
         var elevationModel
-        if(copDemOn.current) {
+        if(dem.current) {
             console.log('Switching to Copernicus Dem')
             elevationModel = new WorldWind.ElevationModel();
             elevationModel.addCoverage(new WorldWind.TiledElevationCoverage({
@@ -168,8 +150,34 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         }
         eww.current.globe.elevationModel = elevationModel
         eww.current.redraw();
-        // copDemOn.current = !copDemOn.current
-        // setDemOn(copDemOn.current)
+    }
+
+    function toggleProjection(projection) {
+
+        let supportedProjections = [ "3D", "Equirectangular", "Mercator","North Polar","South Polar"]
+        let nbproj = supportedProjections.length
+        proj.current = (projection === null) ? (proj.current + 1)%nbproj : projection%nbproj
+
+        switch (supportedProjections[proj.current]) {
+            case "3D":
+                eww.current.globe.projection = new WorldWind.ProjectionWgs84();
+                break;
+            case "Equirectangular":
+                eww.current.globe.projection = new WorldWind.ProjectionEquirectangular();
+                break;
+            case "Mercator":
+                eww.current.globe.projection = new WorldWind.ProjectionMercator();
+                break;
+            case "North Polar":
+                eww.current.globe.projection = new WorldWind.ProjectionPolarEquidistant("North");
+                break;
+            case "South Polar":
+                eww.current.globe.projection = new WorldWind.ProjectionPolarEquidistant("South");
+                break;
+            default:
+            eww.current.globe.projection = new WorldWind.ProjectionWgs84();
+        }
+        eww.current.redraw() 
     }
 
  
@@ -361,7 +369,7 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
                 // console.log('satstart: '+satelliteLayers[l].timeRange[0]+'  /  '+(new Date(epoch)))
             } else {
                 satelliteLayers[l].setTime(new Date(epoch))
-                satelliteLayers[l].enabled = (bool === null)?satOn:bool
+                satelliteLayers[l].enabled = (bool === null)?sat.current:bool
             }
         }
     }
@@ -420,20 +428,6 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
 
     const controller = useRef(null)
 
-    //  const flipImage = async (img) => {
-    //     let canvas = document.createElement('canvas')
-    //     let ctx = canvas.getContext("2d")
-    //     let width = img.width
-    //     let height = img.height 
-    //     console.log('flipping')
-    //     ctx.save(); // Save the current state
-    //     ctx.scale(1, -1); // Set scale to flip the image
-    //     ctx.drawImage(img, 1, 0, width, height); // draw the image
-    //     ctx.restore(); // Restore the last saved state
-    //     let newimg = new Image()
-    //     newimg.src = canvas.toDataURL()
-    //     return newimg
-    // };
     const flipImage = (srcBase64, callback) => {
         const img = new Image();
     
@@ -637,17 +631,17 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         epoch = (epoch)?epoch:lastepoch.current
         // console.log(epoch)
 
-        if(starOn) {
+        if(star.current) {
             getLayerByName('StarField').time = new Date(epoch)
         }
-        if(atmOn) {
+        if(atm.current) {
             getLayerByName('Atmosphere').time = new Date(epoch)
         }
         
         let closestrenderable = enableRenderables(getLayerByName('Products'), epoch, TRAIL_PRODUCT)
         enableRenderables(getLayerByName('Quicklooks'), epoch, TRAIL_QUICKLOOK)
 
-        if(satOn) {
+        if(sat.current) {
             enableSatelliteLayers(epoch,null)
         }
 
@@ -660,9 +654,17 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
 
     async function moveTo(lat, lon, alt) {
         // setTimeout(() => {
-            console.log('move to: '+lat)
+            // console.log('move to: '+lat)
+            if(lat === ewwstate.latitude && lon === ewwstate.longitude) {
+                console.log('already moved there...')
+                return
+            }
             eww.current.goToAnimator.travelTime = 1000;
-            eww.current.goTo(new WorldWind.Position(lat, lon));
+            try { // check if lat/lon is same as last time.
+                eww.current.goTo(new WorldWind.Position(lat, lon));
+            } catch(e) {console.log(e)}
+            lastmovetolat.current = lat
+            lastmovetolon.current = lon
             eww.current.navigator.range = alt;
             eww.current.navigator.camera.applyLimits()
             eww.current.redraw();
@@ -680,36 +682,6 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         }
         return pickedItems
     }
-
-    function toggleProjection() {
-        setProjection( prevProj => {
-          console.log("prevProjection: "+prevProj)
-          let supportedProjections = [ "3D", "Equirectangular", "Mercator","North Polar","South Polar"];
-          let newProj = (supportedProjections.indexOf(prevProj) + 1)%supportedProjections.length
-          console.log("newProjection: "+supportedProjections[newProj])
-          switch (supportedProjections[newProj]) {
-            case "3D":
-                eww.current.globe.projection = new WorldWind.ProjectionWgs84();
-                break;
-            case "Equirectangular":
-                eww.current.globe.projection = new WorldWind.ProjectionEquirectangular();
-                break;
-            case "Mercator":
-                eww.current.globe.projection = new WorldWind.ProjectionMercator();
-                break;
-            case "North Polar":
-                eww.current.globe.projection = new WorldWind.ProjectionPolarEquidistant("North");
-                break;
-            case "South Polar":
-                eww.current.globe.projection = new WorldWind.ProjectionPolarEquidistant("South");
-                break;
-            default:
-            eww.current.globe.projection = new WorldWind.ProjectionWgs84();
-            }
-          eww.current.redraw();
-          return supportedProjections[newProj]
-          })      
-      }
 
     // callback from eww   
     const setGlobeStates = () => {
@@ -820,54 +792,17 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         // eww.current.worldWindowController = null;
         eww.current.redrawCallbacks().push(setGlobeStates)
 
-        // Define a min/max altitude limit
-        eww.current.navigator.range = alt
-        WorldWind.BasicWorldWindowController.prototype.applyLimits = function () {
-            eww.current.navigator.range = WorldWind.WWMath.clamp(eww.current.navigator.range, 1, 300000000);
-            console.log('limit')
-        }
-
-        // // define click/tap recognisers
-
-        // let appDoubleClickRecognizer = new WorldWind.ClickRecognizer(eww.current, handleDoubleClick);
-        // appDoubleClickRecognizer.numberOfClicks = 2;
-        // appDoubleClickRecognizer.maxClickInterval = 200;
-        // eww.current.worldWindowController.clickDownRecognizer.recognizeSimultaneouslyWith(appDoubleClickRecognizer);
-        
-        // // turning this block on will cause double drag to not be recognized anymore....
-        // // let appClickRecognizer = new WorldWind.ClickRecognizer(eww.current, handleClick);
-        // // appClickRecognizer.numberOfClicks = 1;
-        // // eww.current.worldWindowController.clickDownRecognizer.recognizeSimultaneouslyWith(appClickRecognizer);
-        // // appDoubleClickRecognizer.recognizeSimultaneouslyWith(appClickRecognizer);
-        // // appClickRecognizer.requireRecognizerToFail(appDoubleClickRecognizer)
-
-
-        // let appDoubleTapRecognizer = new WorldWind.TapRecognizer(eww.current, handleDoubleClick);
-        // appDoubleTapRecognizer.numberOfTaps = 2;
-        // appDoubleTapRecognizer.name = 'double tap';
-        // eww.current.worldWindowController.tapDownRecognizer.recognizeSimultaneouslyWith(appDoubleTapRecognizer);
-
-        // // // next 2 lines: marche pas...
-        // // eww.current.worldWindowController.panRecognizer.recognizeSimultaneouslyWith(appDoubleTapRecognizer);
-        // // eww.current.worldWindowController.doublePanRecognizer.recognizeSimultaneouslyWith(appDoubleTapRecognizer);
- 
-        // // tapRecognizer.recognizeSimultaneouslyWith(doubleTapRecognizer);
-        // // doubleTapRecognizer.requireRecognizerToFail(tapRecognizer)
-
         
         WorldWind.configuration.baseUrl = window.location.href
 
-        //let starFieldLayer = new WorldWindX.StarFieldLayer();
-        // let starFieldLayer = new WorldWind.StarFieldLayer();
         let starFieldLayer = new StarFieldLayer();
+
         let atmosphereLayer = new WorldWind.AtmosphereLayer('images/BlackMarble_2016_01deg.jpg');
         // let atmosphereLayer = new WorldWind.AtmosphereLayer('images/BlackMarble_2016_3km.jpg');
-        
         //atmosphereLayer.minActiveAltitude = 5000000
 
         let quicklookLayer = new WorldWind.RenderableLayer('Quicklooks')
         quicklookLayer.pickEnabled = false
-        // console.log(satelliteLayers)
 
         let productLayer =  new WorldWind.RenderableLayer('Products')
 
@@ -876,8 +811,8 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
             // { layer: new WorldWind.WmsLayer(wmsConfigBg_s2, ""), enabled: true },
             // { layer: new WorldWind.WmsLayer(wmsConfigBg_terrain, ""), enabled: false },
             // { layer: new WorldWind.WmsLayer(wmsConfigNames, ""), enabled: names },
-            { layer: starFieldLayer, enabled: starfield },
-            { layer: atmosphereLayer, enabled: atmosphere },
+            { layer: starFieldLayer, enabled: false },
+            { layer: atmosphereLayer, enabled: false },
             { layer: productLayer, enabled: true },
             { layer: quicklookLayer, enabled: true },
         ];
@@ -898,21 +833,15 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
             eww.current.addLayer(layers[l].layer);
         }
         for (let l = 0; l < satelliteLayers.length; l++) {
-            satelliteLayers.enabled = satOn
+            satelliteLayers.enabled = sat.current
             eww.current.addLayer(satelliteLayers[l]);
         }
 
 
         console.log(eww.current.layers)
         //let date = new Date();
-        starFieldLayer.time = new Date();
-        atmosphereLayer.time = new Date();
-        // moveTo(clat, clon, alt) 
-        // setTimeout(() => {
-        //     eww.current.goToAnimator.travelTime = 1000;
-        //     eww.current.goTo(new WorldWind.Position(clat, clon, alt));
-        //     eww.current.redraw();
-        //     }, 2000)
+        // starFieldLayer.time = new Date();
+        // atmosphereLayer.time = new Date();
     
         eww.current.redraw();
         getS2LUT('./data/s2lut.txt')
@@ -920,50 +849,26 @@ export function useEww({ id, clon, clat, alt, starfield, atmosphere, background,
         // eww.current.orderedRenderingFilters.push(declutterByTime)
     }, []); // effect runs only once
         
-      // useEffect(() => {
-    //     console.log("useEffect aoi: " + aoi)
-    //     let newewwstate = {...ewwstate, aoi: aoi}
-    //     setEwwState(newewwstate)
-    // }, [aoi]); 
-    useEffect(() => {
-        // console.log('background changed effect: '+background)
-
-        toggleBg(background)
-    }, [background]);
-
-    useEffect(() => {
-        // console.log('overlay changed effect: '+overlay)
-
-        toggleOv(overlay)
-    }, [overlay]);
-
-    useEffect(() => {
-        // console.log('names changed effect: '+names)
-        toggleNames(names)
-    }, [names]);
-
-    useEffect(() => {
-        // console.log('atmosphere changed effect: '+satellites)
-
-        toggleAtmosphere(atmosphere)
-        setatmOn(atmosphere)
-    }, [atmosphere]);
-
-    useEffect(() => {
-        // console.log('starfield changed effect: '+starfield)
-        toggleStarfield(starfield)
-        setstarOn(starfield)
-    }, [starfield]);
-
-    useEffect(() => {
-        // console.log('sat changed effect: '+satellites)
-        setsatOn(satellites)
-        toggleModel(satellites)
-    }, [satellites]);
-
-    useEffect(() => {
-        toggleDem(dem)
-    }, [dem]); 
-
-  return { eww, ewwstate, moveTo, removeGeojson, addGeojson, getRenderables, addWMS, removeQuicklooks, addQuicklook, toggleStarfield, toggleAtmosphere, setTime, toggleProjection, toggleNames, toggleModel, toggleBg, toggleOv, toggleDem, northUp };
+  return { 
+      eww, 
+      ewwstate, 
+      initMap, 
+      moveTo, 
+      removeGeojson, 
+      addGeojson, 
+      getRenderables, 
+      addWMS, 
+      removeQuicklooks, 
+      addQuicklook, 
+      toggleStarfield, 
+      toggleAtmosphere, 
+      setTime, 
+      toggleProjection, 
+      toggleNames, 
+      toggleModel, 
+      toggleBg, 
+      toggleOv, 
+      toggleDem, 
+      northUp 
+    }
 }
