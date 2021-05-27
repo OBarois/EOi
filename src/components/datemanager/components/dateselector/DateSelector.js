@@ -86,6 +86,7 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
             }
 
             if (ctrlKey || shiftKey) {
+
                 springzoom.start({
                     zoom: delta[1],
                     immediate: true,
@@ -143,7 +144,7 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
             setSelector_is_active(true)
         },
 
-        onDrag: ({  event, active, first, down, touches, delta, initial, distance, velocity, direction, shiftKey, ctrlKey, xy, movement,vxvy}) => {
+        onDrag: ({  event, active, first, down, touches, offset, delta, initial, distance, velocity, direction, shiftKey, ctrlKey, xy, movement,vxvy, wheeling}) => {
             if (first) {
                 setyOnWheel.stop()
                 detectDoubleTap(event)
@@ -163,22 +164,11 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
                 // setZoomfactor(zoom)
                 // lastZoom.current = zoom
 
-                springzoom.start({
-                    zoom: delta[1],
-                    immediate: down,
-                    config: { mass: 1, tension: 100, friction: 25, precision: 0.1 },
-                    onChange: () => {
-                        let newzoom = lastZoom.current + lastZoom.current / 50 *  zoom.get() * ZOOMDIR
-                        if (newzoom < MINZOOM) newzoom = MINZOOM
-                        if (newzoom > MAXZOOM) newzoom = MAXZOOM
-                        setZoomfactor(newzoom)
-                        lastZoom.current = newzoom
-        
-                    }
-                })
 
-                // setlog({zoomfactor:zoomfactor})
-                // temp.lastdelta = delta
+                handleZoom(delta,down,velocity,false)
+                // handleZoom2(delta,down,velocity,offset,wheeling,movement,vxvy)
+                
+                // 
                 return
                 // if(!down) setActive(false)
             }
@@ -216,13 +206,6 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
                             discreetdate.current = new Date(startingdate.current.getTime() - Math.ceil(test.get()*zoomfactor   / step[0]) * step[0])
                         }
                         
-
-                    // } else {
-                    //     discreetdate.current = new Date(discreetdate.current.getTime() - even(test.get()*zoomfactor   / step[0]) * step[0])
-                    //     // runningdate.current = new Date(runningdate.current.getTime() - even(spring.value.test*zoomfactor ))
-                    //     setlog({nbsteps:even(test.get()*zoomfactor   / step[0])})
-                    // }
-                    
                     
                     setScaledate(discreetdate.current)
                     onDateChange(discreetdate.current)
@@ -255,6 +238,48 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
     // {initial: ()=> [0,test.get()],drag: {useTouch: true} }
     {drag: {useTouch: true} }
     )
+
+    const handleZoom = (delta,down,velocity,wheeling) => {
+        let enabler = 1
+        if (!down) enabler = (velocity < 0.2)?0:0.5
+
+        springzoom.start({
+            zoom: delta[1],
+            immediate: down,
+            config: { mass: 1, tension: 100, friction: 25, precision: 0.1 },
+            onChange: () => {
+                let newzoom = lastZoom.current + lastZoom.current / 50 *  zoom.get() * ZOOMDIR * enabler
+                if (newzoom < MINZOOM) newzoom = MINZOOM
+                if (newzoom > MAXZOOM) newzoom = MAXZOOM
+                setZoomfactor(newzoom)
+                lastZoom.current = newzoom
+
+            }
+        })
+    }
+
+    // new approach where spring value is the actual zoom value
+    const [ {zoom2} , springzoom2] = useSpring(() => ( {zoom2: 0} ))
+    const handleZoom2 = (delta,down,velocity,offset,wheeling,movement,vxvy) => {
+        // console.log('delta / vy: '+delta[1]+ ' / '+vxvy[1])
+        let deltadest = down?delta[1]:vxvy[1]*1000
+        let newzoom = zoomfactor - deltadest * zoomfactor/100
+        let zoomdest = Math.max(newzoom,MINZOOM)
+        zoomdest = Math.min(zoomdest,MAXZOOM)
+        springzoom2.start({
+            zoom2: zoomdest,
+            immediate: down,
+            config: { mass: 1, tension: 170, friction: 25},
+            onChange: () => {
+                setZoomfactor(zoom2.get())
+                // console.log(zoom.get())
+            },
+            onProps: ()=> {
+
+            }
+        })
+        
+    }
 
     const [{ xy2 }, sety2] = useSpring(() => ({ xy2: [0,0] }))
     const moveToDate = (newdate) => {
