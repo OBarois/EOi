@@ -15,6 +15,7 @@ export default function useDatahub()  {
     const [loading, setLoading] = useState(false)
 
 
+
     // const [ collections, setCollections ] = useState([])
     const collections = useRef([
         {
@@ -76,7 +77,7 @@ export default function useDatahub()  {
         },
         {
             code: 'S3',
-            templateUrl: 'https://scihub.copernicus.eu/dhus/search?q=( footprint:"Intersects({polygon})" AND beginposition:[{start} TO {end}] AND platformname:Sentinel-3 AND (producttype:OL_1_ERR___ OR producttype:SL_1_RBT___ OR producttype:SR_1_SRA___))&start={startindex}&rows=100&orderby=beginposition desc&format=json',
+            templateUrl: 'https://scihub.copernicus.eu/dhus/search?q=( footprint:"Intersects({polygon})" AND beginposition:[{start} TO {end}] AND platformname:Sentinel-3 AND (producttype:OL_1_LFR___ OR producttype:SL_1_RBT___ OR producttype:SR_1_SRA___))&start={startindex}&rows=100&orderby=beginposition desc&format=json',
             name: 'Sentinel-3 A/B, OLCI/SLSTR/SRAL' ,
             startIndexOrigin: 0,
             dateOff: ' beginposition:[{start} TO {end}] AND',
@@ -86,7 +87,7 @@ export default function useDatahub()  {
         {
             code: 'S3A/OLCI/LFR',
             templateUrl: 'https://scihub.copernicus.eu/dhus/search?q=( footprint:"Intersects({polygon})" AND beginposition:[{start} TO {end}] AND platformname:Sentinel-3 AND filename:S3A_*  AND (producttype:OL_2_LFR___))&start={startindex}&rows=100&orderby=beginposition desc&format=json',
-            name: 'Sentinel-3 A/B, OLCI' ,
+            name: 'Sentinel-3 A, OLCI/LFR' ,
             startIndexOrigin: 0,
             dateOff: ' beginposition:[{start} TO {end}] AND',
             areaOff:  ' footprint:"Intersects({polygon})" AND',
@@ -95,7 +96,25 @@ export default function useDatahub()  {
         {
             code: 'S3B/OLCI/LFR',
             templateUrl: 'https://scihub.copernicus.eu/dhus/search?q=( footprint:"Intersects({polygon})" AND beginposition:[{start} TO {end}] AND platformname:Sentinel-3 AND filename:S3B_* AND (producttype:OL_2_LFR___))&start={startindex}&rows=100&orderby=beginposition desc&format=json',
-            name: 'Sentinel-3 A/B, OLCI' ,
+            name: 'Sentinel-3 B, OLCI/LFR' ,
+            startIndexOrigin: 0,
+            dateOff: ' beginposition:[{start} TO {end}] AND',
+            areaOff:  ' footprint:"Intersects({polygon})" AND',
+            windowSize: 1000 * 60 * 60 * 24
+        },
+        {
+            code: 'S3A/OLCI/RBT',
+            templateUrl: 'https://scihub.copernicus.eu/dhus/search?q=( footprint:"Intersects({polygon})" AND beginposition:[{start} TO {end}] AND platformname:Sentinel-3 AND filename:S3A_*  AND (producttype:SL_1_RBT___))&start={startindex}&rows=100&orderby=beginposition desc&format=json',
+            name: 'Sentinel-3 A, OLCI/RBT' ,
+            startIndexOrigin: 0,
+            dateOff: ' beginposition:[{start} TO {end}] AND',
+            areaOff:  ' footprint:"Intersects({polygon})" AND',
+            windowSize: 1000 * 60 * 60 * 24
+        },
+        {
+            code: 'S3B/SLSTR/RBT',
+            templateUrl: 'https://scihub.copernicus.eu/dhus/search?q=( footprint:"Intersects({polygon})" AND beginposition:[{start} TO {end}] AND platformname:Sentinel-3 AND filename:S3B_* AND (producttype:SL_1_RBT___))&start={startindex}&rows=100&orderby=beginposition desc&format=json',
+            name: 'Sentinel-3 B, SLSTR/RBT' ,
             startIndexOrigin: 0,
             dateOff: ' beginposition:[{start} TO {end}] AND',
             areaOff:  ' footprint:"Intersects({polygon})" AND',
@@ -122,7 +141,16 @@ export default function useDatahub()  {
         {
             code: 'S5P',
             templateUrl: 'https://scihub.copernicus.eu/dhus/search?q=( footprint:"Intersects({polygon})" AND beginposition:[{start} TO {end}] AND platformname:Sentinel-5 precursor AND (producttype:L1B_RA_BD1 OR (producttype:L2__NO2___ AND processingmode:Near real time)))&start={startindex}&rows=100&orderby=beginposition desc&format=json',
-            name: 'Sentinel-1 A/B',
+            name: 'S5P',
+            startIndexOrigin: 0,
+            dateOff: ' beginposition:[{start} TO {end}] AND',
+            areaOff:  ' footprint:"Intersects({polygon})" AND',
+            windowSize: 1000 * 60 * 60 * 24 
+        },
+        {
+            code: 'ENVISAT/MERIS/FRS',
+            templateUrl: 'https://dhr.datahub.eodc.eu/search?q=( footprint:"Intersects({polygon})" AND beginposition:[{start} TO {end}] AND platformname:Envisat AND producttype:MER_FRS_2P) &start={startindex}&rows=100&orderby=beginposition desc&format=json',
+            name: "ENVISAT/MERIS/FRS from EODC's EO Mission Data relay",
             startIndexOrigin: 0,
             dateOff: ' beginposition:[{start} TO {end}] AND',
             areaOff:  ' footprint:"Intersects({polygon})" AND',
@@ -183,9 +211,12 @@ export default function useDatahub()  {
         // console.log('Search: '+newurl)
         let paging = {totalresults:0, startindex:0, itemsperpage:0}
         try {
-            
             const response = await fetch(newurl, {mode: 'cors', credentials: 'include', signal: controller.current.signal})
             // console.log( response.text())
+            if (!response.ok) {
+                // Window.alert(`HTTP error! status: ${response.status}`)
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
             try {
                 const json = await response.json()
                 const geoJson = (searchparam.current.mission === 'ENVISAT')? eocatToGeojson(json) : dhusToGeojson(json)

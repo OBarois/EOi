@@ -3,6 +3,7 @@ import wwx from 'webworldwind-x';
 import satConfig from './satConfig'
 // import SatelliteModel from './wwwx/shapes/satellites/Model';
 import SatelliteModelLayer from './wwwxx/layer/SatelliteModelLayer'
+
 // const Location = WorldWind.Location,
 //     Sector = WorldWind.Sector,
 //     WmsLayer = WorldWind.WmsLayer;

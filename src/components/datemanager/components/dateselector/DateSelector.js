@@ -284,6 +284,7 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
     const [{ xy2 }, sety2] = useSpring(() => ({ xy2: [0,0] }))
     const moveToDate = (newdate) => {
         // console.log('go from: '+discreetdate.current.toJSON()+' to: '+newdate.toJSON())
+        if(newdate.getTime() === discreetdate.current.getTime()) return
         let fromtime = discreetdate.current.getTime()
         // sety2.stop()
         // if (!Selector_is_active) {
@@ -308,7 +309,7 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
                 // onRest: ()=>{
                 //     // setSelector_is_active(false)
                 // console.log("rest move")
-                //     onFinalDateChange(discreetdate.current)
+                //     // onFinalDateChange(discreetdate.current)
                 // }
             })
         // }
@@ -316,12 +317,11 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
     }
 
     useEffect(() => {
-        // console.log('startdate changed')
         if(!Selector_is_active) {
-            // console.log(startdate.toJSON())
             moveToDate(startdate)
-        }
-    },[startdate, resetToStartDateTrigger])
+        } 
+    },[startdate])
+// },[startdate, resetToStartDateTrigger])
 
     // useEffect(() => {
     //     console.log('laststartdate changed: '+lastStartdate.toJSON())

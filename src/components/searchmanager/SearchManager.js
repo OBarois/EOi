@@ -17,9 +17,7 @@ function SearchManager({searchdate, searchpoint, mission, altitude, onSearchStar
 
     // const [results, setresults] = useState([])
     const [ searching, setsearching ] = useState(false);
-    const [ searchmode, setsearchmode ] = useState('backward');
     const [ searchtrigger, setsearchtrigger ] = useState(0);
-    const searchtimeout = useRef()
     const firstresultdate = useRef(new Date(0))
     const lastresultdate = useRef(new Date())
     const totalresults = useRef(0)
@@ -35,20 +33,7 @@ function SearchManager({searchdate, searchpoint, mission, altitude, onSearchStar
     const {handleTap} = useHandleDoubleTap( ()=>{setsearchtrigger(Math.random())}, onSearchStart )
 
 
-    const handleTap2 = () => { setsearchtrigger(Math.random()) }
-
     useHotkeys("x",()=>setsearchtrigger(Math.random())) 
-
-    // useEffect(() => {
-    //     // console.log('will search: '+searchdate)
-    //     search()
-    // }, [searchdate, mission, searchpoint, searchtrigger]);
-
-    // useEffect(() => {
-    //     console.log(geojsonResults)
-    //     setresults(geojsonResults)
-    //     setsearching(false)
-    // }, [geojsonResults]);
 
     useEffect(() => {
         if(geojsonResults) {
@@ -100,6 +85,7 @@ function SearchManager({searchdate, searchpoint, mission, altitude, onSearchStar
 
 
     useEffect(() => {
+        // console.log('set param')
         let sd = searchdate
         let sp = searchpoint
         if(altitude > 3000000) {

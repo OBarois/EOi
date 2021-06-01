@@ -35,8 +35,11 @@ function MissionSelector({initialmission, onMissionChange}) {
                 <div className={(mission == 'S3/SLSTR')?'CircleButtonSelected':'CircleButton'}><img className='MissionIcon' src='./images/s3_black.png' alt='' onClick={() => setMission('S3/SLSTR')} /></div>
                 <div className={(mission == 'S3A/OLCI/LFR')?'CircleButtonSelected':'CircleButton'}><img className='MissionIcon' src='./images/s3_black.png' alt='' onClick={() => setMission('S3A/OLCI/LFR')} /></div>
                 <div className={(mission == 'S3B/OLCI/LFR')?'CircleButtonSelected':'CircleButton'}><img className='MissionIcon' src='./images/s3_black.png' alt='' onClick={() => setMission('S3B/OLCI/LFR')} /></div>
+                <div className={(mission == 'S3A/OLCI/RBT')?'CircleButtonSelected':'CircleButton'}><img className='MissionIcon' src='./images/s3_black.png' alt='' onClick={() => setMission('S3A/OLCI/RBT')} /></div>
+                <div className={(mission == 'S3B/OLCI/RBT')?'CircleButtonSelected':'CircleButton'}><img className='MissionIcon' src='./images/s3_black.png' alt='' onClick={() => setMission('S3B/OLCI/RBT')} /></div>
                 <div className={(mission == 'S3/SRAL')?'CircleButtonSelected':'CircleButton'}><img className='MissionIcon' src='./images/s3_black.png' alt='' onClick={() => setMission('S3/SRAL')} /></div>
                 <div className={(mission == 'S5P')?'CircleButtonSelected':'CircleButton'}><img className='MissionIcon' src='./images/s5p_black.png' alt='' onClick={() => setMission('S5P')} /></div>
+                <div className={(mission == 'ENVISAT/MERIS/FRS')?'CircleButtonSelected':'CircleButton'}><img className='MissionIcon' src='./images/s5p_black.png' alt='' onClick={() => setMission('ENVISAT/MERIS/FRS')} /></div>
                 <div className={(mission == 'ENVISAT')?'CircleButtonSelected':'CircleButton'}><img className='MissionIcon' src='./images/s5p_black.png' alt='' onClick={() => setMission('ENVISAT')} /></div>
             </div>   
         </div>

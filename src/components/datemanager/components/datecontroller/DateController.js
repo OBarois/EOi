@@ -57,7 +57,7 @@ function DateController({startdate, onDateChange, onStateChange, animated}) {
         onDateChange(date)
         //forceDate(date)
         //setAppdate({appdate: new Date(date)})
-    },[date, onDateChange]);
+    },[date]);
 
     // useEffect(() => {
     //     console.log(" force date: "+startdate)

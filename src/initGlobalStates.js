@@ -28,10 +28,11 @@ export  function initGlobalStates() {
         searchDate: new Date(),
         resetStartDateTrigger: null,
         pointSearchMaxAltitude: 3000000,
-        selectedProduct: [],
-        searchPoint: 'POINT(40 40)',
+        selectedProduct: null,
+        searchPoint: 'POINT(40 0)',
         geojson: null,
         closestItem: null,
+        addQuicklookWMSTrigger: null,
         moveToClosestItemTrigger: null,
         resultDesc: {
             firstItemDate: null,
@@ -40,7 +41,7 @@ export  function initGlobalStates() {
             totalLoaded: 0
         },
         animated: false,
-        clearGeojsonTrigger: null,
+        clearResultsTrigger: null,
         mapSettings: {
             atmosphere: true,
             starfield: true,

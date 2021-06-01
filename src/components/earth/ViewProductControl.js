@@ -8,7 +8,7 @@ import './ViewProductControl.css'
 function ViewProductControl({active}) {
     const [ selectedProduct, setselectedProduct] = useGlobal('selectedProduct')
     const [ closestItem, setclosestItem] = useGlobal('closestItem')
-    const [ resetStartDateTrigger, setresetStartDateTrigger] = useGlobal('resetStartDateTrigger')
+    const [ goToDate, setgoToDate] = useGlobal('goToDate')
     
     const [ moveToClosestItemTrigger, setmoveToClosestItemTrigger ] = useGlobal('moveToClosestItemTrigger')
     // const closestitem = useRef(closestItem)
@@ -17,11 +17,12 @@ function ViewProductControl({active}) {
         event.stopPropagation()
         let selection = []
         if(closestItem) {
-            console.log('selected a product')
+            console.log('Moving to closest item')
             selection[0] = closestItem
-            setselectedProduct(selection)
+            // setselectedProduct(selection[0])
             setmoveToClosestItemTrigger(Math.random())
-            setresetStartDateTrigger(Math.random())
+            setgoToDate(closestItem.timeRange[1])
+            // setresetStartDateTrigger(Math.random())
         }
     }
 

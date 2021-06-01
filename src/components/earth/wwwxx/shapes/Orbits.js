@@ -1,4 +1,8 @@
 import WorldWind from 'webworldwind-esa';
+import WordWindX from 'webworldwind-x';
+const {
+    EoUtils,
+} = WordWindX;
 
 const {
     ABSOLUTE,
@@ -8,7 +12,6 @@ const {
     ShapeAttributes
 } = WorldWind;
 
-import utils from '../util/eo/utils';
 
 /**
  * @exports Orbits
@@ -22,7 +25,7 @@ class Orbits extends Renderable {
      * @param timeWindow {Number} Amount of milliseconds for the time window.
      * @param orbitPoints {Number} Amount of the Panther.
      */
-    constructor(satrec, time = new Date(), timeWindow = 2 * 540000, orbitPoints = 720) {
+    constructor(satrec, startTime = new Date(), endTime = new Date(), color, orbitPoints = 120) {
         super();
 
         if(!satrec) {
@@ -31,14 +34,22 @@ class Orbits extends Renderable {
 
         this._satrec = satrec;
 
-        this._timeWindow = timeWindow;
+        // this._timeWindow = timeWindow;
         this._orbitPoints = orbitPoints;
 
-        this._pastTrail = this.trail(this.trailAttributes(new Color(213 / 255, 214  / 255, 210 / 255, 1)));
-        this._futureTrail = this.trail(this.trailAttributes(new Color(1, 1, 0, 1)));
+        this._trail = this.trail(this.trailAttributes(color));
+        // this._futureTrail = this.trail(this.trailAttributes(new Color(1, 1, 0, 1)));
 
-        this._currentTime = time;
-        this._previousTime = time;
+        if(endTime.getTime() === startTime.getTime()) {
+            this._currentEndTime = new Date(startTime.getTime() + orbitPoints * 1000);
+            this._previousEndTime = new Date(startTime.getTime() + orbitPoints * 1000);
+        } else {
+            this._currentEndTime = endTime;
+            this._previousEndTime = endTime;
+        }
+
+        this._currentStartTime = startTime;
+        this._previousStartTime = startTime;
 
         this.populate();
     }
@@ -47,28 +58,38 @@ class Orbits extends Renderable {
      * Update information about when and where the satellite was. It fully rebuilds the positions for the trails.
      * @param satelliteRecord SPG format representing the satellite.
      */
-    satrec(satelliteRecord) {
+    satrec(satelliteRecord, preventPopulate) {
         if(!satelliteRecord) {
             throw Error('No satellite record was provided');
         }
         this._satrec = satelliteRecord;
         // This must signalize somehow that it needs to be recalculated.
 
-        this.populate();
+        if(preventPopulate !== true) {
+            this.populate();
+        }
     }
 
     /**
      * Update current time for this set of orbits.
-     * @param time {Date} Current date for the satellite.
+     * @param startTime {Date} Start date for the orbit.
+     * @param endTime {Date} End date for the orbit.
      */
-    time(time) {
-        if(!time) {
-            throw Error('No time was provided');
+    time(startTime, endTime, preventUpdate) {
+        if(!startTime) {
+            throw Error('No startTime was provided');
         }
-        this._previousTime = this._currentTime;
-        this._currentTime = time;
+        if(!endTime) {
+            throw Error('No endTime was provided');
+        }
+        this._previousStartTime = this._currentStartTime;
+        this._previousEndTime = this._currentEndTime;
+        this._currentStartTime = startTime;
+        this._currentEndTime = endTime;
 
-        this.update();
+        if(preventUpdate !== true) {
+            this.update();
+        }
     }
 
     /**
@@ -80,8 +101,8 @@ class Orbits extends Renderable {
             return;
         }
 
-        this._pastTrail.render(dc);
-        this._futureTrail.render(dc);
+        this._trail.render(dc);
+        // this._futureTrail.render(dc);
     }
 
     /**
@@ -91,10 +112,15 @@ class Orbits extends Renderable {
      * @private
      */
     update(force = false) {
-        const now = this._currentTime.getTime();
-        const previousTime = this._previousTime.getTime();
-        const change = now - previousTime;
-        if(change === 0 && !force) {
+        const startDate = this._currentStartTime.getTime();
+        const now = startDate;
+        const previousStartTime = this._previousStartTime.getTime();
+        const previousTime = previousStartTime;
+        const changeStart = startDate - previousStartTime;
+        const endDate = this._currentEndTime.getTime();
+        const previousEndTime = this._previousEndTime.getTime();
+        const changeEnd = endDate - previousEndTime;
+        if(changeStart === 0 && changeEnd === 0 && !force) {
             return;
         }
 
@@ -103,81 +129,81 @@ class Orbits extends Renderable {
             return;
         }
 
-        const isInFuture = change > 0;
+        const timeWindow = endDate - startDate;
 
-        const tick = Math.floor(this._timeWindow / this._orbitPoints);
-        let positionsToReplace = Math.ceil(Math.abs(now - previousTime) / tick);
+        const tick = Math.floor(timeWindow / this._orbitPoints);
+        let positionsToReplace = (Math.ceil(Math.abs(now - previousTime) / tick)) + Math.ceil(Math.abs(endDate - previousEndTime) / tick);
         if(positionsToReplace > this._orbitPoints) {
             this.populate();
             return;
         }
 
-        if(isInFuture) {
-            this._pastTrail.positions.pop();
-
-            // Add to the start date.
-            const startDate = (now + (this._timeWindow / 2)) - (positionsToReplace * tick);
-            const positionsToTransfer = [];
-            const positionsToAdd = [];
-            for(let positionIndex = 0; positionIndex < positionsToReplace; positionIndex++) {
-                const time = new Date(startDate + positionIndex * tick);
-                const position = utils.getOrbitPositionWithPositionalData(this._satrec, time).position;
-                position.time = time.getTime();
-
-                this._pastTrail.positions.shift();
-
-                positionsToTransfer.push(this._futureTrail.positions.shift());
-                positionsToAdd.push(position);
+        //if start change
+        //update start
+        if(changeStart) {
+            //change to future
+            if(changeStart > 0) {
+                //remove olded possitions than current startDate
+                let i = 0;
+                while (this._trail.positions[i].time < startDate) {
+                    this._trail.positions.shift();
+                }
             }
 
-            this._pastTrail.positions = this._pastTrail.positions.concat(positionsToTransfer);
-            this._futureTrail.positions = this._futureTrail.positions.concat(positionsToAdd);
-
-            this._pastTrail.positions.push(this._futureTrail.positions[0]);
-        } else {
-            const startDate = now - (this._timeWindow / 2);
-            const positionsToTransfer = [];
-            const positionsToAdd = [];
-            for(let positionIndex = 0; positionIndex < positionsToReplace; positionIndex++) {
-                const time = new Date(startDate + positionIndex * tick);
-                const position = utils.getOrbitPositionWithPositionalData(this._satrec, time).position;
-                position.time = time.getTime();
-
-                this._futureTrail.positions.pop();
-
-                positionsToTransfer.push(this._pastTrail.positions.pop());
-                positionsToAdd.push(position);
+            if(changeStart < 0) {
+                //add possitions to startDate
+                const positionsToReplace = Math.ceil(Math.abs(now - previousTime) / tick);
+                for(let positionIndex = 0; positionIndex < positionsToReplace; positionIndex++) {
+                    const time = new Date(previousTime - positionIndex * tick);
+                    const position = EoUtils.getOrbitPositionWithPositionalData(this._satrec, time).position;
+                    position.time = time.getTime();
+                    this._trail.positions = [position, ...this._trail.positions];
+                }
             }
-
-            this._futureTrail.positions = positionsToTransfer.concat(this._futureTrail.positions);
-            this._pastTrail.positions = positionsToAdd.concat(this._pastTrail.positions);
         }
+        
+
+        //if end change
+        //update end
+        if(changeEnd) {
+            //change to future
+            if(changeEnd > 0) {
+                //change to future
+                const positionsToReplace = Math.ceil(Math.abs(endDate - previousEndTime) / tick);
+                for(let positionIndex = 0; positionIndex < positionsToReplace; positionIndex++) {
+                    const time = new Date(previousEndTime + positionIndex * tick);
+                    const position = EoUtils.getOrbitPositionWithPositionalData(this._satrec, time).position;
+                    position.time = time.getTime();
+                    this._trail.positions.push(position);
+                }
+            }
+
+            if(changeEnd < 0) {
+                //remove olded possitions than current endDate
+                let i = this._trail.positions.length - 1;
+                while (this._trail.positions[i].time > endDate) {
+                    this._trail.positions.pop();
+                    i = this._trail.positions.length - 1;
+                }
+            }
+        }
+        this._trail.positions = [...this._trail.positions];
     }
 
     populate() {
-        const now = this._currentTime.getTime();
-        const startDate = now - (this._timeWindow / 2);
-        const tick = Math.floor(this._timeWindow / this._orbitPoints);
+        const startDate = this._currentStartTime.getTime();
+        const endDate = this._currentEndTime.getTime();
+        const timeWindow = endDate - startDate;
+        const tick = Math.floor(timeWindow / this._orbitPoints);
 
-        const futurePositions = [];
-        const pastPositions = [];
+        const positions = [];
         for(let positionIndex = 0; positionIndex < this._orbitPoints; positionIndex++) {
             const time = new Date(startDate + positionIndex * tick);
-            const position = utils.getOrbitPositionWithPositionalData(this._satrec, time).position;
+            const position = EoUtils.getOrbitPositionWithPositionalData(this._satrec, time).position;
             position.time = time.getTime();
-
-            if(positionIndex < this._orbitPoints / 2) {
-                pastPositions.push(position);
-            } else if(positionIndex === this._orbitPoints / 2) {
-                pastPositions.push(position);
-                futurePositions.push(position);
-            } else {
-                futurePositions.push(position);
-            }
+            positions.push(position);
         }
-
-        this._pastTrail.positions = pastPositions;
-        this._futureTrail.positions = futurePositions;
+        this._trail.positions = [...positions];
     }
 
     /**
@@ -191,6 +217,7 @@ class Orbits extends Renderable {
         trail.altitudeMode = ABSOLUTE;
         trail.numSubSegments = 1;
         trail.attributes = attributes;
+        // trail.extrude = true
         return trail;
     }
 
@@ -202,9 +229,9 @@ class Orbits extends Renderable {
     trailAttributes(color) {
         const attributes = new ShapeAttributes(null);
         attributes.outlineColor = color;
-        attributes.outlineWidth = 1;
+        attributes.outlineWidth = 2;
         attributes.drawOutline = true;
-        attributes.drawInterior = false;
+        attributes.drawInterior = true;
         return attributes;
     }
 }

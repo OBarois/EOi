@@ -196,7 +196,6 @@ export const FluidWorldWindowController = memo( ({world, onSimpleClick}) => {
     function handleSimpleClick(event) {
         onSimpleClick(event)
     }
-
     // north up
     // todo: spring ?
     function northUp() {

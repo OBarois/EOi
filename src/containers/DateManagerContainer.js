@@ -9,9 +9,13 @@ function DateManagerContainer() {
     const [animated, setanimated] = useGlobal('animated')
     const [ GoToDate, setGoToDate ] = useGlobal('goToDate')
     const [ geojson, setgeojson] = useGlobal('geojson')
-    const [ clearGeojsonTrigger, ] = useGlobal('clearGeojsonTrigger')
-    const [ resetStartDateTrigger, ] = useGlobal('resetStartDateTrigger')
+    const [ clearResultsTrigger, ] = useGlobal('clearResultsTrigger')
     const [tics, settics] = useState([])
+
+    const handleFinalDate = (finaldate) => {
+        setSearchDate(finaldate)
+        setGoToDate(null)
+    }
 
     useEffect(() => {
         let newtics = []
@@ -25,7 +29,7 @@ function DateManagerContainer() {
 
     useEffect(() => {
         settics([])
-    }, [clearGeojsonTrigger]);
+    }, [clearResultsTrigger]);
 
     // // could bypass...
     // useEffect(() => {
@@ -35,7 +39,7 @@ function DateManagerContainer() {
 
 
     return (
-        <DateManager onDateChange={setViewDate} onFinalDateChange={setSearchDate} startdate={GoToDate} resetstartdatetrigger={resetStartDateTrigger} tics={tics} onStateChange={setanimated} animated={animated}/> 
+        <DateManager onDateChange={setViewDate} onFinalDateChange={handleFinalDate} startdate={GoToDate} tics={tics} onStateChange={setanimated} animated={animated}/> 
      )
 }
 

@@ -1,7 +1,6 @@
 import WorldWind from "webworldwind-esa";
 import './wwwxx/www-overrides/DrawContext';
 import './wwwxx/www-overrides/SurfaceShapeTileBuilder';
-import SurfaceShape from './wwwxx/www-overrides/SurfaceShape';
 import './wwwxx/www-overrides/SurfaceShapeTile';
 import './wwwxx/www-overrides/TiledImageLayer';
 import './wwwxx/www-overrides/GeoJSONParser';
@@ -13,14 +12,24 @@ import TexturedSurfacePolygon from './wwwxx/textured/TexturedSurfacePolygon'
 
 // import modelsLayer from './satelliteLayer';
 import satelliteLayers from './satelliteLayers';
+import orbitLayers from './orbitLayers';
 
-import {bgLayers, ovLayers} from './layerConfig';
+import {bgLayers, ovLayers} from './layerConfig'; 
 
 export function useEww({ id }) {
     
     const TRAIL_PRODUCT = 1000 * 60 * 60 * 24 //1 day
     const TRAIL_QUICKLOOK = 1000 * 60 * 60  //1 hour
+    const TRAIL_QUICKLOOKWMS = 1000 * 60 * 24 //1 day
 
+    const ZINDEX_QUICKLOOKWMS = 900
+    const ZINDEX_QUICKLOOKS = 800
+    const ZINDEX_STARFIELD = 100
+    const ZINDEX_ATMOSPHERE = 600
+    const ZINDEX_PRODUCTS = 700
+    const ZINDEX_BACKGROUND = 500
+    const ZINDEX_OVERLAY = 1000
+    const ZINDEX_SATELLITE = 200
   
     const eww = useRef(null)
    
@@ -33,6 +42,9 @@ export function useEww({ id }) {
     const atm = useRef(false)
     const star = useRef(false)
     const na = useRef(false)
+    const ge = useRef(false)
+    const qu = useRef(false)
+    const qw = useRef(false)
     const dem = useRef(false)
     const proj = useRef(0)
 
@@ -84,6 +96,8 @@ export function useEww({ id }) {
         sat.current = (bool!= null)?bool:!sat.current
 
         enableSatelliteLayers(lastepoch.current,sat.current)
+        enableOrbitLayers(lastepoch.current,sat.current)
+
         eww.current.redraw();
     }
 
@@ -102,29 +116,53 @@ export function useEww({ id }) {
         let lo = getLayerByName('overlay_bright')
         na.current = (bool !== null)?bool:!na.current
         lo.enabled = na.current
+        sortLayers()
+
         eww.current.redraw()
     }
 
+    //toggle products and quicklooks layers
+    function toggleGeojson(bool) {
+        console.log('toggleGeojson: '+bool)
+        let lp = getLayerByName('Products')
+        ge.current = (bool !== null)?bool:!ge.current
+        lp.enabled = ge.current
+        eww.current.redraw()
+    }
+
+    function toggleQuicklooks(bool) {
+        console.log('toggleQuicklooks: '+bool)
+        let ql = getLayerByName('Quicklooks')
+        qu.current = (bool !== null)?bool:!qu.current
+        ql.enabled = qu.current
+        eww.current.redraw()
+    }
+
+
     function toggleBg(background) {
-        // console.log(bg.current)
-        eww.current.layers[bg.current].enabled=false
-        bg.current = (background === null)? (bg.current + 1)%bgLayers.length : (background)%bgLayers.length
-        // console.log('new bg: '+bg.current)
-        eww.current.layers[bg.current].enabled=true
+        let bgindex = -1
+        background = (background === null)?  (bg.current + 1)%bgLayers.length : background % bgLayers.length
+        bg.current = background
+        for(let i=0 ; i<eww.current.layers.length ; i++) {
+            if(eww.current.layers[i].type === 'background' && eww.current.layers[i].type) {
+                bgindex += 1
+                eww.current.layers[i].enabled = (bgindex === background) ? true : false
+            }
+        }
         eww.current.redraw();
     }
 
     function toggleOv(overlay) {
-        // console.log(overlay)
-        eww.current.layers[ov.current+bgLayers.length].enabled=false
-        // ov.current = (ov.current + 1)%ovLayers.length
-        ov.current = (overlay === null)? (ov.current + 1)%ovLayers.length : (overlay)%ovLayers.length
-        // console.log(ov.current)
-        // console.log("Overlay Layer: "+eww.current.layers[ov.current+bgLayers.length].displayName)
-        // console.log("Overlay Layer ["+(ov.current+bgLayers.length+1)+"/"+ovLayers.length+"]: "+eww.current.layers[ov.current+bgLayers.length].displayName)
-
-        eww.current.layers[ov.current+bgLayers.length].enabled=true
-        eww.current.redraw()
+        let ovindex = -1
+        overlay = (overlay === null)?  (ov.current + 1)%ovLayers.length : overlay % ovLayers.length
+        ov.current = overlay
+        for(let i=0 ; i<eww.current.layers.length ; i++) {
+            if(eww.current.layers[i].type === 'overlay' && eww.current.layers[i].type) {
+                ovindex += 1
+                eww.current.layers[i].enabled = (ovindex === overlay) ? true : false
+            }
+        }
+        eww.current.redraw();
     }
     
     //toggle DEM 
@@ -180,6 +218,12 @@ export function useEww({ id }) {
         eww.current.redraw() 
     }
 
+    const sortLayers = ()=>{
+        eww.current.layers.sort((a, b) => {
+            return a.zIndex - b.zIndex;
+        })
+
+    }
  
     function  getViewPolygon () {
         let view = eww.current.viewport
@@ -290,6 +334,7 @@ export function useEww({ id }) {
             setProductTimeRange(productlayer)
             enableRenderables(productlayer, epoch, TRAIL_PRODUCT)
             // console.log(productlayer)
+            sortLayers()
 
             eww.current.redraw();
         }
@@ -310,49 +355,70 @@ export function useEww({ id }) {
     function addWMS() {
     }
 
-    function addQuicklookWMS(renderable) {
-
-        console.log(renderable.computeSectors(eww.current.drawContext))
-        console.log(WorldWind.Sector.FULL_SPHERE)
+    async function addQuicklookWMS(renderable) {
+        // console.log(renderable)
+        // console.log(renderable.computeSectors(eww.current.drawContext))
+        // console.log(WorldWind.Sector.FULL_SPHERE)
 
         // for S2:  
         // https://view.onda-dias.eu/instance00/ows?&service=WMS&request=GetMap&layers=S2L1C_TRUE_COLOR&styles=&format=image/png&transparent=true&version=1.1.1&width=1500&height=1000&srs=EPSG:4326&bbox=12.357903,41.800495,12.625694,41.984760
 
-        
+        // for S1:  
         // https://view.onda-dias.eu/instance00/ows?&service=WMS&request=GetMap&layers=S1B_IW_GRDH_1SDV_20190520T050758_20190520T050823_016323_01EB81_6EB6&styles=&format=image%2Fpng&transparent=true&version=1.1.1&width=256&height=256&srs=EPSG%3A3857&bbox=2035059.441064533,7044436.526761846,2191602.4749925737,7200979.560689885
+        let layername = null
+        if(renderable.userProperties.title.indexOf('MSIL1C') >= 0) layername = 'S2L1C_TRUE_COLOR'
+        if(renderable.userProperties.title.indexOf('MSIL2A') >= 0) layername = 'S2L2A_TRUE_COLOR'
+        if(renderable.userProperties.title.indexOf('GRD') >= 0) layername = 'S1_IW_GRDH_FullResolution'
+
+        if (layername === null) return
+
         let wmsConfigQL = {
             service: "https://view.onda-dias.eu/instance00/ows",
             // layerNames: renderable.userProperties.title,
-            // layerNames: 'S2L1C_TRUE_COLOR',
-            layerNames: 'S1_IW_GRDH_FullResolution',
+            layerNames: layername,
+            // layerNames: 'S1_IW_GRDH_FullResolution',
             
             // title: renderable.userProperties.title,
-            title: 'quicklook',
+            title: 'QuicklookWMS',
             numLevels: 19,
             format: "image/png",
             size: 256,
-            sector: renderable.computeSectors(eww.current.drawContext)[0],
+            sector: renderable.sector,
             // sector: renderable.sector,
             // sector: WorldWind.Sector.FULL_SPHERE,
             levelZeroDelta: new WorldWind.Location(90, 90)
         }
 
-        // let wmsConfigQL = {
-        //     service: "https://tiles.maps.eox.at/wms",
-        //     layerNames: "overlay_bright",
-        //     title: "overlay_bright",
-        //     numLevels: 19,
-        //     format: "image/png",
-        //     size: 256,
-        //     sector: WorldWind.Sector.FULL_SPHERE,
-        //     levelZeroDelta: new WorldWind.Location(90, 90)
-        // }
-        // eww.current.removeLayer(getLayerByName('quicklook') )
-        let qllayer =  new WorldWind.WmsLayer(wmsConfigQL, renderable.userProperties.date)
+        // eww.current.removeLayer(getLayerByName('quicklookWMS') )
+        removeQuicklookWMS()
+        let qllayer =  new WorldWind.WmsLayer(wmsConfigQL, renderable.timeRange[1].toJSON())
+        let timerange = []
+        timerange[1] = renderable.timeRange[1]
+        timerange[0] = new Date(timerange[1].getTime() - TRAIL_QUICKLOOKWMS)
+        qllayer.timeRange = timerange
+        qllayer.zIndex = ZINDEX_QUICKLOOKWMS 
+        qllayer.maxActiveAltitude = 3000000
         eww.current.addLayer(qllayer)
+        sortLayers()
         eww.current.redraw()
         console.log(eww.current.layers)
     }
+
+    function removeQuicklookWMS() {
+        eww.current.removeLayer(getLayerByName('QuicklookWMS'))
+        eww.current.redraw()
+    }
+
+
+    function toggleQuicklookWMS(bool) {
+        console.log('QuicklookWMS: '+bool)
+        let ql = getLayerByName('QuicklookWMS')
+        if (!ql) return
+        qw.current = (bool !== null)?bool:!qw.current
+        ql.enabled = qw.current
+        eww.current.redraw()
+    }
+
 
     function getLayerByName(name) {
         for (let i = 0; i < eww.current.layers.length; i++) {
@@ -373,6 +439,30 @@ export function useEww({ id }) {
             }
         }
     }
+
+    function enableOrbitLayers(epoch,bool) {
+        for(let l=0 ; l<orbitLayers.length ; l++) {
+            if(orbitLayers[l].timeRange[0].getTime() > epoch || orbitLayers[l].timeRange[1].getTime() < epoch) {
+                orbitLayers[l].enabled = false
+                // console.log('satstart: '+satelliteLayers[l].timeRange[0]+'  /  '+(new Date(epoch)))
+            } else {
+                orbitLayers[l].setTime(new Date(epoch))
+                orbitLayers[l].enabled = (bool === null)?sat.current:bool
+            }
+        }
+    }
+
+    function enableLayer(layer, epoch, trailduration) {
+        return
+        if(layer === null) return
+        if(epoch !== 0) {
+            let visibilityend = layer.timeRange[1].getTime()
+            layer.enabled = (epoch-trailduration < visibilityend && visibilityend <= epoch) ? true : false   
+        } else {
+            layer.enabled = false
+        }         
+}
+
 
     function enableRenderables(layer, time, trailduration) {
         if(layer.renderables.length === 0) {
@@ -560,13 +650,14 @@ export function useEww({ id }) {
             quicklook.polarThrottle = 1;
             quicklook.timeRange = timerange
             quicklook.displayName = timerange[1].toUTCString()
-    
+            quicklook.zIndex = ZINDEX_QUICKLOOKS
             
             quicklook.image = image
 
             // setEwwState((ewwstate) => { return {...ewwstate, image: image}})
             quicklookLayer.addRenderable(quicklook)
             URL.revokeObjectURL(objectURL)
+            sortLayers()
 
             eww.current.redraw()
             
@@ -637,12 +728,20 @@ export function useEww({ id }) {
         if(atm.current) {
             getLayerByName('Atmosphere').time = new Date(epoch)
         }
+        if(qu.current) {
+            enableRenderables(getLayerByName('Quicklooks'), epoch, TRAIL_QUICKLOOK)
+        }
+
+        let closestrenderable = null
+        closestrenderable = enableRenderables(getLayerByName('Products'), epoch, TRAIL_PRODUCT)
         
-        let closestrenderable = enableRenderables(getLayerByName('Products'), epoch, TRAIL_PRODUCT)
-        enableRenderables(getLayerByName('Quicklooks'), epoch, TRAIL_QUICKLOOK)
+        if(qw.current) {
+            enableLayer(getLayerByName('QuicklookWMS'), epoch, TRAIL_QUICKLOOKWMS)
+        }
 
         if(sat.current) {
             enableSatelliteLayers(epoch,null)
+            enableOrbitLayers(epoch,null)
         }
 
         eww.current.redraw();
@@ -659,7 +758,7 @@ export function useEww({ id }) {
                 console.log('already moved there...')
                 return
             }
-            eww.current.goToAnimator.travelTime = 1000;
+            eww.current.goToAnimator.travelTime = 1300;
             try { // check if lat/lon is same as last time.
                 eww.current.goTo(new WorldWind.Position(lat, lon));
             } catch(e) {console.log(e)}
@@ -684,16 +783,17 @@ export function useEww({ id }) {
     }
 
     // callback from eww   
-    const setGlobeStates = () => {
-        
-        let lo = eww.current.navigator.lookAtLocation.longitude
-        let la = eww.current.navigator.lookAtLocation.latitude
-        let al = eww.current.navigator.range
-        let vp = (al < 2000000?getViewPolygon():'')
-        let vpp = 'POINT('+lo.toFixed(4)+' '+la.toFixed(4)+')' 
-        
+    const setGlobeStates = (wwd ,stage) => {
 
-        setEwwState((ewwstate) => { return {...ewwstate, longitude:lo, latitude: la, altitude: al, viewpolygon: vp, viewpoint:vpp}}) 
+        if (stage === WorldWind.AFTER_REDRAW) {
+
+            let lo = eww.current.navigator.lookAtLocation.longitude
+            let la = eww.current.navigator.lookAtLocation.latitude
+            let al = eww.current.navigator.range
+            let vp = (al < 2000000?getViewPolygon():'')
+            let vpp = 'POINT('+lo.toFixed(4)+' '+la.toFixed(4)+')' 
+            setEwwState((ewwstate) => { return {...ewwstate, longitude:lo, latitude: la, altitude: al, viewpolygon: vp, viewpoint:vpp}}) 
+        }
 
     }
 
@@ -789,9 +889,21 @@ export function useEww({ id }) {
 
 
         eww.current = new WorldWindow(id);
+
+        
+
         // eww.current.worldWindowController = null;
         eww.current.redrawCallbacks().push(setGlobeStates)
 
+        // better do it after the layers are altered manually
+        // eww.current.redrawCallbacks().push( (wwd, stage) => {
+        //     console.log(stage)
+        //     if (stage === WorldWind.BEFORE_REDRAW) {
+        //         wwd.layers.sort(function (a, b) {
+        //             return a.zIndex - b.zIndex;
+        //         });
+        //     }
+        // })
         
         WorldWind.configuration.baseUrl = window.location.href
 
@@ -811,37 +923,47 @@ export function useEww({ id }) {
             // { layer: new WorldWind.WmsLayer(wmsConfigBg_s2, ""), enabled: true },
             // { layer: new WorldWind.WmsLayer(wmsConfigBg_terrain, ""), enabled: false },
             // { layer: new WorldWind.WmsLayer(wmsConfigNames, ""), enabled: names },
-            { layer: starFieldLayer, enabled: false },
-            { layer: atmosphereLayer, enabled: false },
-            { layer: productLayer, enabled: true },
-            { layer: quicklookLayer, enabled: true },
+            { layer: starFieldLayer, enabled: false, zIndex: ZINDEX_STARFIELD },
+            { layer: atmosphereLayer, enabled: false, zIndex: ZINDEX_ATMOSPHERE },
+            { layer: productLayer, enabled: true, zIndex: ZINDEX_PRODUCTS },
+            { layer: quicklookLayer, enabled: true, zIndex: ZINDEX_QUICKLOOKS },
         ];
     
         for (let l = 0; l < bgLayers.length; l++) {
             let layer = new WorldWind.WmsLayer(bgLayers[l], "")
             layer.enabled = false
+            layer.zIndex= ZINDEX_BACKGROUND+l
+            layer.type='background'
             eww.current.addLayer(layer, "")
         }
         for (let l = 0; l < ovLayers.length; l++) {
             let layer = new WorldWind.WmsLayer(ovLayers[l], "")
             layer.enabled = false
+            layer.type='overlay'
+            layer.zIndex= ZINDEX_OVERLAY+l
             eww.current.addLayer(layer, "")
         }
 
         for (let l = 0; l < layers.length; l++) {
             layers[l].layer.enabled = layers[l].enabled;
+            layers[l].layer.zIndex = layers[l].zIndex;
             eww.current.addLayer(layers[l].layer);
         }
         for (let l = 0; l < satelliteLayers.length; l++) {
-            satelliteLayers.enabled = sat.current
+            satelliteLayers[l].enabled = sat.current
+            satelliteLayers[l].zIndex= ZINDEX_SATELLITE+l
             eww.current.addLayer(satelliteLayers[l]);
         }
 
+        for (let l = 0; l < orbitLayers.length; l++) {
+            orbitLayers[l].enabled = sat.current
+            // orbitLayers[l].zIndex= ZINDEX_SATELLITE+l
+            eww.current.addLayer(orbitLayers[l]);
+        }
 
+
+        sortLayers()
         console.log(eww.current.layers)
-        //let date = new Date();
-        // starFieldLayer.time = new Date();
-        // atmosphereLayer.time = new Date();
     
         eww.current.redraw();
         getS2LUT('./data/s2lut.txt')
@@ -855,11 +977,15 @@ export function useEww({ id }) {
       initMap, 
       moveTo, 
       removeGeojson, 
-      addGeojson, 
+      addGeojson,
+      toggleGeojson,
       getRenderables, 
-      addWMS, 
+      addQuicklookWMS, 
+      removeQuicklookWMS,
+      toggleQuicklookWMS,
       removeQuicklooks, 
       addQuicklook, 
+      toggleQuicklooks,
       toggleStarfield, 
       toggleAtmosphere, 
       setTime, 
