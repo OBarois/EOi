@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, {  useCallback } from "react";
 import { useGlobal } from 'reactn';
 import SearchManager from "../components/searchmanager"
 import { useDebounce } from '../hooks/useDebounce';
@@ -9,20 +9,16 @@ import { useDebounce } from '../hooks/useDebounce';
 const SearchManagerContainer = () => {
 
   const [ searchDate,  ] = useGlobal('searchDate');
-  const [ goToDate, setgoToDate ] = useGlobal('goToDate');
+  const [ , setgoToDate ] = useGlobal('goToDate');
   const [ , setclearResultsTrigger ] = useGlobal('clearResultsTrigger')
   const [ searchPoint,  ] = useGlobal('searchPoint');
   const [ animated,  ] = useGlobal('animated');
   const [ mission,  ] = useGlobal('mission');
   const [ altitude,  ] = useGlobal('altitude');
   const [ pointSearchMaxAltitude,  ] = useGlobal('pointSearchMaxAltitude');
-  const [ geojson, setgeojson ] = useGlobal('geojson');
-  const [ resultDesc, setresultDesc ] = useGlobal('resultDesc');
-  const [ selectedProduct, setselectedProduct] = useGlobal('selectedProduct')
-  const [ closestItem, setclosestItem] = useGlobal('closestItem')
+  const [ , setgeojson ] = useGlobal('geojson');
+  const [ , setresultDesc ] = useGlobal('resultDesc');
 
-
-  const [anim, setanim] = useState(animated)
 
   const debouncedsearchPoint = useDebounce(searchPoint, 200)
   const debouncedaltitude = useDebounce(altitude, 200)

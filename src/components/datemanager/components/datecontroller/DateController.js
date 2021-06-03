@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, {useEffect, useState} from 'react';
 import { useClock } from "./useClock"
 import { useHotkeys } from 'react-hotkeys-hook'
 import { Icon } from '@iconify/react'
@@ -22,13 +22,11 @@ function DateController({startdate, onDateChange, onStateChange, animated}) {
     const {
         date,
         speed,
-        togglePause,
         start,
         stop,
         reset,
         increaseSpeed,
-        decreaseSpeed,
-        forceDate
+        decreaseSpeed
     } = useClock({
         initdate: startdate
     })
@@ -46,7 +44,7 @@ function DateController({startdate, onDateChange, onStateChange, animated}) {
         if(playing === true) {
             start()
          } else stop()
-    },[playing]);
+    },[playing,onStateChange,stop, start]);
 
     // useEffect(() => {
     //     console.log('weird')
@@ -57,7 +55,7 @@ function DateController({startdate, onDateChange, onStateChange, animated}) {
         onDateChange(date)
         //forceDate(date)
         //setAppdate({appdate: new Date(date)})
-    },[date]);
+    },[date,onDateChange]);
 
     // useEffect(() => {
     //     console.log(" force date: "+startdate)

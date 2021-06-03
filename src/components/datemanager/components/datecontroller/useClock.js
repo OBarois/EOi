@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 
 export function useClock({  initdate }) {
@@ -49,7 +49,7 @@ export function useClock({  initdate }) {
         }
     }
     
-    function start() {
+    const start = useCallback( () => {
         console.log('start clock')
         if(!step.current) step.current = refreshrate.current
         if (!playing) {
@@ -59,14 +59,14 @@ export function useClock({  initdate }) {
             },refreshrate.current)
         }
         setplaying(true)
-    }
+    }, [])
     
-    function stop() {
+    const stop = useCallback( () => {
         console.log('stop clock')
         if(timeoutRef.current) clearTimeout(timeoutRef.current)
         if (intervalRef.current) clearInterval(intervalRef.current)
         setplaying(false)
-    }
+    }, [])
     
 
     function reset() {

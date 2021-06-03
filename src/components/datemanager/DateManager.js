@@ -17,13 +17,13 @@ function DateManager({ onDateChange, onFinalDateChange, onStateChange, animated,
         setLabelDate(date)
         onDateChange(date)
         // setscontrollerStartdate(date)
-    }, [])
+    }, [onDateChange])
 
     const handleSelectorFinalDateChange = useCallback( (date) => {
         // console.log('handleSelectorFinalDateChange:' + date.toJSON())
         setcontrollerStartdate(date)
         onFinalDateChange(date)
-    }, [])
+    }, [onFinalDateChange])
     
     const handleControllerDateChange = useCallback( (date) => {
         // console.log('handleControllerDateChange' + date.toJSON())

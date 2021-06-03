@@ -1,14 +1,9 @@
 import WorldWind from 'webworldwind-esa';
-import WordWindX from 'webworldwind-x';
 import Orbits from './wwwxx/shapes/Orbits';
 const {
     RenderableLayer,
     Color
 } = WorldWind;
-
-const {
-    EoUtils,
-} = WordWindX;
 
 /**
  * Class extending WorldWind.RenderableLayer. It`s possible to set time of orbit.
@@ -51,7 +46,6 @@ class OrbitLayer extends RenderableLayer {
             // this.satRec = satRec;
             // console.log(satRec)
 
-            // const satrec = EoUtils.computeSatrec(...satRec);
             this._beforeCurrentOrbit.satrec(satRec, true);
             if(preventUpdate !== true) {
                 this._beforeCurrentOrbit.update(true);

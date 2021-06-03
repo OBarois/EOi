@@ -1,4 +1,4 @@
-import React, {useState, useEffect,useLayoutEffect, useRef} from 'react';
+import React, {useState, useEffect,useLayoutEffect, useRef, useCallback} from 'react';
 import './DateSelector.css';
 
 function DateSelectorScale({date, zoomfactor, resulttics}) {
@@ -11,6 +11,7 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
     // saves the current zoom and date to handle the widow resize
     const izoom = useRef(zoomfactor)    
     const idate = useRef(date)    
+    const itics = useRef(resulttics)    
 
 
         
@@ -62,8 +63,8 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
         let lastticslength = 0   
         let labeloffset = 0
 
-        let skip = parseInt(scale.current.style.fontSize)
-        let iteration = 0
+        // let skip = parseInt(scale.current.style.fontSize)
+        // let iteration = 0
         for ( let i=0 ; i < scale.current.offsetHeight ; i+=1 ) {
             let refdate = new Date( (i- scale.current.offsetHeight/2) * _zoom + _start.getTime()  )
             day = refdate.getUTCDate()
@@ -275,7 +276,7 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
             lasthour = hour
             lastminute = minute
             // optimisation to skip a fontsize number of pixels
-            if (tics.length != lastticslength) {
+            if (tics.length !== lastticslength) {
                 // console.log('off: '+labeloffset/_zoom+'   labeloffset: '+labeloffset)
                 i+=labeloffset/_zoom - 4
             }
@@ -307,15 +308,12 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
         return tics.map(item => ( <div className={item.class} key={item.class+item.pos} style={{top:item.pos,opacity:1}}>{item.label}</div>))
     }
 
-    const handleResize = () => {
-        // console.log(scale.current.style.fontSize)
-        setTimescale(scaleText(idate.current,izoom.current))
-    }
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         // console.log('zoomfactor / date: '+zoomfactor + '/ ' + date)
         izoom.current = zoomfactor
         idate.current = date
+        itics.current = resulttics
         setTimescale(scaleText(date,zoomfactor,resulttics))
     },[ zoomfactor,date,resulttics])
 
@@ -324,6 +322,11 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
     // },[resulttics])
 
     useEffect(() => {
+        const handleResize =  (e) => {
+            e.preventDefault()
+            // console.log('resize')
+            setTimescale(scaleText(idate.current,izoom.current,itics.current))
+        }
         window.addEventListener('resize', handleResize)
         return ()=>{window.removeEventListener('resize', handleResize)}
     },[])
@@ -332,7 +335,7 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
     return (
         <div>
             <canvas ref={canvas} className='DateSelectorCanvas' width='{window.innerWidth}' height={window.innerHeight}></canvas>
-            <div ref={scale} className='DateSelectorScale' id='DateSelectorScale' style={{fontSize:'14px'}}>
+            <div ref={scale} className='DateSelectorScale' id='DateSelectorScale' style={{fontSize:'14px'} }>
                 {timescale}
             </div>
         </div>

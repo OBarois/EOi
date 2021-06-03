@@ -1,21 +1,21 @@
-import React, {  useEffect, useGlobal, useState } from 'reactn';
+import React, {  useEffect, useGlobal, useState, useCallback } from 'reactn';
 
 import DateManager from "../components/datemanager"
 
 function DateManagerContainer() {
 
     const [, setViewDate] = useGlobal('viewDate')
-    const [SearchDate, setSearchDate] = useGlobal('searchDate')
+    const [, setSearchDate] = useGlobal('searchDate')
     const [animated, setanimated] = useGlobal('animated')
     const [ GoToDate, setGoToDate ] = useGlobal('goToDate')
-    const [ geojson, setgeojson] = useGlobal('geojson')
+    const [ geojson, ] = useGlobal('geojson')
     const [ clearResultsTrigger, ] = useGlobal('clearResultsTrigger')
     const [tics, settics] = useState([])
 
-    const handleFinalDate = (finaldate) => {
+    const handleFinalDate = useCallback( (finaldate) => {
         setSearchDate(finaldate)
         setGoToDate(null)
-    }
+    }, [setSearchDate,setGoToDate])
 
     useEffect(() => {
         let newtics = []
@@ -24,7 +24,7 @@ function DateManagerContainer() {
             return item.properties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStartTime.getTime()
         })
         // newtics.push(tics)
-        settics([...tics,...newtics])
+        settics((tics)=>[...tics,...newtics])
     }, [geojson]);
 
     useEffect(() => {

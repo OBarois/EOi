@@ -1,4 +1,3 @@
-import wellknown from 'wellknown';
 
 export default function eocatToGeojson(response) {
 
@@ -9,8 +8,8 @@ export default function eocatToGeojson(response) {
             var downloadurl = null
             var quicklookurl = null
             for (let i = 0; i < item.properties.link.length; i++) {
-                if (item.properties.link[i]['@']['title'] == 'Download') downloadurl = item.properties.link[i]['@']['href']
-                if (item.properties.link[i]['@']['title'] == 'Quicklook') quicklookurl = item.properties.link[i]['@']['href']
+                if (item.properties.link[i]['@']['title'] === 'Download') downloadurl = item.properties.link[i]['@']['href']
+                if (item.properties.link[i]['@']['title'] === 'Quicklook') quicklookurl = item.properties.link[i]['@']['href']
             }
             
 

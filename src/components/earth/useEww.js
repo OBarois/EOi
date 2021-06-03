@@ -658,6 +658,7 @@ export function useEww({ id }) {
             quicklookLayer.addRenderable(quicklook)
             URL.revokeObjectURL(objectURL)
             sortLayers()
+            console.log(eww.current.layers)
 
             eww.current.redraw()
             

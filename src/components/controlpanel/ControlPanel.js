@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, {useState} from "react";
 import {useSpring, animated} from 'react-spring'
 import { useGesture } from 'react-use-gesture'
 import "./controlpanel.css"
@@ -53,7 +53,7 @@ function ControlPanel(props) {
         },
     },
     {
-        domTarget: panelcontrol,
+        // domTarget: panelcontrol,
         drag: {useTouch: true},
         pinch: {useTouch: true},
     })
@@ -62,7 +62,7 @@ function ControlPanel(props) {
     return   (
 
         <animated.div  style={{ bottom: mr, left:0 }} className='ControlPanel'>
-            <div ref={panelcontrol} className='PanelControl shadow' >
+            <div ref={panelcontrol} {...bind()} className='PanelControl shadow' >
                 {/* <img id='logo'className='Logo' src='./images/EOi_logo.png' alt='' onClick={()=>!open?set({mr:-300}):set({mr:0})} /> */}
                 {/* <div className='PanelControl' alt='' onClick={()=>!open?set({mr:-300}):set({mr:0})}></div> */}
                 <Icon icon={baselinePalette} width='100%'/>

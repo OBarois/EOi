@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import dhusToGeojson from "./dhusToGeojson";
 import eocatToGeojson from "./eocatToGeojson"
 
@@ -170,7 +170,7 @@ export default function useDatahub()  {
 
     const getcollection = (code) => {
         for(let i=0; i < collections.current.length; i++) {
-            if(collections.current[i].code == code) {
+            if(collections.current[i].code === code) {
                 return collections.current[i]
             }
         }

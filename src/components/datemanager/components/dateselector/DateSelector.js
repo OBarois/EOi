@@ -31,7 +31,7 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
 
     // const [lastStartdate, setlLastStartdate ] = useState(startdate)
     
-    const [Selector_is_active, setSelector_is_active ] = useState(false)
+    const isActive = useRef(false)
     const [step, setStep ] = useState([60000])
     const [stepLabel, setStepLabel ] = useState('hour')
 
@@ -39,8 +39,6 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
     const lastTap = useRef()
     const lastTapdate = useRef(new Date(0))
     const doubleTap = useRef()
-    const dragging = useRef(false)
-    const draggingTimeout = useRef()
     const button = useRef()
 
     const startingdate = useRef(startdate)
@@ -69,7 +67,7 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
     const bind = useGesture({
 
         // onWheelEnd: () => { 
-        //     setSelector_is_active(false)
+        //     isActive.current = false
         //     onFinalDateChange(discreetdate.current)
         //     console.log('finaldate')
         //         // lastZoom.current = zoomfactor
@@ -81,7 +79,7 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
             
             if (first) {
                 springtest.stop()
-            //   setSelector_is_active(true)
+            //   isActive.current = true
               discreetdate.current = scaledate
             }
 
@@ -109,13 +107,13 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
                 immediate: true, 
                 config: { mass: 1, tension: 100, friction: 40},
                 onChange: ()=>{
-                    setSelector_is_active(true)
+                    isActive.current = true
                     let newdate
                     const rounder = (posy_wheel.get() < 0)?Math.ceil:Math.floor
                     let nbstep = rounder(posy_wheel.get() * zoomfactor  / step[0])
                     if(nbstep === 0) {
                         // onFinalDateChange(discreetdate.current)
-                        // setSelector_is_active(false)
+                        // isActive.current = false
                         setyOnWheel.stop()
                         // return
                     }
@@ -135,13 +133,13 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
                 onRest: ()=>{
                     if (!wheeling) {
                         onFinalDateChange(discreetdate.current)
-                        setSelector_is_active(false)
+                        isActive.current = false
                     }
                 }
             })
         },
         onDragStart: ()=>{
-            setSelector_is_active(true)
+            isActive.current = true
         },
 
         onDrag: ({  event, active, first, down, touches, offset, delta, initial, distance, velocity, direction, shiftKey, ctrlKey, xy, movement,vxvy, wheeling}) => {
@@ -183,7 +181,7 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
                 immediate: down,
                 config: { mass: 1, tension: 100, friction: 25, precision: 0.1 },
                 onChange: () => {
-                    setSelector_is_active(true)
+                    isActive.current = true
                     
 
                     // if(Math.floor(Math.abs(test.get()*zoomfactor   / step[0]))==0) test.stop()
@@ -215,7 +213,7 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
                     if (!down) {
                         // console.log('rest')
                         onFinalDateChange(discreetdate.current)
-                        setSelector_is_active(false)
+                        isActive.current = false
                     }
                 },
                 // stop: (spring)=>{
@@ -227,9 +225,9 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
 
         },
         onDragEnd: (down) => { 
-            // setSelector_is_active(false)
+            // isActive.current = false
             onFinalDateChange(discreetdate.current)
-            setSelector_is_active(false)
+            isActive.current = false
 
 
                 // lastZoom.current = zoomfactor
@@ -258,28 +256,28 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
         })
     }
 
-    // new approach where spring value is the actual zoom value
-    const [ {zoom2} , springzoom2] = useSpring(() => ( {zoom2: 0} ))
-    const handleZoom2 = (delta,down,velocity,offset,wheeling,movement,vxvy) => {
-        // console.log('delta / vy: '+delta[1]+ ' / '+vxvy[1])
-        let deltadest = down?delta[1]:vxvy[1]*1000
-        let newzoom = zoomfactor - deltadest * zoomfactor/100
-        let zoomdest = Math.max(newzoom,MINZOOM)
-        zoomdest = Math.min(zoomdest,MAXZOOM)
-        springzoom2.start({
-            zoom2: zoomdest,
-            immediate: down,
-            config: { mass: 1, tension: 170, friction: 25},
-            onChange: () => {
-                setZoomfactor(zoom2.get())
-                // console.log(zoom.get())
-            },
-            onProps: ()=> {
+    // // new approach where spring value is the actual zoom value
+    // const [ {zoom2} , springzoom2] = useSpring(() => ( {zoom2: 0} ))
+    // const handleZoom2 = (delta,down,velocity,offset,wheeling,movement,vxvy) => {
+    //     // console.log('delta / vy: '+delta[1]+ ' / '+vxvy[1])
+    //     let deltadest = down?delta[1]:vxvy[1]*1000
+    //     let newzoom = zoomfactor - deltadest * zoomfactor/100
+    //     let zoomdest = Math.max(newzoom,MINZOOM)
+    //     zoomdest = Math.min(zoomdest,MAXZOOM)
+    //     springzoom2.start({
+    //         zoom2: zoomdest,
+    //         immediate: down,
+    //         config: { mass: 1, tension: 170, friction: 25},
+    //         onChange: () => {
+    //             setZoomfactor(zoom2.get())
+    //             // console.log(zoom.get())
+    //         },
+    //         onProps: ()=> {
 
-            }
-        })
+    //         }
+    //     })
         
-    }
+    // }
 
     const [{ xy2 }, sety2] = useSpring(() => ({ xy2: [0,0] }))
     const moveToDate = (newdate) => {
@@ -287,7 +285,7 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
         if(newdate.getTime() === discreetdate.current.getTime()) return
         let fromtime = discreetdate.current.getTime()
         // sety2.stop()
-        // if (!Selector_is_active) {
+        // if (!isActive.current) {
             let deltaoffset = [0,(fromtime - newdate.getTime())  ]
 
             sety2.start({ 
@@ -298,7 +296,7 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
                 // config: { mass: 1, tension: 100, friction: 25, precision: 0.1 },
                 onChange: ()=>{
                     // setlog(({animgoto: xy2.get()[1]}))
-                    // setSelector_is_active(true)
+                    // isActive.current = true
 
                     let adate = new Date(fromtime - xy2.get()[1] )
                     // console.log('adate: '+adate.toJSON() )
@@ -307,7 +305,7 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
                     onDateChange(adate)
                 },
                 // onRest: ()=>{
-                //     // setSelector_is_active(false)
+                //     // isActive.current = false
                 // console.log("rest move")
                 //     // onFinalDateChange(discreetdate.current)
                 // }
@@ -317,7 +315,7 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
     }
 
     useEffect(() => {
-        if(!Selector_is_active) {
+        if(!isActive.current) {
             moveToDate(startdate)
         } 
     },[startdate])
@@ -328,8 +326,8 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
     // },[lastStartdate])
 
     // useEffect(() => {
-    //     console.log('Selector active: '+Selector_is_active)
-    // },[Selector_is_active])
+    //     console.log('Selector active: '+isActive.current)
+    // },[isActive.current])
 
 
     useEffect(() => {

@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect} from "react";
+import React from "react";
 import {useSpring, animated} from 'react-spring'
 import { useDrag } from 'react-use-gesture'
 import "./InfoPanel.css"

@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { useGlobal } from 'reactn';
 
 // import { HuePicker } from 'react-color';
