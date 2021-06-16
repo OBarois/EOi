@@ -82,11 +82,11 @@ export function useClock({  initdate }) {
         setDate(new Date(ldate.current))
     }
 
-    useEffect(() => {
-        // console.log('init start useclock '+initdate.toJSON())
-        ldate.current = initdate.getTime()
-        setDate(new Date(ldate.current))
-    }, [initdate])
+    // useEffect(() => {
+    //     console.log('init start useclock '+initdate.toJSON())
+    //     ldate.current = initdate.getTime()
+    //     setDate(new Date(ldate.current))
+    // }, [initdate])
 
 
 

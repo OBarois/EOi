@@ -1,4 +1,4 @@
-import React, {useState, useEffect,useLayoutEffect, useRef, useCallback} from 'react';
+import React, {useState, useEffect,useLayoutEffect, useRef} from 'react';
 import './DateSelector.css';
 
 function DateSelectorScale({date, zoomfactor, resulttics}) {
@@ -324,6 +324,7 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
     useEffect(() => {
         const handleResize =  (e) => {
             e.preventDefault()
+            e.stopPropagation()
             // console.log('resize')
             setTimescale(scaleText(idate.current,izoom.current,itics.current))
         }

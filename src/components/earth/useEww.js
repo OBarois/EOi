@@ -504,12 +504,14 @@ export function useEww({ id }) {
         // make the closest one always visible 
         if(closestrenderableindex !== -1) {
             layer.renderables[closestrenderableindex].enabled = true
+        } else {
+            closestrenderableindex = oldestrenderableindex
         }
         // make the youngest one visible if closest not found
-        if(time <= oldestrenderableepoch && closestrenderableindex === -1) {
-            layer.renderables[oldestrenderableindex].enabled = true
-            closestrenderableindex = oldestrenderableindex
-        } 
+        // if(time <= oldestrenderableepoch && closestrenderableindex === -1) {
+        //     layer.renderables[oldestrenderableindex].enabled = true
+        //     closestrenderableindex = oldestrenderableindex
+        // } 
         return (layer.renderables[closestrenderableindex])
     }
 
@@ -658,7 +660,7 @@ export function useEww({ id }) {
             quicklookLayer.addRenderable(quicklook)
             URL.revokeObjectURL(objectURL)
             sortLayers()
-            console.log(eww.current.layers)
+            // console.log(eww.current.layers)
 
             eww.current.redraw()
             

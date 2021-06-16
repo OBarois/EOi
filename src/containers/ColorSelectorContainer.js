@@ -1,37 +1,41 @@
 
 import React, { useEffect } from "react";
-import { useGlobal } from 'reactn';
+import {AppContext} from '../components/app/context'
 
-// import { HuePicker } from 'react-color';
 import './ColorSelector.css'
 import { HexColorPicker } from "react-colorful";
-// import "react-colorful/dist/index.css";
-
 
 function ColorSelectorContainer() {
 
 
-    const [ appcolor, setAppcolor ] = useGlobal('appColor');
+    const [ state, dispatch ] = React.useContext(AppContext)
+
 
     useEffect(() => {
-        document.documentElement.style.setProperty('--color', appcolor);
-        document.documentElement.style.setProperty('--colort', appcolor+'66');
-    }, [appcolor]);
+        document.documentElement.style.setProperty('--color', state.appColor);
+        document.documentElement.style.setProperty('--colort', state.appColor+'66');
+    }, [state.appColor]);
     
     const handleChangeComplete = (color) => {
-        if(color === null) return
-        document.documentElement.style.setProperty('--color', color);
+        if(color !== null) dispatch({type: 'set_color', value: color})
+        // document.documentElement.style.setProperty('--color', color);
          
-        document.documentElement.style.setProperty('--colort', color+'66');
-        setAppcolor(color );
-        console.log(appcolor)
+        // document.documentElement.style.setProperty('--colort', color+'66');
+        // setappColor(color );
+        // console.log(appColor)
 
       };
+
+      useEffect(() => {
+        document.documentElement.style.setProperty('--color', state.appColor);
+        document.documentElement.style.setProperty('--colort', state.appColor+'66');
+    }, []);
+
     
     //console.log('mission rendering')
     return (
         <div className='ColorSelector'>
-            <HexColorPicker color={appcolor} onChange={handleChangeComplete} style={{height:'150px', width:'140px'}}/>
+            <HexColorPicker color={state.appColor} onChange={handleChangeComplete} style={{height:'150px', width:'140px'}}/>
         </div>
     )
     // <AlphaPicker />  

@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 
-import { useHotkeys } from 'react-hotkeys-hook';
+import { useKey } from 'rooks'
 import './SearchManager.css'
 import useDatahub from "./useDatahub"
 import useHandleDoubleTap from '../../hooks/useHandleDoubleTap'
 
  
 // npm install --save-dev @iconify/react @iconify-icons/ic
-import { Icon, InlineIcon } from '@iconify/react';
+import { Icon } from '@iconify/react';
 import outlineRefresh from '@iconify-icons/ic/outline-refresh';
 
 
@@ -15,7 +15,6 @@ import outlineRefresh from '@iconify-icons/ic/outline-refresh';
 function SearchManager({searchdate, searchpoint, mission, altitude, onSearchStart, onPageSearch, onSearchComplete}) {
 
 
-    // const [results, setresults] = useState([])
     const [ searching, setsearching ] = useState(false);
     const [ searchtrigger, setsearchtrigger ] = useState(0);
     const firstresultdate = useRef(new Date(0))
@@ -33,7 +32,7 @@ function SearchManager({searchdate, searchpoint, mission, altitude, onSearchStar
     const {handleTap} = useHandleDoubleTap( ()=>{setsearchtrigger(Math.random())}, onSearchStart )
 
 
-    useHotkeys("x",()=>setsearchtrigger(Math.random())) 
+    useKey(["x"],()=>setsearchtrigger(Math.random())) 
 
     useEffect(() => {
         if(geojsonResults) {
@@ -47,8 +46,9 @@ function SearchManager({searchdate, searchpoint, mission, altitude, onSearchStar
                 lastresultdate.current = lastitemdate
             }
             totalloaded.current += geojsonResults.features.length
+            totalresults.current = Number(geojsonResults.properties.totalResults)
             let resultdesc = {
-                totalResults: Number(geojsonResults.properties.totalResults), 
+                totalResults: totalresults.current, 
                 totalLoaded: totalloaded.current
             }
             onPageSearch(geojsonResults, resultdesc)

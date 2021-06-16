@@ -15,7 +15,6 @@ import TexturedSurfacePolygon from './wwwxx/textured/TexturedSurfacePolygon'
 import satelliteLayers from './satelliteLayers';
 
 import {bgLayers, ovLayers} from './layerConfig';
-import { useCallback } from "reactn";
 // import SurfaceShape from './wwwxx/www-overrides/SurfaceShape';
 
 const useEww = ({ id, clon, clat, alt, starfield, atmosphere, background, overlay, names, satellites, dem }) => {

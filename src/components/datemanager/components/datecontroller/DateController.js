@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import { useClock } from "./useClock"
-import { useHotkeys } from 'react-hotkeys-hook'
+import { useKey } from 'rooks'
 import { Icon } from '@iconify/react'
 
 // npm install --save-dev @iconify/react @iconify-icons/ic
@@ -26,17 +26,18 @@ function DateController({startdate, onDateChange, onStateChange, animated}) {
         stop,
         reset,
         increaseSpeed,
-        decreaseSpeed
+        decreaseSpeed,
+        forceDate
     } = useClock({
         initdate: startdate
     })
 
     const [playing, setplaying ] = useState(animated) 
 
-    useHotkeys("t",()=>{setplaying((state)=>!state) })
-    useHotkeys("r",()=>{reset() })
-    useHotkeys(".",()=>{increaseSpeed() })
-    useHotkeys(",",()=>{decreaseSpeed() })
+    useKey(["t"],()=>{setplaying((state)=>!state) })
+    useKey(["r"],()=>{reset() })
+    useKey(["."],()=>{increaseSpeed() })
+    useKey([","],()=>{decreaseSpeed() })
 
     
     useEffect(() => {
@@ -44,11 +45,11 @@ function DateController({startdate, onDateChange, onStateChange, animated}) {
         if(playing === true) {
             start()
          } else stop()
-    },[playing,onStateChange,stop, start]);
+    },[playing]);
 
-    // useEffect(() => {
-    //     console.log('weird')
-    // },[togglePause]);
+    useEffect(() => {
+        console.log('animated: '+animated)
+    },[animated]);
 
     useEffect(() => {
         // console.log("date from useclock :"+date)
@@ -57,12 +58,13 @@ function DateController({startdate, onDateChange, onStateChange, animated}) {
         //setAppdate({appdate: new Date(date)})
     },[date,onDateChange]);
 
-    // useEffect(() => {
-    //     console.log(" force date: "+startdate)
-    //     // forceDate(startdate)
-    //     //forceDate(date)
-    //     //setAppdate({appdate: new Date(date)})
-    // },[startdate]);
+    useEffect(() => {
+        console.log(" force date: "+startdate)
+        if(startdate !== null) forceDate(startdate)
+        
+        //forceDate(date)
+        //setAppdate({appdate: new Date(date)})
+    },[startdate]);
 
     const {handleTap} = useHandleDoubleTap(()=>{setplaying((state)=>!state)}, reset)
 

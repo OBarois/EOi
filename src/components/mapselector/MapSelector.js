@@ -1,28 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import {AppContext} from '../app/context'
 
 import './MapSelector.css'
 
 
 // should use a prop
 
-function MapSelector({mapSettings, onMapSettingsChange}) {
+function MapSelector() {
 
+    const [ state, dispatch ] = React.useContext(AppContext)
 
-    const [mapSet, setMapSet] = useState(mapSettings)
-
-    const toggleAtmosphere = () => setMapSet((mapSet)=>({...mapSet, atmosphere:!mapSet.atmosphere}))
-    const toggleStarfield = () => setMapSet((mapSet)=>({...mapSet, starfield:!mapSet.starfield}))
-    const toggleNames = () => setMapSet((mapSet)=>({...mapSet, names:!mapSet.names}))
-    const toggleBg = () => setMapSet((mapSet)=>({...mapSet, background:mapSet.background+1}))
-
-
-    useEffect(() => {
-        onMapSettingsChange(mapSet)
-    }, [mapSet]);
-
-    useEffect(() => {
-        setMapSet(mapSettings)
-    }, [mapSettings]);
+    const toggleAtmosphere = () => dispatch({ type: "toggle_atmosphere" })
+    const toggleStarfield = () => dispatch({ type: "toggle_starfield" })
+    const toggleNames = () => dispatch({ type: "toggle_names" })
+    const toggleBg = () => dispatch({ type: "toggle_background" })
 
 
     
@@ -30,9 +21,9 @@ function MapSelector({mapSettings, onMapSettingsChange}) {
     return (
         <div className='MapSelectorContainer'>
             <div className='MapSelector'>
-                <div className={(mapSettings.atmosphere)?'CircleButtonSelected':'CircleButton'}><img className='MapIcon' draggable="false" src='./images/atmosphere.png' alt='' onClick={toggleAtmosphere} /></div>
-                <div className={(mapSettings.starfield)?'CircleButtonSelected':'CircleButton'}><img className='MapIcon' draggable="false" src='./images/starfield.png' alt='' onClick={toggleStarfield} /></div>
-                <div className={(mapSettings.names)?'CircleButtonSelected':'CircleButton'}><img className='MapIcon' draggable="false" src='./images/names.png' alt='' onClick={toggleNames} /></div>
+                <div className={(state.mapSettings.atmosphere)?'CircleButtonSelected':'CircleButton'}><img className='MapIcon' draggable="false" src='./images/atmosphere.png' alt='' onClick={toggleAtmosphere} /></div>
+                <div className={(state.mapSettings.starfield)?'CircleButtonSelected':'CircleButton'}><img className='MapIcon' draggable="false" src='./images/starfield.png' alt='' onClick={toggleStarfield} /></div>
+                <div className={(state.mapSettings.names)?'CircleButtonSelected':'CircleButton'}><img className='MapIcon' draggable="false" src='./images/names.png' alt='' onClick={toggleNames} /></div>
                 <div className='CircleButton'><img className='MapIcon' draggable="false" src='./images/names.png' alt='' onClick={toggleBg} /></div>
             </div>
         </div>

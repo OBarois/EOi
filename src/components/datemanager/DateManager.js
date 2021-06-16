@@ -1,4 +1,4 @@
-import React, {useState, useCallback, useEffect} from 'react';
+import React, {useState, useCallback} from 'react';
 import DateLabel from './components/datelabel'
 import DateController from './components/datecontroller'
 import DateSelector from './components/dateselector'
@@ -8,7 +8,6 @@ function DateManager({ onDateChange, onFinalDateChange, onStateChange, animated,
 
     // if(!startdate) startdate = new Date()
     const [selectorStartdate, setselectorStartdate] = useState(startdate)
-    const [controllerStartdate, setcontrollerStartdate] = useState(startdate)
     const [labeldate, setLabelDate] = useState(startdate)
     const [dateLabelHighlight,setDateLabelHighlight] = useState(1)
 
@@ -21,7 +20,7 @@ function DateManager({ onDateChange, onFinalDateChange, onStateChange, animated,
 
     const handleSelectorFinalDateChange = useCallback( (date) => {
         // console.log('handleSelectorFinalDateChange:' + date.toJSON())
-        setcontrollerStartdate(date)
+        // setcontrollerStartdate(date)
         onFinalDateChange(date)
     }, [onFinalDateChange])
     
@@ -36,15 +35,11 @@ function DateManager({ onDateChange, onFinalDateChange, onStateChange, animated,
         setDateLabelHighlight(step)
     }
 
-    useEffect(() => {
-        // console.log('startdate changed '+startdate)
-        if(startdate !== null) setcontrollerStartdate(startdate)
-    }, [startdate]);
-
+ 
 
     return (
         <div >
-          <DateController startdate={controllerStartdate}  onDateChange={handleControllerDateChange} onStateChange={onStateChange} animated={animated}/>
+          <DateController startdate={startdate}  onDateChange={handleControllerDateChange} onStateChange={onStateChange} animated={animated}/>
           <DateLabel date={labeldate} animated={animated} highlight={dateLabelHighlight}/>
           <DateSelector startdate={selectorStartdate} resetToStartDateTrigger={resetstartdatetrigger} tics={tics}
                 onDateChange={handleSelectorDateChange} 

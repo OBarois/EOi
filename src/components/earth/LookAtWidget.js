@@ -1,4 +1,4 @@
-import React from 'reactn';
+import React from 'react';
 import './LookAtWidget.css' 
 // npm install --save-dev @iconify/react @iconify-icons/ic
 import { Icon } from '@iconify/react';

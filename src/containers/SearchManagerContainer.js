@@ -1,6 +1,7 @@
 
 import React, {  useCallback } from "react";
-import { useGlobal } from 'reactn';
+import {AppContext} from '../components/app/context'
+
 import SearchManager from "../components/searchmanager"
 import { useDebounce } from '../hooks/useDebounce';
 
@@ -8,56 +9,30 @@ import { useDebounce } from '../hooks/useDebounce';
 
 const SearchManagerContainer = () => {
 
-  const [ searchDate,  ] = useGlobal('searchDate');
-  const [ , setgoToDate ] = useGlobal('goToDate');
-  const [ , setclearResultsTrigger ] = useGlobal('clearResultsTrigger')
-  const [ searchPoint,  ] = useGlobal('searchPoint');
-  const [ animated,  ] = useGlobal('animated');
-  const [ mission,  ] = useGlobal('mission');
-  const [ altitude,  ] = useGlobal('altitude');
-  const [ pointSearchMaxAltitude,  ] = useGlobal('pointSearchMaxAltitude');
-  const [ , setgeojson ] = useGlobal('geojson');
-  const [ , setresultDesc ] = useGlobal('resultDesc');
+  const [ state, dispatch ] = React.useContext(AppContext)
 
-
-  const debouncedsearchPoint = useDebounce(searchPoint, 200)
-  const debouncedaltitude = useDebounce(altitude, 200)
+  const debouncedsearchPoint = useDebounce(state.searchPoint, 200)
+  const debouncedaltitude = useDebounce(state.altitude, 200)
 
   
     const handlePageSearch = useCallback ( (results, resultdesc) => {
-      setgeojson(results)
-      // console.log(resultdesc)
-      // setresultDesc((desc)=>{return  {
-      //   ...desc,...resultdesc
-      // }})
-      setresultDesc(resultdesc)
+      dispatch({ type: "onResultPage", value: {resultdesc: resultdesc, results: results} })
     }, [])
     
     const handleSearchStart = useCallback ( () => {
-      // console.log('set clear trigger')
-      setclearResultsTrigger(Math.random())
-      setresultDesc({totalResults:0, totalLoaded:0 })
-      }, [])
+      dispatch({ type: "clear_results", value: Math.random()})
+    }, [])
     
     const handleSearchComplete =  (searchDesc) => {
-      if(altitude > pointSearchMaxAltitude) {
-        setgoToDate(!animated?searchDesc.firstResultDate:searchDesc.lastResultDate)
-      } else {
-        if(animated) setgoToDate(searchDesc.lastResultDate)
-      }
-      // setresultDesc(()=>{return {...resultDesc, ...searchDesc}})
+      dispatch({ type: "onSearchComplete", value: searchDesc})
     }
-
-  //   useEffect(() => {
-  //     setanim(animated)
-  // }, [animated]);
 
 
     return (
         <SearchManager 
-          searchdate={searchDate} 
+          searchdate={state.searchDate} 
           searchpoint={debouncedsearchPoint} 
-          mission={mission} 
+          mission={state.mission} 
           altitude={debouncedaltitude} 
           onSearchStart={handleSearchStart}
           onPageSearch={handlePageSearch}
