@@ -38,7 +38,7 @@ function DateManagerContainer() {
 
 
     return (
-        <DateManager onDateChange={handleDateChanged} onFinalDateChange={handleFinalDate} startdate={state.goToDate} tics={tics} onStateChange={handleStateChange} animated={state.animated}/> 
+        <DateManager onDateChange={handleDateChanged} onFinalDateChange={handleFinalDate} startdate={state.goToDate} tics={state.tics} onStateChange={handleStateChange} animated={state.animated}/> 
      )
 }
 

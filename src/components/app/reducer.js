@@ -125,7 +125,8 @@ export const reducer = (state, action) => {
       
 
           case "set_selectedProduct":
-            console.log('set_selectedProduct')
+            console.log('set_selectedProduct:')
+            console.log(action.value)
             if(action.value === state.selectedProduct && state.selectedProduct !== null) {
               return {
                 ...state,
@@ -143,15 +144,49 @@ export const reducer = (state, action) => {
             }
           
 
-          case "set_closestitem":
-            console.log('set_closestitem')
-            return {
-              ...state,
-              closestItem: action.value,
-            }
-    
+            case "set_closestitem":
+              console.log('set_closestitem')
+              return {
+                ...state,
+                closestItem: action.value,
+              }
+
+
+              case "set_tics":
+                console.log('set_tics')
+                return {
+                  ...state,
+                  tics: action.value,
+                }
+  
+              case "set_filter":
+              console.log('toggle_filter')
+              if(!state.closestItem.userProperties) return state
+              let newfilter 
+              if(state.filter.length === 0) {
+                if(state.mission === 'S1') {
+                  newfilter = [{
+                    attribute: 'relativePassNumber',
+                    value: state.closestItem.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.relativePassNumber
+                  }]
+                }
+                if(state.mission === 'S2') {
+                  newfilter = [{
+                    attribute: 'relativePassNumber',
+                    value: state.closestItem.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.relativePassNumber
+                  }]
+                }
+              } else {
+                newfilter = []
+              }
+              return {
+                ...state,
+                filter: newfilter,
+              }
+          
           case "gotoclosestitem":
             console.log('gotoclosestitem')
+            if(!state.closestItem._sector === null) return state
           return {
             ...state,
             goToDate: state.closestItem.timeRange[1],
@@ -212,6 +247,8 @@ export const reducer = (state, action) => {
             // moveToClosestItemTrigger: Math.random(),
             closestItem: null,
             goToDate:null,
+            tics: [],
+            filter: [],
             resultDesc: {totalResults:0, totalLoaded:0 },
             
             clearResultsTrigger: Math.random()
@@ -254,7 +291,9 @@ export const reducer = (state, action) => {
         searchPoint: 'POINT(40 0)',
         searchMode: 'global',
         geojson: null,
+        filter: [],
         closestItem: null,
+        tics: [],
         addQuicklookWMSTrigger: null,
         moveToClosestItemTrigger: null,
         resultDesc: {

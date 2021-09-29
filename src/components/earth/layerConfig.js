@@ -73,6 +73,16 @@ export const ovLayers = [
         size: 256,
         sector: WorldWind.Sector.FULL_SPHERE,
         levelZeroDelta: new WorldWind.Location(90, 90)
+    },
+    {
+        service: "https://tiles.esa.maps.eox.at/wms",
+        layerNames: "overlay",
+        title: "overlay",
+        numLevels: 19,
+        format: "image/png",
+        size: 256,
+        sector: WorldWind.Sector.FULL_SPHERE,
+        levelZeroDelta: new WorldWind.Location(90, 90)
     }
 ]
 

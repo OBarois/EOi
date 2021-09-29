@@ -8,6 +8,7 @@ import {FluidWorldWindowController} from './FluidWorldWindowController'
 // import InfoPanel from "../infopanel"
 import LookAtWidget from './LookAtWidget'
 import ViewProductControl from './ViewProductControl'
+import FilterProductControl from './FilterProductControl'
 import { useKey } from 'rooks'
 
 const Earth = ({ id }) => {
@@ -20,6 +21,7 @@ const Earth = ({ id }) => {
     const handleSimpleClick = (e) => {
         let selection = getRenderables(e.pageX,e.pageY)
         if (selection.length === 0) return
+        // selection[0].highlighted = true
         dispatch({type: 'set_selectedProduct', value: selection[0]})
     }
 
@@ -46,6 +48,7 @@ const Earth = ({ id }) => {
         toggleOv,
         toggleModel,
         setTime,
+        setFilter,
         toggleDem,
         northUp
     } = useEww({
@@ -76,6 +79,10 @@ const Earth = ({ id }) => {
         dispatch({ type: "set_closestitem", value: ewwstate.closestRenderable})
     },[ewwstate.closestRenderable])
 
+    useEffect(() => {
+        dispatch({ type: "set_tics", value: ewwstate.tics})
+    },[ewwstate.tics])
+
 
 
     useEffect(() => {
@@ -93,6 +100,12 @@ const Earth = ({ id }) => {
             addGeojson(state.geojson,state.viewDate.getTime())
         } 
     },[state.geojson])
+
+    useEffect(() => {
+        if(state.filter !== null) {
+            setFilter(state.filter)
+        } 
+    },[state.filter])
 
     useEffect(() => {
         removeGeojson()
@@ -212,6 +225,7 @@ const Earth = ({ id }) => {
             <FluidWorldWindowController world={eww} onSimpleClick={handleSimpleClick}/>
             <LookAtWidget active={(state.searchMode === 'point')}/>
             <ViewProductControl active={state.closestItem !== null}/>
+            <FilterProductControl active={state.closestItem !== null}/>
             {/* <InfoPanel top= '100px' left= '5px'>
                 <div className='Quiklook'><img src={QLimage?QLimage.src:''}  alt='' width='150px'/></div>
             </InfoPanel> */}

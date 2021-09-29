@@ -47,6 +47,8 @@ export function useEww({ id }) {
     const qw = useRef(false)
     const dem = useRef(false)
     const proj = useRef(0)
+    // const filter = useRef([])
+    // const [filter,setfilter] = useState(true)
 
     const s2lut = useRef([])
 
@@ -222,7 +224,19 @@ export function useEww({ id }) {
         eww.current.layers.sort((a, b) => {
             return a.zIndex - b.zIndex;
         })
-
+    }
+    
+    const setFilter = (filter)=>{
+        console.log(filter)
+        // setfilter(filter)
+        let layer = getLayerByName('Products')
+        for (let j = 0; j < layer.renderables.length; j++) {
+            layer.renderables[j].filtered = !filterRenderable(layer.renderables[j],filter)
+        }
+        enableRenderables(layer, lastepoch.current, TRAIL_PRODUCT)
+        let tics = getTics(layer)
+        setEwwState((ewwstate) => { return {...ewwstate, tics: tics}})
+        eww.current.redraw() 
     }
  
     function  getViewPolygon () {
@@ -308,7 +322,7 @@ export function useEww({ id }) {
                 configuration.attributes.outlineColor = new WorldWind.Color(1, 0, 0, 0.3);
 
                 configuration.highlightAttributes = new WorldWind.ShapeAttributes(configuration.attributes);
-                configuration.highlightAttributes.outlineColor = new WorldWind.Color(1, 0, 0, 0.4);
+                configuration.highlightAttributes.outlineColor = new WorldWind.Color(1, 0, 1, 0.4);
                 configuration.highlightAttributes.interiorColor = new WorldWind.Color(1, 0, 0, 0);
                 // configuration.attributes.outlineWidth = 0.3;
 
@@ -332,9 +346,14 @@ export function useEww({ id }) {
         function loadCompleteCallback() {
             // console.log(renderableLayer)
             setProductTimeRange(productlayer)
-            enableRenderables(productlayer, epoch, TRAIL_PRODUCT)
-            // console.log(productlayer)
+            let closestrenderable = enableRenderables(productlayer, epoch, TRAIL_PRODUCT)
+            let tics = getTics(productlayer)
+            // let newtics = []
+            // newtics = state.geojson.features.map( (item) => {
+            // return item.properties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStartTime.getTime()
             sortLayers()
+            setEwwState((ewwstate) => { return {...ewwstate, closestRenderable: closestrenderable, tics: tics}})
+
 
             eww.current.redraw();
         }
@@ -461,8 +480,36 @@ export function useEww({ id }) {
         } else {
             layer.enabled = false
         }         
-}
+    }
 
+    function getTics(layer) {
+        let newtics = []
+        for(let i = 0 ; i < layer.renderables.length ; i++) {
+            if(!layer.renderables[i].filtered || layer.renderables[i].filtered !== true ) {
+                console.log('tics: '+layer.renderables[i].filtered)
+                newtics.push(layer.renderables[i].userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStartTime.getTime())
+            }
+        }
+        return newtics
+    }
+
+    function filterRenderable(renderable,filter) {
+        // let newtics = []
+        // if(!state.geojson) return
+        // newtics = state.geojson.features.map( (item) => {
+        //     return item.properties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStartTime.getTime()
+        // })
+        let test = true
+        if(renderable._displayName !== 'Surface Shape') return true
+        for(let i = 0; i < filter.length; i++) {
+
+            if(filter[i].attribute === 'relativePassNumber' ) {
+                test *= renderable.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.relativePassNumber === filter[i].value
+            }
+        }
+        // console.log(test)
+        return test
+    }
 
     function enableRenderables(layer, time, trailduration) {
         if(layer.renderables.length === 0) {
@@ -479,24 +526,25 @@ export function useEww({ id }) {
             if (time !== 0) {
 
                 let visibilityend = renderable.timeRange[1].getTime()
+                let filtered = layer.renderables[j].filtered?layer.renderables[j].filtered:false
 
                 // find closest
-                if( visibilityend > closestrenderableepoch && visibilityend <= time) {
+                if( visibilityend > closestrenderableepoch && visibilityend <= time && !filtered) {
                     closestrenderableindex = j
                     closestrenderableepoch = visibilityend
                 } 
-                if( visibilityend <= oldestrenderableepoch) {
+                if( visibilityend <= oldestrenderableepoch && !filtered) {
                     oldestrenderableindex = j
                     oldestrenderableepoch = visibilityend
                 }
 
-                if( visibilityend >= youngestrenderableepoch) {
+                if( visibilityend >= youngestrenderableepoch && !filtered) {
                     youngestrenderableindex = j
                     youngestrenderableepoch = visibilityend
                 }
 
 
-                renderable.enabled = (time-trailduration < visibilityend && visibilityend <= time) ? true : false   
+                renderable.enabled = (time-trailduration < visibilityend && visibilityend <= time) ? !filtered : false   
             } else {
                 renderable.enabled = false
             }         
@@ -750,9 +798,7 @@ export function useEww({ id }) {
         eww.current.redraw();
         lastepoch.current = epoch
         setEwwState((ewwstate) => { return {...ewwstate, closestRenderable: closestrenderable}})
-
-        // return closestrenderable
-     }
+    }
 
     async function moveTo(lat, lon, alt) {
         // setTimeout(() => {
@@ -992,6 +1038,7 @@ export function useEww({ id }) {
       toggleStarfield, 
       toggleAtmosphere, 
       setTime, 
+      setFilter,
       toggleProjection, 
       toggleNames, 
       toggleModel, 

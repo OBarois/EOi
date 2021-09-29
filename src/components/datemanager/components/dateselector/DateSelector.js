@@ -47,6 +47,7 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
     const detectDoubleTap = (e) => {
         const now = Date.now();
         button.current = e.button
+        e.preventDefault()
         // console.log(lastTapdate.current.getTime()-discreetdate.current.getTime())
         // if (lastTap.current && (now - lastTap.current) < 300  && Math.abs(lastTapdate.current.getTime()-scaledate.getTime()) < 1 ) {
         if (lastTap.current && (now - lastTap.current) < 300 ) {
