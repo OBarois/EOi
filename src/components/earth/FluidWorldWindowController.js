@@ -54,6 +54,7 @@ export const FluidWorldWindowController = memo( ({world, onSimpleClick}) => {
     
     const detectDoubleTap = (e) => {
         button.current = e.button
+        e.preventDefault()
         if (lastTap.current && (e.timeStamp - lastTap.current) < 300) {
             doubleTap.current = true
         } else {

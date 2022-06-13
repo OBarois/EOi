@@ -284,6 +284,7 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
             // iteration +=1
         }
         if(_resulttics) {
+            let lastticpos = -10
             for ( let i=_resulttics.length ; i >= 0  ; i-=1 ) {
             // for ( let i=0 ; i < _resulttics.length  ; i+=1 ) {
             
@@ -295,9 +296,12 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
                     // ctx.shadowOffsetY = null
                     // ctx.shadowBlur = null
                     ctx.font = "30px Arial"
-
+                    if(ticpos - lastticpos > 3) {
+                        lastticpos = ticpos
+                        ctx.fillText('.', scale.current.offsetWidth -8, ticpos +5);
+                    }
             
-                    ctx.fillText('.', scale.current.offsetWidth -8, ticpos +5);
+                    
 
                 }
             }

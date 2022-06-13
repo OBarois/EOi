@@ -9,6 +9,7 @@
         const handleTap = (event) => {
             // console.log(event)
             event.stopPropagation()
+            event.preventDefault()
             const now = Date.now();
             if (lastTap && (now - lastTap) < 300) {
                 clearTimeout(clicktimeout.current)   

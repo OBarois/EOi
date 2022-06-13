@@ -234,7 +234,16 @@ export function useEww({ id }) {
             layer.renderables[j].filtered = !filterRenderable(layer.renderables[j],filter)
         }
         enableRenderables(layer, lastepoch.current, TRAIL_PRODUCT)
+
         let tics = getTics(layer)
+
+        layer = getLayerByName('Quicklooks')
+        for (let j = 0; j < layer.renderables.length; j++) {
+            layer.renderables[j].filtered = !filterRenderable(layer.renderables[j],filter)
+        }
+        enableRenderables(layer, lastepoch.current, TRAIL_PRODUCT)
+
+
         setEwwState((ewwstate) => { return {...ewwstate, tics: tics}})
         eww.current.redraw() 
     }
@@ -308,6 +317,7 @@ export function useEww({ id }) {
                 configuration.attributes = new WorldWind.PlacemarkAttributes(placemarkAttributes);
                 
             } else if (geometry.isLineStringType() || geometry.isMultiLineStringType()) {
+                configuration.attributes = new WorldWind.ShapeAttributes(null);
                 configuration.attributes.drawOutline = true;
                 configuration.attributes.outlineColor = new WorldWind.Color(
                     0.1 * configuration.attributes.interiorColor.red,
@@ -447,6 +457,13 @@ export function useEww({ id }) {
         return null
     }
 
+    function getIndexOfRenderable(renderable,layer) {
+        for (let j = 0; j < layer.renderables.length; j++) {
+            if (layer.renderables[j].userProperties.title === renderable.userProperties.title) return j
+        }
+        return null
+    }
+
     function enableSatelliteLayers(epoch,bool) {
         for(let l=0 ; l<satelliteLayers.length ; l++) {
             if(satelliteLayers[l].timeRange[0].getTime() > epoch || satelliteLayers[l].timeRange[1].getTime() < epoch) {
@@ -486,10 +503,10 @@ export function useEww({ id }) {
         let newtics = []
         for(let i = 0 ; i < layer.renderables.length ; i++) {
             if(!layer.renderables[i].filtered || layer.renderables[i].filtered !== true ) {
-                console.log('tics: '+layer.renderables[i].filtered)
                 newtics.push(layer.renderables[i].userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStartTime.getTime())
             }
         }
+        console.log(newtics)
         return newtics
     }
 
@@ -500,7 +517,8 @@ export function useEww({ id }) {
         //     return item.properties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStartTime.getTime()
         // })
         let test = true
-        if(renderable._displayName !== 'Surface Shape') return true
+        if(!renderable.userProperties) return true
+        // console.log(renderable)
         for(let i = 0; i < filter.length; i++) {
 
             if(filter[i].attribute === 'relativePassNumber' ) {
@@ -659,7 +677,7 @@ export function useEww({ id }) {
         return multiboundaries
     }
 
-    const createQL = async (url, footprint, timerange, attributes, quicklookLayer) => {
+    const createQL = async (url, footprint, timerange, attributes, userProperties, quicklookLayer) => {
 
         async function createImage(url) {
             return new Promise((resolve, reject) => {
@@ -701,6 +719,7 @@ export function useEww({ id }) {
             quicklook.timeRange = timerange
             quicklook.displayName = timerange[1].toUTCString()
             quicklook.zIndex = ZINDEX_QUICKLOOKS
+            quicklook.userProperties = userProperties
             
             quicklook.image = image
 
@@ -718,12 +737,31 @@ export function useEww({ id }) {
         }
     }
 
-
     const addQuicklook = async (renderable) => {
+        if(renderable) {
+            // add1Quicklook(renderable)
+            let prodlayer = getLayerByName('Products')
+            let idx = getIndexOfRenderable(renderable,prodlayer)
+            // console.log(idx)
+            let j = 0
+            for(let i = idx ; idx < prodlayer.renderables.length && j < 10 ; idx++) {
+                if(!prodlayer.renderables[idx].filtered || prodlayer.renderables[idx].filtered !== true ) {
+                    add1Quicklook(prodlayer.renderables[idx])
+                    j+=1
+                }
+            }
+        }
+    }
+
+    const add1Quicklook = async (renderable) => {
         if(renderable) {
 
             let url = renderable.userProperties.quicklookUrl
-            // console.log(renderable)
+            if (url == null) {
+                console.log("no QL")
+                return
+            }
+            console.log(renderable)
             let footprint 
             // console.log(renderable.boundaries[0])
             if(renderable.userProperties.earthObservation.productInformation.tile) {
@@ -747,9 +785,10 @@ export function useEww({ id }) {
             timerange[1] = renderable.timeRange[1]
             timerange[0] = new Date(timerange[1].getTime() - TRAIL_QUICKLOOK)
             let attributes = renderable.attributes
+            let userProperties = renderable.userProperties
             let quicklookLayer = getLayerByName('Quicklooks')
 
-            createQL(url, footprint, timerange, attributes, quicklookLayer)
+            createQL(url, footprint, timerange, attributes, userProperties, quicklookLayer)
             decacheQuicklooks()
         }
     }

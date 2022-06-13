@@ -9,6 +9,7 @@
     "@testing-library/react": "^11.2.6",
     "@testing-library/user-event": "^12.8.3",
     "dateformat": "^3.0.3",
+    "fetch-mw-oauth2": "^1.0.0",
     "react": "^17.0.2",
     "react-colorful": "^5.1.4",
     "react-dom": "^17.0.2",
@@ -32,11 +33,12 @@
     "react-scripts": "4.0.3"
   },
   "scripts": {
-    "start": "PORT=8182 react-scripts start",
+    "start": "PORT=8080 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d build",
+    "clean": "rm -rf node_modules/gh-pages/.cache"
   },
   "eslintConfig": {
     "extends": [

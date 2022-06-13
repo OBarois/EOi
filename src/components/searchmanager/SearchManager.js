@@ -36,6 +36,8 @@ function SearchManager({searchdate, searchpoint, mission, altitude, onSearchStar
 
     useEffect(() => {
         if(geojsonResults) {
+            console.log(geojsonResults)
+
             // saves first and last item dates
             let firstitemdate = (new Date(geojsonResults.features[0].properties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStartTime))
             if(firstresultdate.current.getTime() < firstitemdate.getTime() || firstresultdate.current === null) {

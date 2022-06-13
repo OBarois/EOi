@@ -12,6 +12,7 @@
     display: flex; 
     justify-content: center;
     flex-direction: column;
+    touch-action: none;
 
   }
 
@@ -27,6 +28,8 @@
   height: 100%;
   background: rgba(82, 219, 155, 0);
   border-radius: 8px;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .DateSelectorCanvas{
@@ -38,6 +41,7 @@
     left: 0px;
     /* background: rgba(82, 219, 155, 0.699); */
     border-radius: 8px;
+    touch-action: none;
   }
 
 .Mask {
@@ -49,6 +53,8 @@
     background: rgba(47, 99, 26, 0);
     mask-image: linear-gradient(to bottom, rgba(42, 177, 42, 0), rgba(0,0,0,1), rgba(48, 139, 151, 0));
     -webkit-mask-image: linear-gradient(to bottom, rgba(42, 177, 42, 0), rgba(0,0,0,1), rgba(48, 139, 151, 0));
+    touch-action: none;
+  
 }
 .touchMask {
     position: absolute;
@@ -58,6 +64,8 @@
     width: 60px;
     height: 100%;
     background: rgba(26, 70, 99, 0);
+    user-select: none;
+    -webkit-user-select: none;
     touch-action: none;
 
     /* mask-image: linear-gradient(to bottom, rgba(42, 177, 42, 0), rgba(0,0,0,1), rgba(48, 139, 151, 0));
@@ -149,8 +157,8 @@
 .ResultTic {
     position: absolute;
     pointer-events: none;
-    width:5px;
-    height:5px;
+    width:15px;
+    height:15px;
     background-color: rgba(255, 0, 0, 0.808);
     color:--var(colort);
     border-radius: 50%;

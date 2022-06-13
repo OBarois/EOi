@@ -59,7 +59,7 @@ function DateController({startdate, onDateChange, onStateChange, animated}) {
     },[date,onDateChange]);
 
     useEffect(() => {
-        console.log(" force date: "+startdate)
+        // console.log(" force date: "+startdate)
         if(startdate !== null) forceDate(startdate)
         
         //forceDate(date)
@@ -81,12 +81,12 @@ function DateController({startdate, onDateChange, onStateChange, animated}) {
 
     return (
         <div className='DateController ' >
-                <Icon icon={roundFastRewind} onClick={decreaseSpeed} className='smallcontrolbutton shadow' style={{display:playing?'block':'none'}}/>
+                <Icon icon={roundFastRewind} onClick={decreaseSpeed} className='smallcontrolbutton shadow Backward' style={{display:playing?'block':'none'}}/>
                 <div className={speed>0?'':'flipped'}>
                     <Icon icon={roundPlayArrow} onClick={handleTap} className='controlbutton shadow'/>
                 </div>
                 <span className='Speed' style={{display:playing?'block':'none'}}>x{Math.abs(speed)}</span>
-                <Icon icon={roundFastForward} onClick={increaseSpeed} className='smallcontrolbutton shadow' style={{display:playing?'block':'none'}}/>
+                <Icon icon={roundFastForward} onClick={increaseSpeed} className='smallcontrolbutton shadow Forward' style={{display:playing?'block':'none'}}/>
         </div>
     )
 }

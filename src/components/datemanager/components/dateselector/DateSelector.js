@@ -47,7 +47,6 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
     const detectDoubleTap = (e) => {
         const now = Date.now();
         button.current = e.button
-        e.preventDefault()
         // console.log(lastTapdate.current.getTime()-discreetdate.current.getTime())
         // if (lastTap.current && (now - lastTap.current) < 300  && Math.abs(lastTapdate.current.getTime()-scaledate.getTime()) < 1 ) {
         if (lastTap.current && (now - lastTap.current) < 300 ) {
@@ -144,7 +143,8 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
         },
 
         onDrag: ({  event, active, first, down, touches, offset, delta, initial, distance, velocity, direction, shiftKey, ctrlKey, xy, movement,vxvy, wheeling}) => {
-            if (first) {
+            event.preventDefault()
+        if (first) {
                 setyOnWheel.stop()
                 detectDoubleTap(event)
                 startingdate.current = discreetdate.current

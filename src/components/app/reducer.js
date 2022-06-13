@@ -1,3 +1,5 @@
+import {collections} from "./collections.js"
+
 export const reducer = (state, action) => {
     switch (action.type) {
       case "toggle_names":
@@ -126,7 +128,7 @@ export const reducer = (state, action) => {
 
           case "set_selectedProduct":
             console.log('set_selectedProduct:')
-            console.log(action.value)
+            // console.log(action.value)
             if(action.value === state.selectedProduct && state.selectedProduct !== null) {
               return {
                 ...state,
@@ -145,7 +147,7 @@ export const reducer = (state, action) => {
           
 
             case "set_closestitem":
-              console.log('set_closestitem')
+              // console.log('set_closestitem')
               return {
                 ...state,
                 closestItem: action.value,
@@ -153,7 +155,7 @@ export const reducer = (state, action) => {
 
 
               case "set_tics":
-                console.log('set_tics')
+                // console.log('set_tics')
                 return {
                   ...state,
                   tics: action.value,
@@ -185,7 +187,7 @@ export const reducer = (state, action) => {
               }
           
           case "gotoclosestitem":
-            console.log('gotoclosestitem')
+            // console.log('gotoclosestitem')
             if(!state.closestItem._sector === null) return state
           return {
             ...state,
@@ -198,7 +200,7 @@ export const reducer = (state, action) => {
           }
     
           case "set_goToDate":
-            console.log('set_goToDate')
+            // console.log('set_goToDate')
           return {
             ...state,
             goToDate: action.value,
@@ -206,7 +208,7 @@ export const reducer = (state, action) => {
           }
         
           case "set_searchDate":
-            console.log('set_searchDate')
+            // console.log('set_searchDate')
           return {
             ...state,
             searchDate: action.value,
@@ -223,7 +225,7 @@ export const reducer = (state, action) => {
     
           
           case "set_color":
-            console.log('set_color')
+            console.log('set_color: '+action.value)
           return {
             ...state,
             appColor: action.value,
@@ -271,49 +273,50 @@ export const reducer = (state, action) => {
   
   export const initialState = {
     active: false,
-        mission: 'S1',
-        altitude: '5000000',
-        appColor: '#e0963a',
-        position: {
-            clon:'0.5',
-            clat:'45' 
-        },
-        viewDate: new Date(),
-        goToDate: new Date(),
-        goToPos: {
-          lat: 0,
-          lon: 0
-        },
-        searchDate: new Date(),
-        resetStartDateTrigger: null,
-        pointSearchMaxAltitude: 3000000,
-        selectedProduct: null,
-        searchPoint: 'POINT(40 0)',
-        searchMode: 'global',
-        geojson: null,
-        filter: [],
-        closestItem: null,
-        tics: [],
-        addQuicklookWMSTrigger: null,
-        moveToClosestItemTrigger: null,
-        resultDesc: {
-            firstItemDate: null,
-            lastItemDate: null,
-            totalResults: 0,
-            totalLoaded: 0
-        },
-        animated: false,
-        clearResultsTrigger: null,
-        mapSettings: {
-            atmosphere: true,
-            starfield: true,
-            names: false,
-            background: 0,
-            overlay:1,
-            dem: false,
-            satellites: true,
-            quicklooks: true,
-            projection: 0
-        }
-    }
+    mission: 'S1A_IW_RAW__0SDV',
+    altitude: '5000000',
+    appColor: '#c93ccc',
+    position: {
+        clon:'0.5',
+        clat:'45' 
+    },
+    viewDate: new Date(),
+    goToDate: new Date(),
+    goToPos: {
+      lat: 0,
+      lon: 0
+    },
+    searchDate: new Date(),
+    resetStartDateTrigger: null,
+    pointSearchMaxAltitude: 3000000,
+    selectedProduct: null,
+    searchPoint: 'POINT(40 0)',
+    searchMode: 'global',
+    geojson: null,
+    filter: [],
+    closestItem: null,
+    tics: [],
+    addQuicklookWMSTrigger: null,
+    moveToClosestItemTrigger: null,
+    resultDesc: {
+        firstItemDate: null,
+        lastItemDate: null,
+        totalResults: 0,
+        totalLoaded: 0
+    },
+    animated: false,
+    clearResultsTrigger: null,
+    mapSettings: {
+        atmosphere: false,
+        starfield: false,
+        names: false,
+        background: 0,
+        overlay:1,
+        dem: false,
+        satellites: false,
+        quicklooks: true,
+        projection: 0
+    },
+    collections: collections,
+  }
   
