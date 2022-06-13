@@ -59,8 +59,6 @@ function App() {
                         <MissionSelector></MissionSelector>
                         <MapSelector ></MapSelector>
                         <div className='horizontalContainer'>
-                        <div class='logo'><a href="https://scihub.copernicus.eu/dhus/odata/v1/Products('5d8ad17d-78ad-46a0-8cb0-17a0f7af35a2')/Products('Quicklook')/$value">Connect</a></div>
-
                             <ColorSelectorContainer></ColorSelectorContainer>
                             <OptionsSelector/>
                         </div>

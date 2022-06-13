@@ -68,7 +68,7 @@ export default function useDatahub()  {
         newurl = newurl.replace("{startindex}",index)
         // console.log('Search: '+newurl)
         let paging = {totalresults:0, startindex:0, itemsperpage:0}
-
+        console.log(coll_type)
 
         try {
             let response
