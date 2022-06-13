@@ -264,7 +264,19 @@ export const reducer = (state, action) => {
             }
           }
     
+          case "set_credentials": {
+            return {
+              ...state,
+              credentials: action.value
+            }
+          }
 
+          case "reset_credentials": {
+            return {
+              ...state,
+              credentials: ''
+            }
+          }
 
         default:
         return state
@@ -275,7 +287,7 @@ export const reducer = (state, action) => {
     active: false,
     mission: 'S1A_IW_RAW__0SDV',
     altitude: '5000000',
-    appColor: '#c93ccc',
+    appColor: '#3bcc9a',
     position: {
         clon:'0.5',
         clat:'45' 

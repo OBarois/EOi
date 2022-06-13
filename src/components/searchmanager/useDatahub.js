@@ -61,7 +61,7 @@ export default function useDatahub()  {
         return newurl
     }
 
-    const fetchURL = async (url,index,coll_type) => {
+    const fetchURL = async (url,index,coll_type,user,pass) => {
         setLoading(true)
         controller.current = new AbortController()
         let newurl = url
@@ -69,48 +69,53 @@ export default function useDatahub()  {
         // console.log('Search: '+newurl)
         let paging = {totalresults:0, startindex:0, itemsperpage:0}
 
-        if(credentials == '') {
-            let user = window.prompt("Please enter your username for \n"+url.split("/")[2],"")
-            let pass = window.prompt("Please enter your password for \n"+url.split("/")[2],"")
-            setCredentials(user+":"+pass)
-        }
-
-        console.log(credentials.split(":")[0]+" / "+ credentials.split(":")[1])
-
-        const oauth2 = new OAuth2({
-            grantType: 'password',
-            // clientId: 'admin-cli',
-            clientId: 's1pro-user-web-client',
-            // userName: 'esa_01',
-            // password: 'dohgy1-koppiB-quwfav',
-            userName: credentials.split(":")[0],
-            password: credentials.split(":")[1],
-            clientSecret: '',
-            tokenEndpoint: 'https:/iam.platform.ops-csc.com/auth/realms/RS/protocol/openid-connect/token',
-          })
-    
-    
-
-
 
         try {
-            const response = await oauth2.fetch(newurl, 
-                {
-                mode: 'cors', 
-                credentials: 'include', 
-                // headers: {
-                //     "Content-Type": "text/plain",
-                //     'Authorization': 'Basic ' + window.btoa(credentials),
-                // },
-                signal: controller.current.signal
-                })
-            // console.log(`HTTP error! status: ${response.status}`)
-            // window.alert(`HTTP error! status: ${response.status}`)
-            if (!response.ok) {
-                window.alert(`HTTP error! status: ${response.status}`)
+            let response
+            if(coll_type == 'PRIP') {
 
-                throw new Error(`HTTP error! status: ${response.status}`)
+                const oauth2 = new OAuth2({
+                    grantType: 'password',
+                    // clientId: 'admin-cli',
+                    clientId: 's1pro-user-web-client',
+                    userName: user,
+                    password: pass,
+                    clientSecret: '',
+                    tokenEndpoint: 'https:/iam.platform.ops-csc.com/auth/realms/RS/protocol/openid-connect/token',
+                  })
+        
+
+                response = await oauth2.fetch(newurl, 
+                    {
+                    mode: 'cors', 
+                    credentials: 'include', 
+                    signal: controller.current.signal
+                    })
+                    console.log(response)
+                if (!response.ok) {
+                    window.alert(`HTTP error! status: ${response.status}`)
+                    throw new Error(`HTTP error! status: ${response.status}`)
+                }
             }
+    
+            if(coll_type != 'PRIP') {
+                response = await fetch(newurl, 
+                    {
+                    mode: 'cors', 
+                    credentials: 'include', 
+                    headers: {
+                        "Content-Type": "text/plain",
+                        'Authorization': 'Basic ' + window.btoa(user+":"+pass),
+                    },
+                    signal: controller.current.signal
+                    })
+                if (!response.ok) {
+                    window.alert(`HTTP error! status: ${response.status}`)
+                    throw new Error(`HTTP error! status: ${response.status}`)
+                }
+            }
+    
+        
             try {
                 const json = await response.json()
 
@@ -149,7 +154,7 @@ export default function useDatahub()  {
                 if (paging.startindex + paging.itemsperpage < Math.min(paging.totalresults,MAX_ITEMS) ) {
                     console.log("There's More...")  
                     // uncomment to get other pages
-                    fetchURL(url,(paging.startindex + paging.itemsperpage),coll_type)
+                    fetchURL(url,(paging.startindex + paging.itemsperpage),coll_type,user,pass)
                 } else {
                     setLoading(false)  
                 }
@@ -157,7 +162,6 @@ export default function useDatahub()  {
             } catch (err) {
                 console.log("Didn't receive a json !")
                 console.log(err)
-                //setCredentials(window.btoa(window.prompt("Please enter your username:password for scihub.copernicus.com","username:password")))
                 setLoading(false);
             }
         } catch(err) {
@@ -199,8 +203,17 @@ export default function useDatahub()  {
         searchparam.current.mission = mission
         searchparam.current.searchpoint = searchpoint
 
-        let startindex = getcollection(mission).startIndexOrigin
-        fetchURL(url,startindex,coll_type)
+        let startindex = target.startIndexOrigin
+
+        // get credentials
+        if(state.credentials == '' || !state.credentials) {
+            let user = window.prompt("Please enter your username for \n"+url.split("/")[2],"")
+            let pass = window.prompt("Please enter your password for \n"+url.split("/")[2],"")
+            dispatch({ type: "set_credentials", value: user+":"+pass})
+            return
+        }
+
+        fetchURL(url,startindex,coll_type,state.credentials.split(":")[0],state.credentials.split(":")[1])
         
     }
     
