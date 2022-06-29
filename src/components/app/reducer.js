@@ -287,7 +287,7 @@ export const reducer = (state, action) => {
     active: false,
     mission: 'S1A_IW_RAW__0SDV',
     altitude: '5000000',
-    appColor: '#3bcc9a',
+    appColor: '#bbcc9a',
     position: {
         clon:'0.5',
         clat:'45' 
