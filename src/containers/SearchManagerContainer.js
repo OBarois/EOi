@@ -30,7 +30,7 @@ const SearchManagerContainer = () => {
 
     return (
         <SearchManager 
-          searchdate={state.searchDate} 
+          searchdate={new Date(state.searchDate)} 
           searchpoint={debouncedsearchPoint} 
           mission={state.mission} 
           altitude={debouncedaltitude} 

@@ -313,17 +313,32 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
     }
 
 
-    useLayoutEffect(() => {
-        // console.log('zoomfactor / date: '+zoomfactor + '/ ' + date)
-        izoom.current = zoomfactor
-        idate.current = date
-        itics.current = resulttics
-        setTimescale(scaleText(date,zoomfactor,resulttics))
-    },[ zoomfactor,date,resulttics])
-
     // useEffect(() => {
+    //     console.log('zoomfactor / date: '+zoomfactor + '/ ' + date)
     //     console.log(resulttics)
-    // },[resulttics])
+    //     izoom.current = zoomfactor
+    //     idate.current = date
+    //     itics.current = resulttics
+    //     setTimescale(scaleText(idate.current,izoom.current,itics.current))
+    // },[ zoomfactor,date,resulttics])
+
+    useEffect(() => {
+        // console.log(zoomfactor)
+        izoom.current = zoomfactor
+        setTimescale(scaleText(idate.current,izoom.current,itics.current))
+    },[zoomfactor])
+
+    useEffect(() => {
+        // console.log(date)
+        idate.current = date
+        setTimescale(scaleText(idate.current,izoom.current,itics.current))
+    },[date])
+
+    useEffect(() => {
+        // console.log(resulttics)
+        itics.current = resulttics
+        setTimescale(scaleText(idate.current,izoom.current,itics.current))
+    },[resulttics])
 
     useEffect(() => {
         const handleResize =  (e) => {

@@ -21,7 +21,7 @@ function FilterProductControl({active}) {
 
     return (
         <div className='FilterProductControl' style={{display:active?'flex':'none'}}>
-            <Icon icon={state.filter.length === 0?outlineFilterAlt:baselineFilterAlt} width='40px' onClick={handleClick}/>            
+            <Icon icon={state.filter.length === 0 || !state.filter ?outlineFilterAlt:baselineFilterAlt} width='40px' onClick={handleClick}/>            
         </div>
      )
 }

@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import DateLabel from './components/datelabel'
 import DateController from './components/datecontroller'
 import DateSelector from './components/dateselector'
@@ -35,7 +35,11 @@ function DateManager({ onDateChange, onFinalDateChange, onStateChange, animated,
         setDateLabelHighlight(step)
     }
 
- 
+    useEffect(() => {
+        console.log(tics)
+    }, [tics]);
+
+
 
     return (
         <div >

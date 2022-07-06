@@ -584,7 +584,7 @@ export function useEww({ id }) {
 
 
 
-    const controller = useRef(null)
+    const controller = useRef([])
 
     const flipImage = (srcBase64, callback) => {
         const img = new Image();
@@ -677,7 +677,7 @@ export function useEww({ id }) {
         return multiboundaries
     }
 
-    const createQL = async (url, footprint, timerange, attributes, userProperties, quicklookLayer) => {
+    const createQL = async (url, footprint, timerange, attributes, userProperties, quicklookLayer, renderable) => {
 
         async function createImage(url) {
             return new Promise((resolve, reject) => {
@@ -692,8 +692,8 @@ export function useEww({ id }) {
         }
     
 
-
-        controller.current = new AbortController()
+        let abortcontroller = new AbortController()
+        controller.current.push(abortcontroller)
 
         // if quicklook is already there, do nothing
         for(let i = 0; i < quicklookLayer.renderables.length; i++) {
@@ -702,7 +702,7 @@ export function useEww({ id }) {
 
         try {
             
-            let response = await fetch (url, {mode: 'cors', credentials: 'include', signal: controller.current.signal, cache: "force-cache"})
+            let response = await fetch (url, {mode: 'cors', credentials: 'include', signal: abortcontroller.signal, cache: "force-cache"})
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -720,11 +720,18 @@ export function useEww({ id }) {
             quicklook.displayName = timerange[1].toUTCString()
             quicklook.zIndex = ZINDEX_QUICKLOOKS
             quicklook.userProperties = userProperties
+            quicklook.enabled = renderable.enabled
             
             quicklook.image = image
 
             // setEwwState((ewwstate) => { return {...ewwstate, image: image}})
             quicklookLayer.addRenderable(quicklook)
+
+            // keep the last 20
+            while (quicklookLayer.renderables.length > 20) {
+                quicklookLayer.renderables.shift()
+            }
+    
             URL.revokeObjectURL(objectURL)
             sortLayers()
             // console.log(eww.current.layers)
@@ -761,9 +768,11 @@ export function useEww({ id }) {
                 console.log("no QL")
                 return
             }
-            console.log(renderable)
+            // console.log(renderable)
             let footprint 
             // console.log(renderable.boundaries[0])
+
+            // hack to replace the S2 footprints by the LUT footprints (UMS tile coordinates)
             if(renderable.userProperties.earthObservation.productInformation.tile) {
                 footprint = getPolygonbyS2tile(renderable.userProperties.earthObservation.productInformation.tile)
             } else {
@@ -787,24 +796,25 @@ export function useEww({ id }) {
             let attributes = renderable.attributes
             let userProperties = renderable.userProperties
             let quicklookLayer = getLayerByName('Quicklooks')
+            let enabled = renderable.enabled
 
-            createQL(url, footprint, timerange, attributes, userProperties, quicklookLayer)
-            decacheQuicklooks()
+            createQL(url, footprint, timerange, attributes, userProperties, quicklookLayer, renderable)
         }
     }
 
-    function decacheQuicklooks() {
-        // getLayerByName('Quicklooks').removeAllRenderables()
-        let qlarray = getLayerByName('Quicklooks').renderables
-        while (qlarray.length > 50) {
-            qlarray.shift()
-        }
-
-        eww.current.redraw()
-    }
 
     function removeQuicklooks() {
+        // to do: abort ongoing QL URL
         getLayerByName('Quicklooks').removeAllRenderables()
+
+        // abort ongoing QL calls
+        for (let i = 0; i < controller.current.length; i++) {
+            controller.current[i].abort()
+
+        }
+        controller.current = []
+
+
         eww.current.redraw()
     }
 

@@ -105,14 +105,14 @@ export const reducer = (state, action) => {
               return {
                 ...state,
                 resultDesc: action.value,
-                goToDate: !state.animated ? action.value.firstResultDate :  action.value.lastResultDate
+                goToDate: !state.animated ? action.value.firstResultDate.getTime() :  action.value.lastResultDate.getTime()
                 // resultDesc: {...state.resultDesc, totalLoaded: action.value.totalLoaded, totalResults: action.value.totalResults}
               }
             } else {
               return {
                 ...state,
                 resultDesc: action.value,
-                goToDate: !state.animated ? state.goToDate :  action.value.lastResultDate
+                goToDate: !state.animated ? state.goToDate :  action.value.lastResultDate.getTime()
                 // resultDesc: {...state.resultDesc, totalLoaded: action.value.totalLoaded, totalResults: action.value.totalResults}
               }
 
@@ -133,7 +133,7 @@ export const reducer = (state, action) => {
               return {
                 ...state,
                 selectedProduct: action.value,
-                goToDate: action.value?action.value.timeRange[1]:null,
+                goToDate: action.value?action.value.timeRange[1].getTime():null,
                 productOn: false,
                 addQuicklookWMSTrigger: Math.random()
               }
@@ -141,13 +141,14 @@ export const reducer = (state, action) => {
               return {
                 ...state,
                 selectedProduct: action.value,
-                goToDate: action.value?action.value.timeRange[1]:null,
+                goToDate: action.value?action.value.timeRange[1].getTime():null,
               }
             }
           
 
             case "set_closestitem":
-              // console.log('set_closestitem')
+              console.log('set_closestitem')
+              console.log(action.value)
               return {
                 ...state,
                 closestItem: action.value,
@@ -162,17 +163,21 @@ export const reducer = (state, action) => {
                 }
   
               case "set_filter":
-              console.log('toggle_filter')
-              if(!state.closestItem.userProperties) return state
+                console.log('toggle_filter')
+                
+                if(state.closestItem === null) return state
+                console.log(state.filter.length)
+                console.log(state.mission)
               let newfilter 
               if(state.filter.length === 0) {
-                if(state.mission === 'S1') {
+                if(state.mission.indexOf('S1') <0 ) {
+                  console.log("filter S1")
                   newfilter = [{
                     attribute: 'relativePassNumber',
                     value: state.closestItem.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.relativePassNumber
                   }]
                 }
-                if(state.mission === 'S2') {
+                if(state.mission.indexOf('S2') <0 ) {
                   newfilter = [{
                     attribute: 'relativePassNumber',
                     value: state.closestItem.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.relativePassNumber
@@ -185,13 +190,14 @@ export const reducer = (state, action) => {
                 ...state,
                 filter: newfilter,
               }
-          
+              break
           case "gotoclosestitem":
             // console.log('gotoclosestitem')
-            if(!state.closestItem._sector === null) return state
+            if(state.closestItem === null || state.closestItem._sector === null) return state
+            console.log(state)
           return {
             ...state,
-            goToDate: state.closestItem.timeRange[1],
+            goToDate: state.closestItem.timeRange[1].getTime(),
             // moveToClosestItemTrigger: Math.random(),
             goToPos: {
               lat: state.closestItem._sector.minLatitude,
@@ -200,19 +206,22 @@ export const reducer = (state, action) => {
           }
     
           case "set_goToDate":
-            // console.log('set_goToDate')
+            console.log('set_goToDate')
+            console.log(action.value)
+            if(action.value === null) return state
           return {
             ...state,
-            goToDate: action.value,
+            goToDate: action.value.getTime(),
             moveToClosestItemTrigger: Math.random()
           }
         
           case "set_searchDate":
-            // console.log('set_searchDate')
+            console.log('set_searchDate')
+            console.log(action.value)
           return {
             ...state,
-            searchDate: action.value,
-            goToDate: action.value
+            searchDate: action.value.getTime(),
+            goToDate: action.value.getTime()
           }
     
           
@@ -234,9 +243,10 @@ export const reducer = (state, action) => {
 
           case "onDateChanged": {
             // console.log('onDateChanged')
+            // console.log(action.value.getTime())
             return {
               ...state,
-              viewDate: action.value,
+              viewDate: action.value.getTime(),
               productOn: true,
               goToDate: null
             }
@@ -248,7 +258,7 @@ export const reducer = (state, action) => {
             ...state,
             // moveToClosestItemTrigger: Math.random(),
             closestItem: null,
-            goToDate:null,
+            goToDate: null,
             tics: [],
             filter: [],
             resultDesc: {totalResults:0, totalLoaded:0 },
@@ -282,23 +292,24 @@ export const reducer = (state, action) => {
         return state
     }
   }
-  
+  let init_date = new Date()
   export const initialState = {
     active: false,
-    mission: 'S1A_IW_RAW__0SDV',
+    // mission: 'S1A_IW_RAW__0SDV',
+    mission: 'S1A',
     altitude: '5000000',
     appColor: '#bbcc9a',
     position: {
         clon:'0.5',
         clat:'45' 
     },
-    viewDate: new Date(),
-    goToDate: new Date(),
+    viewDate: init_date.getTime(),
+    goToDate: init_date.getTime(),
     goToPos: {
       lat: 0,
       lon: 0
     },
-    searchDate: new Date(),
+    searchDate: init_date.getTime(),
     resetStartDateTrigger: null,
     pointSearchMaxAltitude: 3000000,
     selectedProduct: null,

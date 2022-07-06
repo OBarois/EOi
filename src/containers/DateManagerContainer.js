@@ -9,6 +9,7 @@ function DateManagerContainer() {
 
 
     const [tics, settics] = useState([])
+    const [startdate, setstartdate] = useState(new Date(state.goToDate))
 
     const handleFinalDate =  (finaldate) => {
         dispatch({type:'set_searchDate', value: finaldate})
@@ -16,6 +17,7 @@ function DateManagerContainer() {
 
     const handleDateChanged = (date) => {
         // console.log('handleDateChanged')
+        // console.log(date)
         dispatch({type:'onDateChanged', value: date})
     }
 
@@ -36,9 +38,17 @@ function DateManagerContainer() {
         settics([])
     }, [state.clearResultsTrigger]);
 
+    useEffect(() => {
+        console.log('state.goToDate')
+        console.log(state.goToDate)
+        setstartdate((state.goToDate === null)?null:new Date(state.goToDate))
+    }, [state.goToDate]);
+
+    // let startDate = (state.goToDate === null)?null:new Date(state.goToDate)
+    // console.log(startDate)
 
     return (
-        <DateManager onDateChange={handleDateChanged} onFinalDateChange={handleFinalDate} startdate={state.goToDate} tics={state.tics} onStateChange={handleStateChange} animated={state.animated}/> 
+        <DateManager onDateChange={handleDateChanged} onFinalDateChange={handleFinalDate} startdate={startdate} tics={state.tics} onStateChange={handleStateChange} animated={state.animated}/> 
      )
 }
 

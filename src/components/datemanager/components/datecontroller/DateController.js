@@ -59,7 +59,7 @@ function DateController({startdate, onDateChange, onStateChange, animated}) {
     },[date,onDateChange]);
 
     useEffect(() => {
-        // console.log(" force date: "+startdate)
+        console.log(" force date: "+startdate)
         if(startdate !== null) forceDate(startdate)
         
         //forceDate(date)

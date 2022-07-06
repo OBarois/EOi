@@ -76,6 +76,7 @@ const Earth = ({ id }) => {
     },[ewwstate.viewpoint])
 
     useEffect(() => {
+        console.log('closest item changed')
         dispatch({ type: "set_closestitem", value: ewwstate.closestRenderable})
     },[ewwstate.closestRenderable])
 
@@ -86,7 +87,7 @@ const Earth = ({ id }) => {
 
 
     useEffect(() => {
-        setTime(state.viewDate.getTime())
+        setTime(new Date(state.viewDate))
     },[state.viewDate])
 
     useEffect(() => {
@@ -97,7 +98,7 @@ const Earth = ({ id }) => {
 
     useEffect(() => {
         if(state.geojson !== null) {
-            addGeojson(state.geojson,state.viewDate.getTime())
+            addGeojson(state.geojson,new Date(state.viewDate))
         } 
     },[state.geojson])
 
