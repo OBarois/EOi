@@ -129,11 +129,11 @@ export const reducer = (state, action) => {
           case "set_selectedProduct":
             console.log('set_selectedProduct:')
             // console.log(action.value)
-            if(action.value === state.selectedProduct && state.selectedProduct !== null) {
+            if(state.selectedProduct !== null && action.value === state.selectedProduct) {
               return {
                 ...state,
                 selectedProduct: action.value,
-                goToDate: action.value?action.value.timeRange[1].getTime():null,
+                goToDate: action.value?action.value.timeRange[0].getTime():null,
                 productOn: false,
                 addQuicklookWMSTrigger: Math.random()
               }
@@ -141,7 +141,7 @@ export const reducer = (state, action) => {
               return {
                 ...state,
                 selectedProduct: action.value,
-                goToDate: action.value?action.value.timeRange[1].getTime():null,
+                goToDate: action.value?action.value.timeRange[0].getTime():null,
               }
             }
           
@@ -149,6 +149,8 @@ export const reducer = (state, action) => {
             case "set_closestitem":
               console.log('set_closestitem')
               console.log(action.value)
+              // if (action.value) action.value._highlighted = true
+              if(!action.value) return state
               return {
                 ...state,
                 closestItem: action.value,
@@ -191,13 +193,14 @@ export const reducer = (state, action) => {
                 filter: newfilter,
               }
               break
+
           case "gotoclosestitem":
             // console.log('gotoclosestitem')
             if(state.closestItem === null || state.closestItem._sector === null) return state
             console.log(state)
           return {
             ...state,
-            goToDate: state.closestItem.timeRange[1].getTime(),
+            goToDate: state.closestItem.timeRange[0].getTime(),
             // moveToClosestItemTrigger: Math.random(),
             goToPos: {
               lat: state.closestItem._sector.minLatitude,
@@ -212,7 +215,7 @@ export const reducer = (state, action) => {
           return {
             ...state,
             goToDate: action.value.getTime(),
-            moveToClosestItemTrigger: Math.random()
+            // moveToClosestItemTrigger: Math.random()
           }
         
           case "set_searchDate":
@@ -241,7 +244,7 @@ export const reducer = (state, action) => {
           }
 
 
-          case "onDateChanged": {
+          case "set_viewDate": {
             // console.log('onDateChanged')
             // console.log(action.value.getTime())
             return {
@@ -254,15 +257,20 @@ export const reducer = (state, action) => {
     
           case "clear_results":
             console.log('clear_results')
+          // return {
+          //   ...state,
+          //   // moveToClosestItemTrigger: Math.random(),
+          //   closestItem: null,
+          //   goToDate: null,
+          //   tics: [],
+          //   filter: [],
+          //   resultDesc: {totalResults:0, totalLoaded:0 },
+          //   selectedProduct: null,
+          //   clearResultsTrigger: Math.random()
+          // }
           return {
             ...state,
-            // moveToClosestItemTrigger: Math.random(),
-            closestItem: null,
-            goToDate: null,
             tics: [],
-            filter: [],
-            resultDesc: {totalResults:0, totalLoaded:0 },
-            
             clearResultsTrigger: Math.random()
           }
     
@@ -298,7 +306,7 @@ export const reducer = (state, action) => {
     // mission: 'S1A_IW_RAW__0SDV',
     mission: 'S1A',
     altitude: '5000000',
-    appColor: '#bbcc9a',
+    appColor: '#b575c5',
     position: {
         clon:'0.5',
         clat:'45' 

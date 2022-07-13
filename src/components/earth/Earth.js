@@ -25,6 +25,7 @@ const Earth = ({ id }) => {
         dispatch({type: 'set_selectedProduct', value: selection[0]})
     }
 
+
     const {
         eww,
         ewwstate,
@@ -50,7 +51,8 @@ const Earth = ({ id }) => {
         setTime,
         setFilter,
         toggleDem,
-        northUp
+        northUp,
+        setMode
     } = useEww({
         id: id,
     })
@@ -112,10 +114,11 @@ const Earth = ({ id }) => {
         removeGeojson()
         removeQuicklooks()
         removeQuicklookWMS()
-        dispatch({type: 'set_selectedProduct', value: null})
+        // dispatch({type: 'set_selectedProduct', value: null})
 
         // dispatch({ type: "set_closestitem", value: null})
         // dispatch({ type: "set_goToDate", value: null})
+        // dispatch({ type: "set_tics", value: []})
     }, [state.clearResultsTrigger]);
 
     useEffect(() => {
@@ -171,6 +174,9 @@ const Earth = ({ id }) => {
         }
     }, [state.addQuicklookWMSTrigger]);
  
+    useEffect(() => {
+            setMode(state.searchMode)
+    }, [state.searchMode]);
  
     
     useEffect(() => {

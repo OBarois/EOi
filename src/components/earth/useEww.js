@@ -18,9 +18,15 @@ import {bgLayers, ovLayers} from './layerConfig';
 
 export function useEww({ id }) {
     
-    const TRAIL_PRODUCT = 1000 * 60 * 60 * 24 //1 day
-    const TRAIL_QUICKLOOK = 1000 * 60 * 60  //1 hour
-    const TRAIL_QUICKLOOKWMS = 1000 * 60 * 24 //1 day
+    // const TRAIL_PRODUCT = 1000 * 60 * 60 * 24 //1 day
+    const TRAIL_PRODUCT = 1000 * 60 * 60 * 24 * 10000 //1 day
+    const HEAD_PRODUCT = 1000 * 60 * 60 * 24 * 10000 //1 day
+    const TRAIL_QUICKLOOK = 1000 * 60 * 60 * 24  //1 hour
+    const TRAIL_QUICKLOOKWMS = 1000 * 60 * 60 * 24 //1 day
+
+    const ProductTrail = useRef(1000 * 60 * 60 * 24 * 10000)
+    const QLTrail = useRef(1000 * 60 * 60 * 24)
+    const ProductHead = useRef(1000 * 60 * 60 * 24 * 10000)
 
     const ZINDEX_QUICKLOOKWMS = 900
     const ZINDEX_QUICKLOOKS = 800
@@ -55,6 +61,8 @@ export function useEww({ id }) {
     const lastepoch = useRef(new Date())
     const lastmovetolat = useRef(0)
     const lastmovetolon = useRef(0)
+    const lastclosestitemindex = useRef(-1)
+
     // Initialise mapsettings
     function initMap({ clon, clat, alt, atmosphere, starfield, satellites, background, names, dem, projection}) {
         toggleAtmosphere(atmosphere)
@@ -139,6 +147,22 @@ export function useEww({ id }) {
         ql.enabled = qu.current
         eww.current.redraw()
     }
+
+
+    function setMode(value) {
+        console.log('set mode'+value)
+        if(value === 'point') {
+            ProductHead.current = 0
+            ProductTrail.current = 1000 * 60 * 60 * 24 *12
+            QLTrail.current = 1000 * 60 * 60 * 24 *12
+        } else {
+            ProductHead.current = 1000 * 60 * 60 * 24 * 10000
+            ProductTrail.current =  1000 * 60 * 60 * 24 * 10000
+            QLTrail.current = 1000 * 60 * 60 * 24 
+        }
+
+    }
+
 
 
     function toggleBg(background) {
@@ -233,7 +257,7 @@ export function useEww({ id }) {
         for (let j = 0; j < layer.renderables.length; j++) {
             layer.renderables[j].filtered = !filterRenderable(layer.renderables[j],filter)
         }
-        enableRenderables(layer, lastepoch.current, TRAIL_PRODUCT)
+        enableRenderables(layer, lastepoch.current, ProductHead.current, ProductTrail.current)
 
         let tics = getTics(layer)
 
@@ -241,7 +265,7 @@ export function useEww({ id }) {
         for (let j = 0; j < layer.renderables.length; j++) {
             layer.renderables[j].filtered = !filterRenderable(layer.renderables[j],filter)
         }
-        enableRenderables(layer, lastepoch.current, TRAIL_PRODUCT)
+        enableRenderables(layer, lastepoch.current, 0, QLTrail.current)
 
 
         setEwwState((ewwstate) => { return {...ewwstate, tics: tics}})
@@ -333,7 +357,7 @@ export function useEww({ id }) {
 
                 configuration.highlightAttributes = new WorldWind.ShapeAttributes(configuration.attributes);
                 configuration.highlightAttributes.outlineColor = new WorldWind.Color(1, 0, 1, 0.4);
-                configuration.highlightAttributes.interiorColor = new WorldWind.Color(1, 0, 0, 0);
+                configuration.highlightAttributes.interiorColor = new WorldWind.Color(0, 0, 1, 0.4);
                 // configuration.attributes.outlineWidth = 0.3;
 
                 // configuration.attributes.applyLighting = true;
@@ -347,16 +371,17 @@ export function useEww({ id }) {
 
         function setProductTimeRange(productlayer) {
             for(let i=0; i<productlayer.renderables.length; i++) {
-                let visibilityEnd = productlayer.renderables[i].userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStartTime
-                let visibilityStart = new Date(visibilityEnd.getTime() - TRAIL_PRODUCT)
-                productlayer.renderables[i].timeRange = [visibilityStart, visibilityEnd]
+                let acq = productlayer.renderables[i].userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter
+                let start = new Date(acq.acquisitionStartTime.getTime() )
+                let end = new Date(acq.acquisitionStopTime.getTime())
+                productlayer.renderables[i].timeRange = [start, end]
             }
         }
         
         function loadCompleteCallback() {
             // console.log(renderableLayer)
             setProductTimeRange(productlayer)
-            let closestrenderable = enableRenderables(productlayer, epoch, TRAIL_PRODUCT)
+            let closestrenderable = enableRenderables(productlayer, epoch, ProductHead.current, ProductTrail.current)
             let tics = getTics(productlayer)
             // let newtics = []
             // newtics = state.geojson.features.map( (item) => {
@@ -529,7 +554,67 @@ export function useEww({ id }) {
         return test
     }
 
-    function enableRenderables(layer, time, trailduration) {
+    function enableRenderables(layer, time, head, trail) {
+        // console.log('enabling '+time+' ' +head+'/'+trail)
+        // console.log(layer)
+        if(layer.renderables.length === 0) {
+            return null
+        }
+        let closestrenderableindex = -1
+        let lastclosestrenderableindex = -1
+        let lastdistance = 100000000
+
+        for (let j = 0; j < layer.renderables.length; j++) {
+            let start = layer.renderables[j].timeRange[0].getTime()
+            let end = layer.renderables[j].timeRange[1].getTime()
+            let filtered = layer.renderables[j].filtered?layer.renderables[j].filtered:false
+
+
+
+            if ( end  > (time.getTime() - head) && start < (time.getTime() + trail) && !filtered) {
+                layer.renderables[j].enabled = true
+                layer.renderables[j].highlighted = false 
+
+                //find closest in the past
+                if( start <= time.getTime() && Math.abs(start - time.getTime()) < lastdistance) {
+                    // console.log('distance: '+ (start - time))
+                    closestrenderableindex = j
+                    lastclosestrenderableindex = j
+                    lastdistance = Math.abs(start - time.getTime())
+                }
+
+            } else {
+                layer.renderables[j].enabled = false
+                layer.renderables[j].highlighted = false
+            }
+
+                            
+
+        }
+        // console.log('found closest: '+closestrenderableindex)
+        // if(lastclosestrenderableindex !== -1) {
+        //     layer.renderables[lastclosestrenderableindex].enabled = true
+        //     layer.renderables[lastclosestrenderableindex].highlighted = true
+        // }
+
+        // make the closest one always visible 
+        if(closestrenderableindex === -1) closestrenderableindex = layer.renderables.length - 1
+        layer.renderables[closestrenderableindex].enabled = true
+        layer.renderables[closestrenderableindex].highlighted = true
+            // if(lastclosestitemindex.current !== -1) layer.renderables[lastclosestitemindex.current].highlighted = false
+        
+        // } else {
+        //     if(lastclosestrenderableindex !== -1) {
+        //         layer.renderables[lastclosestrenderableindex].enabled = true
+        //         layer.renderables[lastclosestrenderableindex].highlighted = true
+        //     }
+
+        // }
+
+        return (layer.renderables[closestrenderableindex])
+    }
+
+    function enableRenderables_old(layer, time, trailduration) {
         if(layer.renderables.length === 0) {
             return null
         }
@@ -543,7 +628,7 @@ export function useEww({ id }) {
             let renderable = layer.renderables[j]
             if (time !== 0) {
 
-                let visibilityend = renderable.timeRange[1].getTime()
+                let visibilityend = renderable.timeRange[1].getTime() + HEAD_PRODUCT
                 let filtered = layer.renderables[j].filtered?layer.renderables[j].filtered:false
 
                 // find closest
@@ -570,9 +655,16 @@ export function useEww({ id }) {
         // make the closest one always visible 
         if(closestrenderableindex !== -1) {
             layer.renderables[closestrenderableindex].enabled = true
+            layer.renderables[closestrenderableindex].highlighted = true
+            // if(lastclosestitemindex.current !== -1) layer.renderables[lastclosestitemindex.current].highlighted = false
+
         } else {
             closestrenderableindex = oldestrenderableindex
         }
+        console.log('last closest index:'+ lastclosestitemindex.current)
+        console.log('closest index:'+ closestrenderableindex)
+        lastclosestitemindex.current = closestrenderableindex
+
         // make the youngest one visible if closest not found
         // if(time <= oldestrenderableepoch && closestrenderableindex === -1) {
         //     layer.renderables[oldestrenderableindex].enabled = true
@@ -744,12 +836,29 @@ export function useEww({ id }) {
         }
     }
 
-    const addQuicklook = async (renderable) => {
+    const addQuicklook_old = async (renderable) => {
         if(renderable) {
             // add1Quicklook(renderable)
             let prodlayer = getLayerByName('Products')
             let idx = getIndexOfRenderable(renderable,prodlayer)
             // console.log(idx)
+            let j = 0
+            for(let i = idx ; idx < prodlayer.renderables.length && j < 10 ; idx++) {
+                if(!prodlayer.renderables[idx].filtered || prodlayer.renderables[idx].filtered !== true ) {
+                    add1Quicklook(prodlayer.renderables[idx])
+                    j+=1
+                }
+            }
+        }
+    }
+
+    const addQuicklook =  (renderable) => {
+        if(renderable) {
+            // add1Quicklook(renderable)
+            let prodlayer = getLayerByName('Products')
+            let idx = getIndexOfRenderable(renderable,prodlayer)
+            // console.log(idx)
+            abortQLUrls()
             let j = 0
             for(let i = idx ; idx < prodlayer.renderables.length && j < 10 ; idx++) {
                 if(!prodlayer.renderables[idx].filtered || prodlayer.renderables[idx].filtered !== true ) {
@@ -792,7 +901,7 @@ export function useEww({ id }) {
 
             let timerange =[]
             timerange[1] = renderable.timeRange[1]
-            timerange[0] = new Date(timerange[1].getTime() - TRAIL_QUICKLOOK)
+            timerange[0] = renderable.timeRange[0]
             let attributes = renderable.attributes
             let userProperties = renderable.userProperties
             let quicklookLayer = getLayerByName('Quicklooks')
@@ -802,11 +911,16 @@ export function useEww({ id }) {
         }
     }
 
+    function abortQLUrls() {
+        // abort ongoing QL calls
+        for (let i = 0; i < controller.current.length; i++) {
+            controller.current[i].abort()
 
-    function removeQuicklooks() {
-        // to do: abort ongoing QL URL
-        getLayerByName('Quicklooks').removeAllRenderables()
+        }
+        controller.current = []
+    }
 
+    function removeQuicklooks() {        
         // abort ongoing QL calls
         for (let i = 0; i < controller.current.length; i++) {
             controller.current[i].abort()
@@ -814,6 +928,7 @@ export function useEww({ id }) {
         }
         controller.current = []
 
+        getLayerByName('Quicklooks').removeAllRenderables()
 
         eww.current.redraw()
     }
@@ -829,14 +944,14 @@ export function useEww({ id }) {
             getLayerByName('Atmosphere').time = new Date(epoch)
         }
         if(qu.current) {
-            enableRenderables(getLayerByName('Quicklooks'), epoch, TRAIL_QUICKLOOK)
+            enableRenderables(getLayerByName('Quicklooks'), epoch, 0, QLTrail.current)
         }
 
         let closestrenderable = null
-        closestrenderable = enableRenderables(getLayerByName('Products'), epoch, TRAIL_PRODUCT)
+        closestrenderable = enableRenderables(getLayerByName('Products'), epoch, ProductHead.current, ProductTrail.current)
         
         if(qw.current) {
-            enableLayer(getLayerByName('QuicklookWMS'), epoch, TRAIL_QUICKLOOKWMS)
+            enableLayer(getLayerByName('QuicklookWMS'), epoch, 0,  QLTrail.current)
         }
 
         if(sat.current) {
@@ -1094,6 +1209,7 @@ export function useEww({ id }) {
       toggleBg, 
       toggleOv, 
       toggleDem, 
-      northUp 
+      northUp,
+      setMode
     }
 }

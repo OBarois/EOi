@@ -20,15 +20,15 @@ export const AppProvider = ({ children }) => {
   // }, []);
 
 
-  useEffect(() => {
-    console.log('saving session')
-    let savedstate = Object.assign({}, debouncedstate)
-    delete  savedstate.selectedProduct
-    delete  savedstate.closestItem
+  // useEffect(() => {
+  //   console.log('saving session')
+  //   let savedstate = Object.assign({}, debouncedstate)
+  //   delete  savedstate.selectedProduct
+  //   delete  savedstate.closestItem
     
 
-    window.sessionStorage.setItem("eoi_state", JSON.stringify(savedstate));
-  }, [debouncedstate]);
+  //   window.sessionStorage.setItem("eoi_state", JSON.stringify(savedstate));
+  // }, [debouncedstate]);
 
   return (
     <AppContext.Provider value={[ state, dispatch ]}>
