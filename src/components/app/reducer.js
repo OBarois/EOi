@@ -250,8 +250,8 @@ export const reducer = (state, action) => {
             return {
               ...state,
               viewDate: action.value.getTime(),
-              productOn: true,
-              goToDate: null
+              productOn: true
+              // goToDate: null
             }
           }
     

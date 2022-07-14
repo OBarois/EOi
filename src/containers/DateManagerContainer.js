@@ -40,8 +40,8 @@ function DateManagerContainer() {
     }, [state.tics]);
 
     useEffect(() => {
-        console.log('state.goToDate')
-        console.log(state.goToDate)
+        console.log('state.goToDate:')
+        console.log(new Date(state.goToDate))
         setstartdate((state.goToDate === null)?null:new Date(state.goToDate))
     }, [state.goToDate]);
 

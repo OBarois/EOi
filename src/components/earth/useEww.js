@@ -25,7 +25,7 @@ export function useEww({ id }) {
     const TRAIL_QUICKLOOKWMS = 1000 * 60 * 60 * 24 //1 day
 
     const ProductTrail = useRef(1000 * 60 * 60 * 24 * 10000)
-    const QLTrail = useRef(1000 * 60 * 60 * 24)
+    const QLTrail = useRef(1000 * 60 * 60 )
     const ProductHead = useRef(1000 * 60 * 60 * 24 * 10000)
 
     const ZINDEX_QUICKLOOKWMS = 900
@@ -153,12 +153,12 @@ export function useEww({ id }) {
         console.log('set mode'+value)
         if(value === 'point') {
             ProductHead.current = 0
-            ProductTrail.current = 1000 * 60 * 60 * 24 *12
-            QLTrail.current = 1000 * 60 * 60 * 24 *12
+            ProductTrail.current = 1000 * 60 * 60 * 24
+            // QLTrail.current = 1000 * 60 * 60 * 24 *12
         } else {
             ProductHead.current = 1000 * 60 * 60 * 24 * 10000
             ProductTrail.current =  1000 * 60 * 60 * 24 * 10000
-            QLTrail.current = 1000 * 60 * 60 * 24 
+            // QLTrail.current = 1000 * 60 * 60 * 24 
         }
 
     }
@@ -564,14 +564,15 @@ export function useEww({ id }) {
         let lastclosestrenderableindex = -1
         let lastdistance = 100000000
 
+        let start, end, filtered
         for (let j = 0; j < layer.renderables.length; j++) {
-            let start = layer.renderables[j].timeRange[0].getTime()
-            let end = layer.renderables[j].timeRange[1].getTime()
-            let filtered = layer.renderables[j].filtered?layer.renderables[j].filtered:false
+            start = layer.renderables[j].timeRange[0].getTime()
+            end = layer.renderables[j].timeRange[1].getTime()
+            filtered = layer.renderables[j].filtered?layer.renderables[j].filtered:false
 
 
 
-            if ( end  > (time.getTime() - head) && start < (time.getTime() + trail) && !filtered) {
+            if ( end  >= (time.getTime() - trail) && start < (time.getTime() + head) && !filtered) {
                 layer.renderables[j].enabled = true
                 layer.renderables[j].highlighted = false 
 

@@ -16,7 +16,6 @@ const Earth = ({ id }) => {
     const [ state, dispatch ] = React.useContext(AppContext)
 
 
-    const debouncedclosestItem = useDebounce(state.closestItem, 200)
 
     const handleSimpleClick = (e) => {
         let selection = getRenderables(e.pageX,e.pageY)
@@ -57,6 +56,9 @@ const Earth = ({ id }) => {
         id: id,
     })
 
+    const debouncedclosestItem = useDebounce(state.closestItem, 500)
+
+
     useKey(['p'],() => dispatch({ type: "toggle_projection" }))
     useKey(['c'],removeGeojson)
     useKey(['u'],northUp)
@@ -77,10 +79,6 @@ const Earth = ({ id }) => {
         dispatch({ type: "set_searchPoint", value: ewwstate.viewpoint})
     },[ewwstate.viewpoint])
 
-    useEffect(() => {
-        console.log('closest item changed')
-        dispatch({ type: "set_closestitem", value: ewwstate.closestRenderable})
-    },[ewwstate.closestRenderable])
 
     useEffect(() => {
         dispatch({ type: "set_tics", value: ewwstate.tics})
@@ -158,7 +156,13 @@ const Earth = ({ id }) => {
     }, [state.mapSettings.quicklooks]);
 
     useEffect(() => {
+        console.log('closest item changed')
+        dispatch({ type: "set_closestitem", value: ewwstate.closestRenderable})
+    },[ewwstate.closestRenderable])
+
+    useEffect(() => {
         if(state.mapSettings.quicklooks)
+        console.log('adding QL')
             addQuicklook(debouncedclosestItem)
     }, [debouncedclosestItem]);
 
