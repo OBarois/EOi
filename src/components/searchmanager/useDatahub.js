@@ -172,12 +172,14 @@ export default function useDatahub()  {
     }
 
     const abort = () => {
-        if(controller) {
+        if(controller && controller.current) {
             controller.current.abort()
         }
     }
 
     const search = ({searchdate, mission, searchpoint}) => {
+        console.log(' in search')
+        console.log(searchdate+' / '+ mission+' / '+ searchpoint)
         let startdate, enddate = ''
         let target = getcollection(mission)
         if(!target) return null

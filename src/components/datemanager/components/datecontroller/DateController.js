@@ -8,6 +8,7 @@ import roundFastForward from '@iconify-icons/ic/round-fast-forward';
 import roundFastRewind from '@iconify-icons/ic/round-fast-rewind';
 
 import roundPlayArrow from '@iconify-icons/ic/round-play-arrow';
+import roundPause from '@iconify-icons/ic/round-pause';
 
 import useHandleDoubleTap from '../../../../hooks/useHandleDoubleTap'
 
@@ -81,12 +82,14 @@ function DateController({startdate, onDateChange, onStateChange, animated}) {
 
     return (
         <div className='DateController ' >
-                <Icon icon={roundFastRewind} onClick={decreaseSpeed} className='smallcontrolbutton shadow Backward' style={{display:playing?'block':'none'}}/>
                 <div className={speed>0?'':'flipped'}>
-                    <Icon icon={roundPlayArrow} onClick={handleTap} className='controlbutton shadow'/>
+                    <Icon icon={playing?roundPause:roundPlayArrow} onClick={handleTap} className='controlbutton shadow'/>
                 </div>
-                <span className='Speed' style={{display:playing?'block':'none'}}>x{Math.abs(speed)}</span>
-                <Icon icon={roundFastForward} onClick={increaseSpeed} className='smallcontrolbutton shadow Forward' style={{display:playing?'block':'none'}}/>
+                <div className='speedbar'>
+                    <Icon icon={roundFastRewind} onClick={decreaseSpeed} className='smallcontrolbutton shadow Backward' style={{display:playing?'block':'none'}}/>
+                    <span className='Speed' style={{display:playing?'block':'none'}}>x{Math.abs(speed)}</span>
+                    <Icon icon={roundFastForward} onClick={increaseSpeed} className='smallcontrolbutton shadow Forward' style={{display:playing?'block':'none'}}/>
+                </div>
         </div>
     )
 }

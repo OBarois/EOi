@@ -98,6 +98,20 @@ export const reducer = (state, action) => {
             // resultDesc: {...state.resultDesc, totalLoaded: action.value.totalLoaded, totalResults: action.value.totalResults}
           }
     
+          case "onSearchStart":
+            console.log('onSearchStart')
+            console.log(action.value)
+          return {
+            ...state,
+            tics: [],
+            clearResultsTrigger: Math.random(),
+            resultDesc: {totalResults:0, totalLoaded:0 },
+            closestItem: null,
+            browseMode: state.searchMode,
+            searching: true
+            // resultDesc: {...state.resultDesc, totalLoaded: action.value.totalLoaded, totalResults: action.value.totalResults}
+          }
+    
           case "onSearchComplete":
             console.log('onSearchComplete')
             console.log(action.value)
@@ -105,31 +119,26 @@ export const reducer = (state, action) => {
               return {
                 ...state,
                 resultDesc: action.value,
-                goToDate: !state.animated ? action.value.firstResultDate.getTime() :  action.value.lastResultDate.getTime()
+                searching: false
+                // goToDate: !state.animated ? action.value.firstResultDate.getTime() :  action.value.lastResultDate.getTime()
                 // resultDesc: {...state.resultDesc, totalLoaded: action.value.totalLoaded, totalResults: action.value.totalResults}
               }
             } else {
               return {
                 ...state,
                 resultDesc: action.value,
-                goToDate: !state.animated ? state.goToDate :  action.value.lastResultDate.getTime()
+                searching: false
+                // goToDate: !state.animated ? state.goToDate :  action.value.lastResultDate.getTime()
                 // resultDesc: {...state.resultDesc, totalLoaded: action.value.totalLoaded, totalResults: action.value.totalResults}
               }
 
             }
-      // if(altitude > pointSearchMaxAltitude) {
-      //   setgoToDate(!animated?searchDesc.firstResultDate:searchDesc.lastResultDate)
-      // } else {
-      //   if(animated) setgoToDate(searchDesc.lastResultDate)
-      // }
-      // setresultDesc(()=>{return {...resultDesc, ...searchDesc}})
-
       
 
           case "set_selectedProduct":
             console.log('set_selectedProduct:')
             // console.log(action.value)
-            if(state.selectedProduct !== null && action.value === state.selectedProduct) {
+            if(state.selectedProduct != null && action.value === state.selectedProduct) {
               return {
                 ...state,
                 selectedProduct: action.value,
@@ -147,9 +156,6 @@ export const reducer = (state, action) => {
           
 
             case "set_closestitem":
-              console.log('set_closestitem')
-              console.log(action.value)
-              // if (action.value) action.value._highlighted = true
               if(!action.value) return state
               return {
                 ...state,
@@ -196,7 +202,7 @@ export const reducer = (state, action) => {
 
           case "gotoclosestitem":
             // console.log('gotoclosestitem')
-            if(state.closestItem === null || state.closestItem._sector === null) return state
+            if(state.closestItem == null || state.closestItem._sector == null) return state
             console.log(state)
           return {
             ...state,
@@ -271,6 +277,7 @@ export const reducer = (state, action) => {
           return {
             ...state,
             tics: [],
+            resultDesc: {totalResults:0, totalLoaded:0 },
             clearResultsTrigger: Math.random()
           }
     
@@ -303,6 +310,7 @@ export const reducer = (state, action) => {
   let init_date = new Date()
   export const initialState = {
     active: false,
+    searching: false,
     // mission: 'S1A_IW_RAW__0SDV',
     mission: 'S1A',
     altitude: '5000000',
@@ -317,12 +325,13 @@ export const reducer = (state, action) => {
       lat: 0,
       lon: 0
     },
-    searchDate: init_date.getTime(),
+    searchDate: null,
     resetStartDateTrigger: null,
     pointSearchMaxAltitude: 3000000,
     selectedProduct: null,
     searchPoint: 'POINT(40 0)',
     searchMode: 'global',
+    browseMode: 'global',
     geojson: null,
     filter: [],
     closestItem: null,

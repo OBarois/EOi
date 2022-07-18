@@ -151,16 +151,24 @@ export function useEww({ id }) {
 
     function setMode(value) {
         console.log('set mode'+value)
-        if(value === 'point') {
-            ProductHead.current = 0
-            ProductTrail.current = 1000 * 60 * 60 * 24
-            // QLTrail.current = 1000 * 60 * 60 * 24 *12
-        } else {
-            ProductHead.current = 1000 * 60 * 60 * 24 * 10000
-            ProductTrail.current =  1000 * 60 * 60 * 24 * 10000
-            // QLTrail.current = 1000 * 60 * 60 * 24 
+        switch (value) {
+            case "point":
+                ProductHead.current = 0
+                ProductTrail.current = 1000 * 60 * 60 * 24
+                // QLTrail.current = 1000 * 60 * 60 * 24 *12
+                break;
+            case "global":
+                ProductHead.current = 1000 * 60 * 60 * 24 * 10000
+                ProductTrail.current =  1000 * 60 * 60 * 24 * 10000
+                break;
+            case "animated":
+                ProductHead.current = 0
+                ProductTrail.current =  1000 * 60 * 60 * 24 * 10000
+                break;
+            default:
+                ProductHead.current = 1000 * 60 * 60 * 24 * 10000
+                ProductTrail.current =  1000 * 60 * 60 * 24 * 10000
         }
-
     }
 
 
@@ -353,12 +361,14 @@ export function useEww({ id }) {
             } else if (geometry.isPolygonType() || geometry.isMultiPolygonType()) {
                 configuration.attributes = new WorldWind.ShapeAttributes(null);
                 configuration.attributes.interiorColor = new WorldWind.Color(1, 0, 0, 0.2);
-                configuration.attributes.outlineColor = new WorldWind.Color(1, 0, 0, 0.3);
+                configuration.attributes.outlineColor = new WorldWind.Color(1, 0, 1, 0.3);
+                configuration.attributes.outlineWidth = 5;
 
                 configuration.highlightAttributes = new WorldWind.ShapeAttributes(configuration.attributes);
-                configuration.highlightAttributes.outlineColor = new WorldWind.Color(1, 0, 1, 0.4);
-                configuration.highlightAttributes.interiorColor = new WorldWind.Color(0, 0, 1, 0.4);
-                // configuration.attributes.outlineWidth = 0.3;
+                configuration.highlightAttributes.outlineColor = new WorldWind.Color(1, 0, 0, 1);
+                configuration.highlightAttributes.interiorColor = new WorldWind.Color(1, 0, 0, 1);
+                configuration.highlightAttributes.outlineWidth = 5;
+                // configuration.attributes.drawOutline = true
 
                 // configuration.attributes.applyLighting = true;
                 // configuration.attributes.imageSource = properties.quicklookUrl
@@ -531,7 +541,7 @@ export function useEww({ id }) {
                 newtics.push(layer.renderables[i].userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStartTime.getTime())
             }
         }
-        console.log(newtics)
+        // console.log(newtics)
         return newtics
     }
 
@@ -561,8 +571,7 @@ export function useEww({ id }) {
             return null
         }
         let closestrenderableindex = -1
-        let lastclosestrenderableindex = -1
-        let lastdistance = 100000000
+        let lastdistance = 99999999999999999
 
         let start, end, filtered
         for (let j = 0; j < layer.renderables.length; j++) {
@@ -572,45 +581,30 @@ export function useEww({ id }) {
 
 
 
-            if ( end  >= (time.getTime() - trail) && start < (time.getTime() + head) && !filtered) {
+            if ( end  >= (time.getTime() - trail) && start <= (time.getTime() + head) && !filtered) {
                 layer.renderables[j].enabled = true
                 layer.renderables[j].highlighted = false 
-
-                //find closest in the past
-                if( start <= time.getTime() && Math.abs(start - time.getTime()) < lastdistance) {
-                    // console.log('distance: '+ (start - time))
-                    closestrenderableindex = j
-                    lastclosestrenderableindex = j
-                    lastdistance = Math.abs(start - time.getTime())
-                }
-
             } else {
                 layer.renderables[j].enabled = false
                 layer.renderables[j].highlighted = false
             }
 
+            //find closest in the past
+            if( start <= time.getTime() && Math.abs(start - time.getTime()) < lastdistance && !filtered) {
+                closestrenderableindex = j
+                lastdistance = Math.abs(start - time.getTime())
+            }
                             
 
         }
-        // console.log('found closest: '+closestrenderableindex)
-        // if(lastclosestrenderableindex !== -1) {
-        //     layer.renderables[lastclosestrenderableindex].enabled = true
-        //     layer.renderables[lastclosestrenderableindex].highlighted = true
-        // }
 
+        if(closestrenderableindex === -1) {
+            console.log("closest not found")
+            closestrenderableindex = layer.renderables.length - 1
+        }
         // make the closest one always visible 
-        if(closestrenderableindex === -1) closestrenderableindex = layer.renderables.length - 1
         layer.renderables[closestrenderableindex].enabled = true
         layer.renderables[closestrenderableindex].highlighted = true
-            // if(lastclosestitemindex.current !== -1) layer.renderables[lastclosestitemindex.current].highlighted = false
-        
-        // } else {
-        //     if(lastclosestrenderableindex !== -1) {
-        //         layer.renderables[lastclosestrenderableindex].enabled = true
-        //         layer.renderables[lastclosestrenderableindex].highlighted = true
-        //     }
-
-        // }
 
         return (layer.renderables[closestrenderableindex])
     }
@@ -655,6 +649,7 @@ export function useEww({ id }) {
         }
         // make the closest one always visible 
         if(closestrenderableindex !== -1) {
+            console.log('closet not found')
             layer.renderables[closestrenderableindex].enabled = true
             layer.renderables[closestrenderableindex].highlighted = true
             // if(lastclosestitemindex.current !== -1) layer.renderables[lastclosestitemindex.current].highlighted = false

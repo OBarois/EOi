@@ -49,7 +49,7 @@ function DateManagerContainer() {
     // console.log(startDate)
 
     return (
-        <DateManager onDateChange={handleDateChanged} onFinalDateChange={handleFinalDate} startdate={startdate} tics={tics} onStateChange={handleStateChange} animated={state.animated}/> 
+        <DateManager onDateChange={handleDateChanged} onFinalDateChange={handleFinalDate} startdate={startdate} tics={tics} onStateChange={handleStateChange} animated={state.animated} searching={state.searching}/> 
      )
 }
 

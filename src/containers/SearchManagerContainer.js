@@ -20,18 +20,19 @@ const SearchManagerContainer = () => {
     }, [])
     
     const handleSearchStart = useCallback ( () => {
-      dispatch({ type: "clear_results", value: Math.random()})
+      dispatch({ type: "onSearchStart", value: Math.random()})
     }, [])
     
     const handleSearchComplete =  (searchDesc) => {
       dispatch({ type: "onSearchComplete", value: searchDesc})
     }
 
-
+// to do: pass credentials from state
     return (
         <SearchManager 
           searchdate={new Date(state.searchDate)} 
           searchpoint={debouncedsearchPoint} 
+          searchmode={state.searchMode}
           mission={state.mission} 
           altitude={debouncedaltitude} 
           onSearchStart={handleSearchStart}

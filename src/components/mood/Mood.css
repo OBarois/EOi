@@ -1,0 +1,14 @@
+.Mood {
+    position: fixed;
+    top: -3px;
+    left:50%;
+    color: var(--color);
+    width: 60px;
+    height: 60px;
+    font-size: 30px;
+  }
+.offset {
+  position: absolute;
+  left:-8px;
+}
+  

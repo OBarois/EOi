@@ -41,7 +41,13 @@
   border-color: var(--colort);
   
   background: var(--colort);
-  padding:0.03em 0.15em;
+  padding:0.03em 0.05em;
+}
+.NotHighlighted{
+  border-style: solid;
+  border-width: 0px; 
+  border-radius: 30%;
+  padding:0.03em 0.05em;
 }
 
 .Greyedout {

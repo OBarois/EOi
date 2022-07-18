@@ -21,6 +21,7 @@ const Earth = ({ id }) => {
         let selection = getRenderables(e.pageX,e.pageY)
         if (selection.length === 0) return
         // selection[0].highlighted = true
+        console.log('items clicked: '+selection.length)
         dispatch({type: 'set_selectedProduct', value: selection[0]})
     }
 
@@ -156,7 +157,7 @@ const Earth = ({ id }) => {
     }, [state.mapSettings.quicklooks]);
 
     useEffect(() => {
-        console.log('closest item changed')
+        // console.log('closest item changed')
         dispatch({ type: "set_closestitem", value: ewwstate.closestRenderable})
     },[ewwstate.closestRenderable])
 
@@ -179,8 +180,12 @@ const Earth = ({ id }) => {
     }, [state.addQuicklookWMSTrigger]);
  
     useEffect(() => {
-            setMode(state.searchMode)
-    }, [state.searchMode]);
+        if(state.animated) {
+            setMode('animated')
+        } else {
+            setMode(state.browseMode)
+        }
+    }, [state.browseMode, state.animated]);
  
     
     useEffect(() => {

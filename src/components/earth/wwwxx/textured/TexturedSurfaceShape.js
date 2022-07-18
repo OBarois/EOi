@@ -130,7 +130,7 @@ export default class TexturedSurfaceShape extends SurfaceShape {
             }
         }
 
-        if (this._image && !dc.pickingMode && !this.crossesAntiMeridian && !this.containsPole) {
+        if (this._image && !dc.pickingMode && !this.crossesAntiMeridian && !this.containsPole ) {
             if (!this._contoursPrepered) {
                 if (interiorGeometry.length === 1) {
                     const {anglesMap, topLeftIndex} = this.getCorners(interiorGeometry[0], this._contoursInfo[0].wo);
@@ -210,7 +210,7 @@ export default class TexturedSurfaceShape extends SurfaceShape {
         }
     }
 
-    renderColor(dc, {tileWidth, tileHeight, xScale, yScale, dx, dy, drawInterior, interiorColor}) {
+    renderColor(dc, {tileWidth, tileHeight, xScale, yScale, dx, dy, drawInterior, interiorColor, drawOutline, outlineColor}) {
         if (!this.tessGeom) {
             this.tessGeom = this.tessellate(this._interiorGeometry);
             this.tessTris = new Float32Array(this.tessGeom.length);
@@ -250,12 +250,24 @@ export default class TexturedSurfaceShape extends SurfaceShape {
             }
         }
 
-        //if (drawOutline || true) {
-        /*program.loadColor(gl, attributes.outlineColor);
-        this.bindOutlineVbo(dc, new Float32Array(outlineGeometry[0]), null);
-        gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-        gl.drawArrays(gl.LINE_STRIP, 0, Math.floor(outlineGeometry[0].length / 2));*/
-        //}
+        // if (drawOutline || true) {
+        //     program.loadColor(gl, outlineColor);
+        //     // console.log(this._outlineGeometry[0])
+        //     let outline = []
+        //     let interiorGeometry = this.mapGeometry(this._interiorGeometry, xScale, yScale, dx, dy)
+        //     for (var i = 0; i < interiorGeometry[0].length; i += 2) {
+        //         var x = interiorGeometry[0][i];
+        //         var y = interiorGeometry[0][i + 1];
+        //         outline.push(x * Angle.RADIANS_TO_DEGREES * xScale + dx)
+        //         outline.push(y * Angle.RADIANS_TO_DEGREES * yScale + dy)
+        //         outline.push(0)
+        //     }
+
+
+        //     this.bindOutlineVbo(dc, new Float32Array(outline), null);
+        //     gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+        //     gl.drawArrays(gl.LINE_STRIP, 0, Math.floor(outline.length / 2));
+        // }
     }
 
     renderTexture(dc, {points, tileWidth, tileHeight, xScale, yScale, dx, dy, anglesMap, topLeftIndex}) {
@@ -445,7 +457,6 @@ export default class TexturedSurfaceShape extends SurfaceShape {
         if (!this._interiorVboCacheKey) {
             this._interiorVboCacheKey = dc.gpuResourceCache.generateCacheKey();
         }
-
         this.bindVbo(dc, vboData, vboUsage, this._interiorVboCacheKey);
     }
 
@@ -454,7 +465,6 @@ export default class TexturedSurfaceShape extends SurfaceShape {
         if (!this._outlineVboCacheKey) {
             this._outlineVboCacheKey = dc.gpuResourceCache.generateCacheKey();
         }
-
         this.bindVbo(dc, vboData, vboUsage, this._outlineVboCacheKey);
     }
 
@@ -471,6 +481,7 @@ export default class TexturedSurfaceShape extends SurfaceShape {
             vbo = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
             gl.bufferData(gl.ARRAY_BUFFER, vboData, vboUsage);
+
             dc.gpuResourceCache.putResource(cacheKey, vbo, vboData.length * vboData.BYTES_PER_ELEMENT);
         }
         else {

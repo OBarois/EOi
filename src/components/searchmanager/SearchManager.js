@@ -12,7 +12,7 @@ import outlineRefresh from '@iconify-icons/ic/outline-refresh';
 
 
 
-function SearchManager({searchdate, searchpoint, mission, altitude, onSearchStart, onPageSearch, onSearchComplete}) {
+function SearchManager({searchdate, searchpoint, searchmode, mission, altitude, onSearchStart, onPageSearch, onSearchComplete}) {
 
 
     const [ searching, setsearching ] = useState(false);
@@ -71,6 +71,9 @@ function SearchManager({searchdate, searchpoint, mission, altitude, onSearchStar
     }, [loading]);
 
     useEffect(() => {
+        console.log('serchtrigger')
+        console.log(searchtrigger)
+        if(!searchtrigger) return
         if(loading) {
             abort()
         } else {
@@ -90,13 +93,13 @@ function SearchManager({searchdate, searchpoint, mission, altitude, onSearchStar
         // console.log('set param')
         let sd = searchdate
         let sp = searchpoint
-        if(altitude > 3000000) {
+        if(searchmode === 'global') {
             sp = null
         } else {
             sd = null
         }
         setparam((param)=>{ return {...param, searchdate: sd, mission: mission, searchpoint: sp }})
-    }, [searchdate, mission, searchpoint, altitude]);
+    }, [searchdate, mission, searchpoint, altitude, searchmode]);
 
     //console.log('mission rendering')
     return (
