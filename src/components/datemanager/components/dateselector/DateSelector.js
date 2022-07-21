@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react'
+import React, {useState, useEffect, useRef, useCallback} from 'react'
 import {useSpring} from 'react-spring'
 import { useGesture } from 'react-use-gesture'
 // import { add, scale } from 'vec-la'
@@ -10,7 +10,7 @@ import DateSelectorScale from './DateSelectorScale'
 import './DateSelector.css';
 // import { start } from 'repl';
 
-function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, onFinalDateChange, onStepChange}) {
+function DateSelector({startdate, resetToStartDateTrigger, tics, gotoscalezoom, onDateChange, onFinalDateChange, onStepChange, leftHanded}) {
 
 
     // const [ setlog, renderlog] = useLog()
@@ -29,7 +29,6 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
     const [scaledate, setScaledate ] = useState(startdate)
     // const debouncedScaledate = useDebounce(scaledate, 10);
 
-    // const [lastStartdate, setlLastStartdate ] = useState(startdate)
     
     const isActive = useRef(false)
     const [step, setStep ] = useState([60000])
@@ -144,7 +143,7 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
 
         onDrag: ({  event, active, first, down, touches, offset, delta, initial, distance, velocity, direction, shiftKey, ctrlKey, xy, movement,vxvy, wheeling}) => {
             event.preventDefault()
-        if (first) {
+            if (first) {
                 setyOnWheel.stop()
                 detectDoubleTap(event)
                 startingdate.current = discreetdate.current
@@ -152,6 +151,8 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
 
    
             }
+
+
 
             // setlog2({velocity1: velocity})
             velocity = (velocity < 0.2)?0:velocity
@@ -162,7 +163,6 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
                 // if (zoom > MAXZOOM) zoom = MAXZOOM
                 // setZoomfactor(zoom)
                 // lastZoom.current = zoom
-
 
                 handleZoom(delta,down,velocity,false)
                 // handleZoom2(delta,down,velocity,offset,wheeling,movement,vxvy)
@@ -281,7 +281,7 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
     // }
 
     const [{ xy2 }, sety2] = useSpring(() => ({ xy2: [0,0] }))
-    const moveToDate = (newdate) => {
+    const moveToDate = useCallback( (newdate) => {
         // console.log('go from: '+discreetdate.current.toJSON()+' to: '+newdate.toJSON())
         if(newdate.getTime() === discreetdate.current.getTime()) return
         let fromtime = discreetdate.current.getTime()
@@ -313,13 +313,46 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
             })
         // }
 
-    }
+    }, [])
 
     useEffect(() => {
         if(!isActive.current) {
             moveToDate(startdate)
         } 
-    },[startdate])
+    },[startdate, moveToDate])
+
+    useEffect(() => {
+        if(gotoscalezoom) setZoomfactor(gotoscalezoom)
+        switch (gotoscalezoom) {
+            case 'year':
+                setZoomfactor(1029135270)
+                lastZoom.current = 1029135270
+                break
+            case 'month':
+                setZoomfactor(167184283)
+                lastZoom.current = 167184283
+                break
+            case 'day':
+                setZoomfactor(17046262)
+                lastZoom.current = 17046262
+                break
+            case 'hour':
+                setZoomfactor(735260)
+                lastZoom.current = 735260
+                break
+            case 'minute':
+                setZoomfactor(32276)
+                lastZoom.current = 32276
+                break
+            case 'second':
+                setZoomfactor(1058)
+                lastZoom.current = 1058
+                break
+        }
+
+    },[gotoscalezoom])
+
+
 // },[startdate, resetToStartDateTrigger])
 
     // useEffect(() => {
@@ -335,8 +368,13 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
         onStepChange(stepLabel)
     },[stepLabel,onStepChange])
 
+    // useEffect(() => {
+    //     setlefthanded(stepLabel)
+    // },[leftHanded])
+
     
     useEffect(() => {
+        // console.log(zoomfactor)
         switch (true) {
             case zoomfactor > 120426316:
                 setStep([
@@ -382,13 +420,13 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, onDateChange, o
 
     return (
         <div>
-            <div className='DateSelector' ref={selector} >
-            <div {...bind()} className="touchMask"> </div>
+            <div className={leftHanded?'DateSelectorL':'DateSelector'} ref={selector} >
+            <div {...bind()} className={leftHanded?"touchMaskL":"touchMask"}> </div>
             <div className="Mask"  >
 
-                    <DateSelectorScale className='scale' date={scaledate} zoomfactor={zoomfactor} resulttics={tics}></DateSelectorScale>
+                    <DateSelectorScale className={leftHanded?'scale lefthanded':'scale'} date={scaledate} zoomfactor={zoomfactor} resulttics={tics} lefthanded={leftHanded}></DateSelectorScale>
                     
-                    <div className="TriangleContainer" >
+                    <div className={leftHanded?'TriangleContainerL':'TriangleContainer'} >
                         <svg height="40" width="20" className="Triangle">
                             <polygon points="20,5 20,35 12,20" />   
                         </svg> 

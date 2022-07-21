@@ -396,9 +396,8 @@ export const FluidWorldWindowController = memo( ({world, onSimpleClick}) => {
     const handlepan2d = (event,initial,down,delta,offset,movement,velocity, direction, xy, previous,first,wheeling) => {
         let enabler = 1
         if (!down) enabler = (velocity < 0.2)?0:1
-        let correction = (event.type === 'touchmove')?1:2.5
+        let correction = (event.type === 'touchmove')?1:1
         // logdebug({pinching: pinching})
-
         panspring.start({
             panvalue: delta,
             // to: {panvalue: (down)?movement:add(movement,scale(movement,velocity))},
@@ -471,8 +470,8 @@ export const FluidWorldWindowController = memo( ({world, onSimpleClick}) => {
 
         let enabler = 1
         if (!down) enabler = (velocity < 0.2)?0:1
-        let correction = (event.type === 'touchmove')?1:2.5
-        if(!down) correction *= 0.5
+        let correction = (event.type === 'touchmove')?1:1
+        if(!down) correction *= 1
 
         panspring.start({
             panvalue: delta,
@@ -540,7 +539,7 @@ export const FluidWorldWindowController = memo( ({world, onSimpleClick}) => {
             onChange: ()=>{
                     // logdebug({rangefactor: spring.value.range})
                     // let rangefactor = (enabler === 0)?1:range.get()[0]
-                    let rangefactor = (enabler === 0)?1:1-range.get()[1]/(wheeling?700:300)
+                    let rangefactor = (enabler === 0)?1:1-range.get()[1]/(wheeling?300:300)
                     moveZoom(gesturestartposition.current,rangefactor)
                     world.current.navigator.range *= rangefactor
                     applyLimits()
@@ -696,7 +695,7 @@ export const FluidWorldWindowController = memo( ({world, onSimpleClick}) => {
             world.current.globe.elevationAtLocation(nav.lookAtLocation.latitude, nav.lookAtLocation.longitude) + EYE_ALT, 
             MAX_ALT 
         )
-        nav.tilt = WorldWind.WWMath.clamp(nav.tilt,0,60)
+        nav.tilt = WorldWind.WWMath.clamp(nav.tilt,0,80)
         // logdebug({
         //     range: nav.range, 
         //     lookAtlat: nav.lookAtLocation.latitude, 

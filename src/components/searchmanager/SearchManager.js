@@ -12,7 +12,7 @@ import outlineRefresh from '@iconify-icons/ic/outline-refresh';
 
 
 
-function SearchManager({searchdate, searchpoint, searchmode, mission, altitude, onSearchStart, onPageSearch, onSearchComplete}) {
+function SearchManager({searchdate, searchpoint, searchmode, credentials, mission, altitude, onSearchStart, onPageSearch, onSearchComplete, on401, lefthanded}) {
 
 
     const [ searching, setsearching ] = useState(false);
@@ -27,7 +27,7 @@ function SearchManager({searchdate, searchpoint, searchmode, mission, altitude, 
 
 
 
-    const { geojsonResults, loading, search, abort } = useDatahub({});
+    const { geojsonResults, loading, status, search, abort } = useDatahub({});
     
     const {handleTap} = useHandleDoubleTap( ()=>{setsearchtrigger(Math.random())}, onSearchStart )
 
@@ -68,12 +68,17 @@ function SearchManager({searchdate, searchpoint, searchmode, mission, altitude, 
                 totalLoaded: totalloaded.current
             })
         }
-    }, [loading]);
+    }, [loading])
 
     useEffect(() => {
-        console.log('serchtrigger')
+        console.log('status: '+status)
+        if(status !== '') on401(status)
+    }, [status]);
+
+    useEffect(() => {
+        console.log('searchtrigger')
         console.log(searchtrigger)
-        if(!searchtrigger) return
+        if(!searchtrigger || searchtrigger == 0) return
         if(loading) {
             abort()
         } else {
@@ -83,7 +88,7 @@ function SearchManager({searchdate, searchpoint, searchmode, mission, altitude, 
             totalresults.current = 0
 
             onSearchStart()
-            search(param)    
+            search(param,credentials)    
         }
 
     }, [searchtrigger]);
@@ -101,14 +106,13 @@ function SearchManager({searchdate, searchpoint, searchmode, mission, altitude, 
         setparam((param)=>{ return {...param, searchdate: sd, mission: mission, searchpoint: sp }})
     }, [searchdate, mission, searchpoint, altitude, searchmode]);
 
+
     //console.log('mission rendering')
     return (
-        <div>
-            <div className={searching === true?'SearchController Active':'SearchController'} onClick={handleTap}>
+            <div className={(searching === true?'SearchController Active':'SearchController')+ (lefthanded?' lefthanded':'')} onClick={handleTap}>
                 {/* {searching === true?<Icon icon={outlineSync} width='50px'/>:<span/>} */}
                 <Icon icon={outlineRefresh} width='50px'/>
             </div>
-        </div>
     )
 }
 

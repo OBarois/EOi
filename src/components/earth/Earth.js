@@ -52,12 +52,14 @@ const Earth = ({ id }) => {
         setFilter,
         toggleDem,
         northUp,
-        setMode
+        setMode,
+        setColor
     } = useEww({
-        id: id,
+        id: id
     })
 
     const debouncedclosestItem = useDebounce(state.closestItem, 500)
+    // const debouncedewwstate = useDebounce(ewwstate, 100)
 
 
     useKey(['p'],() => dispatch({ type: "toggle_projection" }))
@@ -73,17 +75,27 @@ const Earth = ({ id }) => {
     useKey(['n'],() => dispatch({ type: "toggle_names" }))
 
     useEffect(() => {
-        dispatch({ type: "altitude_changed", value: ewwstate.altitude})
-    },[ewwstate.altitude])
+        // console.log('set_altitude')
+        if(ewwstate.altitude) {
+            // console.log('set_altitude: '+ewwstate.altitude)
+            dispatch({ type: "set_altitude", value: ewwstate.altitude})
+        }
+    },[ewwstate.altitude, dispatch])
 
     useEffect(() => {
+        // console.log('set_searchPoint')
         dispatch({ type: "set_searchPoint", value: ewwstate.viewpoint})
-    },[ewwstate.viewpoint])
+    },[ewwstate.viewpoint, dispatch])
+
+    useEffect(() => {
+        // console.log('set_position')
+        dispatch({ type: "set_position", value: {lat:ewwstate.latitude, lon:ewwstate.longitude}})
+    },[ewwstate.longitude, ewwstate.latitude, dispatch])
 
 
     useEffect(() => {
         dispatch({ type: "set_tics", value: ewwstate.tics})
-    },[ewwstate.tics])
+    },[ewwstate.tics, dispatch])
 
 
 
@@ -92,6 +104,11 @@ const Earth = ({ id }) => {
     },[state.viewDate])
 
     useEffect(() => {
+        setColor(state.appColor)
+    },[state.appColor])
+
+    useEffect(() => {
+        if(!state.productOn) return
         toggleGeojson(state.productOn)
         toggleQuicklooks(state.productOn)
         toggleQuicklookWMS(!state.productOn)
@@ -122,6 +139,7 @@ const Earth = ({ id }) => {
 
     useEffect(() => {
         toggleAtmosphere(state.mapSettings.atmosphere)
+        setTime()
     }, [state.mapSettings.atmosphere]);
 
     useEffect(() => {
@@ -130,6 +148,8 @@ const Earth = ({ id }) => {
 
     useEffect(() => {
         toggleStarfield(state.mapSettings.starfield)
+        setTime()
+
     }, [state.mapSettings.starfield]);
 
     useEffect(() => {
@@ -164,12 +184,12 @@ const Earth = ({ id }) => {
     useEffect(() => {
         if(state.mapSettings.quicklooks)
         console.log('adding QL')
-            addQuicklook(debouncedclosestItem)
+            addQuicklook(debouncedclosestItem, state.credentials)
     }, [debouncedclosestItem]);
 
     useEffect(() => {
-        if(state.closestItem !== null && state.goToPos !== null) {
-            moveTo(state.goToPos.lat, state.goToPos.lon)
+        if(state.closestItem != null && state.goToPos != null) {
+            moveTo(state.goToPos.lat, state.goToPos.lon, state.goToPos.alt)
         }
     }, [state.goToPos])
  
@@ -204,8 +224,8 @@ const Earth = ({ id }) => {
                 projection: state.mapSettings.projection,
                 dem: state.mapSettings.dem
             })
-    
-            moveTo(state.position.clat, state.position.clon, state.altitude) 
+            setTime(new Date(state.viewDate))
+            // moveTo(state.position.clat, state.position.clon, state.altitude) 
         }, 1000)
 
     }, []);
@@ -240,8 +260,8 @@ const Earth = ({ id }) => {
             <canvas id={id} className={'Earth'} />
             <FluidWorldWindowController world={eww} onSimpleClick={handleSimpleClick}/>
             <LookAtWidget active={(state.searchMode === 'point')}/>
-            <ViewProductControl active={state.closestItem !== null}/>
-            <FilterProductControl active={state.closestItem !== null}/>
+            <ViewProductControl active={state.closestItem != null}/>
+            <FilterProductControl active={state.closestItem != null}/>
             {/* <InfoPanel top= '100px' left= '5px'>
                 <div className='Quiklook'><img src={QLimage?QLimage.src:''}  alt='' width='150px'/></div>
             </InfoPanel> */}

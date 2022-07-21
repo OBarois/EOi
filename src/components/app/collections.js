@@ -209,7 +209,7 @@ export const collections = [
         type: 'PRIP',
         dateOff: '%20and%20ContentDate/Start%20gt%20{start}%20and%20ContentDate/Start%20lt%20{end}',
         areaOff:  ' and OData.CSC.Intersects(area=geography%27SRID=4326;{polygon}%27)',
-        windowSize: 1000 * 60 * 60 * 24 * 3
+        windowSize: 1000 * 60 * 60 * 24 * 100
     },
     {
         code: 'S3 RS',
@@ -220,7 +220,7 @@ export const collections = [
         type: 'PRIP',
         dateOff: '%20and%20ContentDate/Start%20gt%20{start}%20and%20ContentDate/Start%20lt%20{end}',
         areaOff:  ' and OData.CSC.Intersects(area=geography%27SRID=4326;{polygon}%27)',
-        windowSize: 1000 * 60 * 60 * 24 * 3
+        windowSize: 1000 * 60 * 60 * 24 * 7
     }
 
 

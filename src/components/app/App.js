@@ -9,6 +9,7 @@ import Earth from '../earth'
 import ControlPanel from "../controlpanel"
 import InfoPanel from "../infopanel"
 import Mood from "../mood"
+import Share from "../share"
 // import MissionSelectorContainer from "../../containers/MissionSelectorContainer"
 import MissionSelector from "../missionselector"
 
@@ -53,6 +54,7 @@ function App() {
                 {/* <DateManager startdate={startdate} onDateChange={changeDate} onFinalDateChange={finalChangeDate} animated={searching}/> */}
                 <DateManagerContainer/>
                 <Mood/>
+                <Share/>
                 <SearchManagerContainer/>
                 <ControlPanel active="false" >
                     {/* <div class='logo'><img  src='./images/ESA_logo_2020_White.png' height="40" ></img></div> */}

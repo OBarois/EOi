@@ -59,12 +59,14 @@ export function useEww({ id }) {
     const s2lut = useRef([])
 
     const lastepoch = useRef(new Date())
-    const lastmovetolat = useRef(0)
-    const lastmovetolon = useRef(0)
     const lastclosestitemindex = useRef(-1)
+
+    const color = useRef()
 
     // Initialise mapsettings
     function initMap({ clon, clat, alt, atmosphere, starfield, satellites, background, names, dem, projection}) {
+
+        eww.current.navigator.range = alt
         toggleAtmosphere(atmosphere)
         toggleStarfield(starfield)
         toggleModel(satellites)
@@ -73,6 +75,8 @@ export function useEww({ id }) {
         toggleDem(dem)
         toggleProjection(projection)
         moveTo(clat, clon, alt)
+        // eww.current.redraw();
+        setTime()
     }
 
     // Turn the globe up north
@@ -93,7 +97,7 @@ export function useEww({ id }) {
 
     //toggle atmosphere
     function toggleAtmosphere(bool) {
-        console.log('toggleAtmosphere: '+bool)
+        // console.log('toggleAtmosphere: '+bool)
         let la = getLayerByName('Atmosphere')
         atm.current = (bool!== null)?bool:!atm.current
         la.enabled = atm.current
@@ -102,7 +106,7 @@ export function useEww({ id }) {
 
     //toggle model
     function toggleModel(bool) {
-        console.log('toggleModel: '+bool)
+        // console.log('toggleModel: '+bool)
         sat.current = (bool!= null)?bool:!sat.current
 
         enableSatelliteLayers(lastepoch.current,sat.current)
@@ -113,7 +117,7 @@ export function useEww({ id }) {
 
     //toggle starField
     function toggleStarfield(bool) {
-        console.log('toggleStarfield: '+bool)
+        // console.log('toggleStarfield: '+bool)
         let ls = getLayerByName('StarField')
         star.current = (bool!= null)?bool:!star.current
         ls.enabled = star.current
@@ -122,7 +126,7 @@ export function useEww({ id }) {
 
     //toggle name overlay
     function toggleNames(bool) {
-        console.log('toggleNames: '+bool)
+        // console.log('toggleNames: '+bool)
         let lo = getLayerByName('overlay_bright')
         na.current = (bool !== null)?bool:!na.current
         lo.enabled = na.current
@@ -133,7 +137,7 @@ export function useEww({ id }) {
 
     //toggle products and quicklooks layers
     function toggleGeojson(bool) {
-        console.log('toggleGeojson: '+bool)
+        // console.log('toggleGeojson: '+bool)
         let lp = getLayerByName('Products')
         ge.current = (bool !== null)?bool:!ge.current
         lp.enabled = ge.current
@@ -141,16 +145,24 @@ export function useEww({ id }) {
     }
 
     function toggleQuicklooks(bool) {
-        console.log('toggleQuicklooks: '+bool)
+        // console.log('toggleQuicklooks: '+bool)
         let ql = getLayerByName('Quicklooks')
         qu.current = (bool !== null)?bool:!qu.current
         ql.enabled = qu.current
         eww.current.redraw()
     }
 
+    function setColor(value) {
+        color.current = WorldWind.Color.colorFromHex(value.substring(1)+'99')
+        let products = getLayerByName('Products').renderables
+        for( let i = 0; i < products.length; i++) {
+            products[i].highlightAttributes.interiorColor = color.current
+        }
+        eww.current.redraw()
+    }
 
     function setMode(value) {
-        console.log('set mode'+value)
+        // console.log('set mode'+value)
         switch (value) {
             case "point":
                 ProductHead.current = 0
@@ -163,7 +175,7 @@ export function useEww({ id }) {
                 break;
             case "animated":
                 ProductHead.current = 0
-                ProductTrail.current =  1000 * 60 * 60 * 24 * 10000
+                ProductTrail.current =  1000 * 60 * 60 * 24 * 60
                 break;
             default:
                 ProductHead.current = 1000 * 60 * 60 * 24 * 10000
@@ -201,7 +213,7 @@ export function useEww({ id }) {
     
     //toggle DEM 
     function toggleDem(bool) {
-        console.log('toogleDem: '+bool)
+        // console.log('toogleDem: '+bool)
         dem.current = (bool !== null)?bool:!dem.current
         var elevationModel
         if(dem.current) {
@@ -361,13 +373,14 @@ export function useEww({ id }) {
             } else if (geometry.isPolygonType() || geometry.isMultiPolygonType()) {
                 configuration.attributes = new WorldWind.ShapeAttributes(null);
                 configuration.attributes.interiorColor = new WorldWind.Color(1, 0, 0, 0.2);
-                configuration.attributes.outlineColor = new WorldWind.Color(1, 0, 1, 0.3);
-                configuration.attributes.outlineWidth = 5;
+                configuration.attributes.interiorColor = new WorldWind.Color(1, 0, 0, 0.2);
+                // configuration.attributes.outlineColor = new WorldWind.Color(1, 0, 1, 0.3);
+                // configuration.attributes.outlineWidth = 5;
 
                 configuration.highlightAttributes = new WorldWind.ShapeAttributes(configuration.attributes);
-                configuration.highlightAttributes.outlineColor = new WorldWind.Color(1, 0, 0, 1);
-                configuration.highlightAttributes.interiorColor = new WorldWind.Color(1, 0, 0, 1);
-                configuration.highlightAttributes.outlineWidth = 5;
+                configuration.highlightAttributes.interiorColor = color.current;
+                // configuration.highlightAttributes.outlineColor = new WorldWind.Color(1, 0, 0, 1);
+                // configuration.highlightAttributes.outlineWidth = 5;
                 // configuration.attributes.drawOutline = true
 
                 // configuration.attributes.applyLighting = true;
@@ -598,8 +611,8 @@ export function useEww({ id }) {
 
         }
 
-        if(closestrenderableindex === -1) {
-            console.log("closest not found")
+        if(closestrenderableindex == -1) {
+            // console.log("closest not found")
             closestrenderableindex = layer.renderables.length - 1
         }
         // make the closest one always visible 
@@ -765,7 +778,7 @@ export function useEww({ id }) {
         return multiboundaries
     }
 
-    const createQL = async (url, footprint, timerange, attributes, userProperties, quicklookLayer, renderable) => {
+    const createQL = async (url, footprint, timerange, attributes, userProperties, quicklookLayer, renderable, credentials) => {
 
         async function createImage(url) {
             return new Promise((resolve, reject) => {
@@ -790,9 +803,17 @@ export function useEww({ id }) {
 
         try {
             
-            let response = await fetch (url, {mode: 'cors', credentials: 'include', signal: abortcontroller.signal, cache: "force-cache"})
+            let response = await fetch (url, 
+                {mode: 'cors', 
+                credentials: 'include', 
+                signal: abortcontroller.signal, 
+                headers: {
+                    "Content-Type": "text/plain",
+                    'Authorization': 'Basic ' + window.btoa(credentials.user+":"+credentials.pass),
+                },
+                cache: "force-cache"})
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error(`HTTP error (QL)! status: ${response.status}`);
             }
             
             let blob = await response.blob()
@@ -827,8 +848,8 @@ export function useEww({ id }) {
             eww.current.redraw()
             
         } catch(err) {
-            console.log("Error contacting server...")
-            console.log(err)
+            console.log("Error contacting server (QL)...")
+            // console.log(err)
         }
     }
 
@@ -848,7 +869,7 @@ export function useEww({ id }) {
         }
     }
 
-    const addQuicklook =  (renderable) => {
+    const addQuicklook =  (renderable, credentials) => {
         if(renderable) {
             // add1Quicklook(renderable)
             let prodlayer = getLayerByName('Products')
@@ -858,14 +879,14 @@ export function useEww({ id }) {
             let j = 0
             for(let i = idx ; idx < prodlayer.renderables.length && j < 10 ; idx++) {
                 if(!prodlayer.renderables[idx].filtered || prodlayer.renderables[idx].filtered !== true ) {
-                    add1Quicklook(prodlayer.renderables[idx])
+                    add1Quicklook(prodlayer.renderables[idx], credentials)
                     j+=1
                 }
             }
         }
     }
 
-    const add1Quicklook = async (renderable) => {
+    const add1Quicklook = async (renderable, credentials) => {
         if(renderable) {
 
             let url = renderable.userProperties.quicklookUrl
@@ -903,7 +924,7 @@ export function useEww({ id }) {
             let quicklookLayer = getLayerByName('Quicklooks')
             let enabled = renderable.enabled
 
-            createQL(url, footprint, timerange, attributes, userProperties, quicklookLayer, renderable)
+            createQL(url, footprint, timerange, attributes, userProperties, quicklookLayer, renderable, credentials)
         }
     }
 
@@ -962,20 +983,30 @@ export function useEww({ id }) {
 
     async function moveTo(lat, lon, alt) {
         // setTimeout(() => {
-            // console.log('move to: '+lat)
+            //  console.log('move to: '+alt)
+
+            // check if lat/lon is same as last time.
             if(lat === ewwstate.latitude && lon === ewwstate.longitude) {
                 console.log('already moved there...')
                 return
             }
             eww.current.goToAnimator.travelTime = 1300;
-            try { // check if lat/lon is same as last time.
-                eww.current.goTo(new WorldWind.Position(lat, lon));
+
+            try { 
+                eww.current.goTo(new WorldWind.Position(lat, lon, lat));
+                // if(alt) {
+                //     eww.current.goTo(new WorldWind.Position(lat, lon, alt));
+                // } else {
+                //     eww.current.goTo(new WorldWind.Position(lat, lon));
+                // }
             } catch(e) {console.log(e)}
-            lastmovetolat.current = lat
-            lastmovetolon.current = lon
+
             eww.current.navigator.range = alt;
+            // console.log(eww.current.navigator.range)
             eww.current.navigator.camera.applyLimits()
             eww.current.redraw();
+            setTime()
+
             // }, 1000)
         }
 
@@ -995,10 +1026,9 @@ export function useEww({ id }) {
     const setGlobeStates = (wwd ,stage) => {
 
         if (stage === WorldWind.AFTER_REDRAW) {
-
-            let lo = eww.current.navigator.lookAtLocation.longitude
-            let la = eww.current.navigator.lookAtLocation.latitude
-            let al = eww.current.navigator.range
+            let lo = wwd.navigator.lookAtLocation.longitude
+            let la = wwd.navigator.lookAtLocation.latitude
+            let al = wwd.navigator.range
             let vp = (al < 2000000?getViewPolygon():'')
             let vpp = 'POINT('+lo.toFixed(4)+' '+la.toFixed(4)+')' 
             setEwwState((ewwstate) => { return {...ewwstate, longitude:lo, latitude: la, altitude: al, viewpolygon: vp, viewpoint:vpp}}) 
@@ -1206,6 +1236,7 @@ export function useEww({ id }) {
       toggleOv, 
       toggleDem, 
       northUp,
-      setMode
+      setMode,
+      setColor
     }
 }

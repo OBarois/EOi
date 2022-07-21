@@ -1,11 +1,11 @@
 .Mood {
     position: fixed;
-    top: -3px;
+    top: 0px;
     left:50%;
     color: var(--color);
     width: 60px;
     height: 60px;
-    font-size: 30px;
+    font-size: 24px;
   }
 .offset {
   position: absolute;

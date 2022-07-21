@@ -1,6 +1,6 @@
 .DateController {
 
-  position: fixed;
+  position: absolute;
   /* top: 25px; */
   top: -5px;
   right: 0px;
@@ -8,12 +8,23 @@
   height: 50px;
   z-index: 200;
   text-align: center;
-  background: rgba(82, 164, 219, 0.123);
+  /* background: rgba(82, 164, 219, 0.123); */
   /* display: flex; 
   justify-content: center;
   flex-direction: row; */
 
 }
+
+.DateControllerL {
+  position: absolute;
+  top: -5px;
+  width: 50px;
+  height: 50px;
+  z-index: 200;
+  text-align: center;
+  left: 0px;
+}
+
 
 
 .flipped {
@@ -38,9 +49,18 @@
   -webkit-tap-highlight-color:  transparent;
 }
 
+.speedbarL {
+  position: absolute;
+  top: 56px;
+  left: 40px;
+  height: 50px;
+  width: 50px;
+  -webkit-tap-highlight-color:  transparent;
+}
+
 .Speed {
   position: absolute;
-  top: opx;
+  top: 0px;
   right: -18px;
   height: 50px;
   width: 50px;

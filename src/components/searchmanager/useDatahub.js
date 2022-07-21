@@ -8,14 +8,15 @@ import {AppContext} from '../app/context'
 // export default function useDatahub({searchdate, mission, searchpoint})  {
 export default function useDatahub()  {
 
-    const searchparam = useRef({})
+    // const searchparam = useRef({})
     const controller = useRef(null)
 
     const MAX_ITEMS = 1000
 
     const [geojsonResults, setGeojsonResults] = useState(null)
     const [loading, setLoading] = useState(false)
-    const [credentials,setCredentials] = useState('')
+    const [status, setStatus] = useState('')
+    // const [credentials,setCredentials] = useState('')
     const [ state, dispatch ] = useContext(AppContext)
 
 
@@ -34,7 +35,6 @@ export default function useDatahub()  {
 
     const buildUrl = ({code, polygon, start, end, startindex}) => {
 
-        console.log(polygon)
 
         let target = getcollection(code)
         if(!target) return null
@@ -43,7 +43,6 @@ export default function useDatahub()  {
         if(polygon != null) {
             newurl = newurl.replace("{polygon}", polygon)
         } else {
-            console.log("in: "+polygon)
             newurl = newurl.replace(target.areaOff, '')
         }
 
@@ -94,6 +93,10 @@ export default function useDatahub()  {
                     console.log(response)
                 if (!response.ok) {
                     window.alert(`HTTP error! status: ${response.status}`)
+                    if(response.status == '401') {
+                        setStatus(newurl)
+                        // dispatch({ type: "reset_credentials", value: {}})
+                    }
                     throw new Error(`HTTP error! status: ${response.status}`)
                 }
             }
@@ -110,8 +113,14 @@ export default function useDatahub()  {
                     signal: controller.current.signal
                     })
                 if (!response.ok) {
-                    window.alert(`HTTP error! status: ${response.status}`)
-                    throw new Error(`HTTP error! status: ${response.status}`)
+                    // window.alert(`HTTP error! status: ${response.status}`)
+                    if(response.status == 401) {
+                        // setStatus(newurl)
+                        throw new Error('401')
+                    } else {
+                        throw new Error(`HTTP error! status: ${response.status}`)
+                    }
+                    
                 }
             }
     
@@ -166,7 +175,11 @@ export default function useDatahub()  {
             }
         } catch(err) {
             console.log("Error contacting server...")
-            console.log(err)
+            console.log(err.message)
+            if(err.message === '401' || err.message.indexOf('Invalid user credentials') > 0) {
+                console.log('detected 401')
+                setStatus(url)
+            }
             setLoading(false)   
         }
     }
@@ -177,9 +190,10 @@ export default function useDatahub()  {
         }
     }
 
-    const search = ({searchdate, mission, searchpoint}) => {
-        console.log(' in search')
-        console.log(searchdate+' / '+ mission+' / '+ searchpoint)
+    const search = ({searchdate, mission, searchpoint}, credentials) => {
+        // console.log(' in search')
+        // console.log(searchdate+' / '+ mission+' / '+ searchpoint)
+        // console.log(credentials)
         let startdate, enddate = ''
         let target = getcollection(mission)
         if(!target) return null
@@ -201,25 +215,18 @@ export default function useDatahub()  {
             end: enddate
         })
         let coll_type = target.type
-        searchparam.current.searchdate = searchdate
-        searchparam.current.mission = mission
-        searchparam.current.searchpoint = searchpoint
+        // searchparam.current.searchdate = searchdate
+        // searchparam.current.mission = mission
+        // searchparam.current.searchpoint = searchpoint
 
         let startindex = target.startIndexOrigin
 
-        // get credentials
-        if(state.credentials == '' || !state.credentials) {
-            let user = window.prompt("Please enter your username for \n"+url.split("/")[2],"")
-            let pass = window.prompt("Please enter your password for \n"+url.split("/")[2],"")
-            dispatch({ type: "set_credentials", value: user+":"+pass})
-            return
-        }
 
-        fetchURL(url,startindex,coll_type,state.credentials.split(":")[0],state.credentials.split(":")[1])
+        fetchURL(url,startindex,coll_type,credentials.user,credentials.pass)
         
     }
     
 
 
-    return {geojsonResults, loading, search, abort}
+    return {geojsonResults, loading, status, search, abort}
 }

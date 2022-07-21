@@ -26,10 +26,10 @@ function ColorSelectorContainer() {
 
       };
 
-      useEffect(() => {
-        document.documentElement.style.setProperty('--color', state.appColor);
-        document.documentElement.style.setProperty('--colort', state.appColor+'66');
-    }, []);
+    //   useEffect(() => {
+    //     document.documentElement.style.setProperty('--color', state.appColor);
+    //     document.documentElement.style.setProperty('--colort', state.appColor+'66');
+    // }, []);
 
     
     //console.log('mission rendering')

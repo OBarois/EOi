@@ -1,4 +1,4 @@
-import React, {  useEffect, useState } from 'react';
+import React, {  useEffect, useState, useCallback } from 'react';
 import {AppContext} from '../components/app/context'
 
 import DateManager from "../components/datemanager"
@@ -11,19 +11,19 @@ function DateManagerContainer() {
     const [tics, settics] = useState(state.tics)
     const [startdate, setstartdate] = useState(new Date(state.goToDate))
 
-    const handleFinalDate =  (finaldate) => {
+    const handleFinalDate =  useCallback( (finaldate) => {
         dispatch({type:'set_searchDate', value: finaldate})
-    }
+    },[dispatch])
 
-    const handleDateChanged = (date) => {
+    const handleDateChanged = useCallback( (date) => {
         // console.log('handleDateChanged')
         // console.log(date)
         dispatch({type:'set_viewDate', value: date})
-    }
+    },[dispatch])
 
-    const handleStateChange = (animated) => {
+    const handleStateChange = useCallback( (animated) => {
         dispatch({type:'set_animated', value: animated})
-    }
+    },[dispatch])
 
     // useEffect(() => {
     //     let newtics = []
@@ -40,8 +40,8 @@ function DateManagerContainer() {
     }, [state.tics]);
 
     useEffect(() => {
-        console.log('state.goToDate:')
-        console.log(new Date(state.goToDate))
+        // console.log('state.goToDate:')
+        // console.log(new Date(state.goToDate))
         setstartdate((state.goToDate === null)?null:new Date(state.goToDate))
     }, [state.goToDate]);
 
@@ -49,7 +49,7 @@ function DateManagerContainer() {
     // console.log(startDate)
 
     return (
-        <DateManager onDateChange={handleDateChanged} onFinalDateChange={handleFinalDate} startdate={startdate} tics={tics} onStateChange={handleStateChange} animated={state.animated} searching={state.searching}/> 
+        <DateManager onDateChange={handleDateChanged} onFinalDateChange={handleFinalDate} startdate={startdate} tics={tics} gotoscalezoom={state.zoomScale} onStateChange={handleStateChange} animated={state.animated} searching={state.searching} leftHanded={state.leftHanded}/> 
      )
 }
 

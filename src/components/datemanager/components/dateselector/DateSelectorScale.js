@@ -1,11 +1,12 @@
-import React, {useState, useEffect,useLayoutEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import './DateSelector.css';
 
-function DateSelectorScale({date, zoomfactor, resulttics}) {
+function DateSelectorScale({date, zoomfactor, resulttics, lefthanded}) {
 
     const scale = useRef(0)
     const canvas = useRef(null)
     const [timescale, setTimescale] = useState('')   
+    const leftHanded = useRef(lefthanded)   
     // const [resultepochs, ] = useState(resulttics)   
     
     // saves the current zoom and date to handle the widow resize
@@ -52,6 +53,9 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
             return str;        
         }
 
+        function lefthand(classname)  {
+            return leftHanded.current?classname+'L':classname
+        }
 
         let day, month, hour, year, minute = 0
         let lastday =0
@@ -79,12 +83,12 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
                     labeloffset = 60000
                     if(minute !== lastminute && i!==0) {
                         if (minute !== 0 || hour !== 0) {
-                            tics.push({class:'HourTic', pos: i, label: pad(hour,2)+':'+pad(minute,2)})
+                            tics.push({class:lefthand('HourTic'), pos: i, label: pad(hour,2)+':'+pad(minute,2)})
                             // ctx.fillText(pad(hour,2)+':'+pad(minute,2), 2, i);
                         } else {
                             if (minute === 0 && hour === 0) {
-                                tics.push({class:'DayTic_h', pos: i, label: pad(day,2)})
-                                tics.push({class:'MonthTic_h2', pos: i, label: monthcode[month]})
+                                tics.push({class:lefthand('DayTic_h'), pos: i, label: pad(day,2)})
+                                tics.push({class:lefthand('MonthTic_h2'), pos: i, label: monthcode[month]})
                                 //tics.push({class:'YearTic_h', pos: i, label: year})
 
                             }     
@@ -96,11 +100,11 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
                     labeloffset = 60000*2
                     if(minute !== lastminute  && i!==0) {
                         if( (minute !== 0 || hour !==0) && minute % 2 === 0) {
-                            tics.push({class:'HourTic', pos: i, label: pad(hour,2)+':'+pad(minute,2)})
+                            tics.push({class:lefthand('HourTic'), pos: i, label: pad(hour,2)+':'+pad(minute,2)})
                         } else {
                             if (minute === 0 && hour === 0) {
-                                tics.push({class:'DayTic_h', pos: i, label: pad(day,2)})
-                                tics.push({class:'MonthTic_h2', pos: i, label: monthcode[month]})
+                                tics.push({class:lefthand('DayTic_h'), pos: i, label: pad(day,2)})
+                                tics.push({class:lefthand('MonthTic_h2'), pos: i, label: monthcode[month]})
                                 //tics.push({class:'YearTic_h', pos: i, label: year})
                             }     
                         }
@@ -112,10 +116,10 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
                     labeloffset = 60000*10
                     if(minute !== lastminute  && i!==0) {
                         if( (minute !== 0 || hour !==0) && minute % 10 === 0) {
-                            tics.push({class:'HourTic', pos: i, label: pad(hour,2)+':'+pad(minute,2)})
+                            tics.push({class:lefthand('HourTic'), pos: i, label: pad(hour,2)+':'+pad(minute,2)})
                         } else {
                             if (minute === 0 && hour === 0) {
-                                tics.push({class:'DayTic_h', pos: i, label: pad(day,2)})
+                                tics.push({class:lefthand('DayTic_h'), pos: i, label: pad(day,2)})
                                 tics.push({class:'MonthTic_h2', pos: i, label: monthcode[month]})
                                 //tics.push({class:'YearTic_h', pos: i, label: year})
                             }     
@@ -127,11 +131,11 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
                     labeloffset = 60000*20
                     if(minute !== lastminute && i!==0) {
                         if( (minute !== 0 || hour !==0) && minute % 20 === 0) {
-                            tics.push({class:'HourTic', pos: i, label: pad(hour,2)+':'+pad(minute,2)})
+                            tics.push({class:lefthand('HourTic'), pos: i, label: pad(hour,2)+':'+pad(minute,2)})
                         } else {
                             if (minute === 0 && hour === 0) {
-                                tics.push({class:'DayTic_h', pos: i, label: pad(day,2)})
-                                tics.push({class:'MonthTic_h2', pos: i, label: monthcode[month]})
+                                tics.push({class:lefthand('DayTic_h'), pos: i, label: pad(day,2)})
+                                tics.push({class:lefthand('MonthTic_h2'), pos: i, label: monthcode[month]})
                                 //tics.push({class:'YearTic_h', pos: i, label: year})
                             }     
                         }
@@ -142,11 +146,11 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
                     labeloffset = 60000*60
                     if(hour !== lasthour && i!==0) {
                         if (hour !== 0) {
-                            tics.push({class:'HourTic', pos: i, label: pad(hour,2)+':00'})
+                            tics.push({class:lefthand('HourTic'), pos: i, label: pad(hour,2)+':00'})
                         
                         } else  {
-                            tics.push({class:'DayTic_h', pos: i, label: pad(day,2)})
-                            tics.push({class:'MonthTic_h2', pos: i, label: monthcode[month]})
+                            tics.push({class:lefthand('DayTic_h'), pos: i, label: pad(day,2)})
+                            tics.push({class:lefthand('MonthTic_h2'), pos: i, label: monthcode[month]})
                             // tics.push({class:'YearTic_h', pos: i, label: year})            
                         }
                     }
@@ -156,11 +160,11 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
                     labeloffset = 60000*60*3
                     if(hour !== lasthour && i!==0) {
                         if (hour !== 0 &&  (hour % 3 === 0 )) {
-                            tics.push({class:'HourTic', pos: i, label: pad(hour,2)+':00'})
+                            tics.push({class:lefthand('HourTic'), pos: i, label: pad(hour,2)+':00'})
                         } else  {
                             if (hour === 0) {
-                                tics.push({class:'DayTic_h', pos: i, label: pad(day,2)})
-                                tics.push({class:'MonthTic_h2', pos: i, label: monthcode[month]})
+                                tics.push({class:lefthand('DayTic_h'), pos: i, label: pad(day,2)})
+                                tics.push({class:lefthand('MonthTic_h2'), pos: i, label: monthcode[month]})
                                 // tics.push({class:'YearTic_h', pos: i, label: year})            
                             }
                         }
@@ -171,11 +175,11 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
                     labeloffset = 60000*60*6
                     if(hour !== lasthour && i!==0) {
                         if (hour !== 0 &&  (hour % 6 === 0 )) {
-                            tics.push({class:'HourTic', pos: i, label: pad(hour,2)+':00'})
+                            tics.push({class:lefthand('HourTic'), pos: i, label: pad(hour,2)+':00'})
                         } else  {
                             if (hour === 0) {
-                                tics.push({class:'DayTic_h', pos: i, label: pad(day,2)})
-                                tics.push({class:'MonthTic_h2', pos: i, label: monthcode[month]})
+                                tics.push({class:lefthand('DayTic_h'), pos: i, label: pad(day,2)})
+                                tics.push({class:lefthand('MonthTic_h2'), pos: i, label: monthcode[month]})
                                 // tics.push({class:'YearTic_h', pos: i, label: year})            
                             }
                         }
@@ -187,8 +191,8 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
                 case _zoom < DAY_HOUR_LEVEL:
                     labeloffset = 60000*60*24
                     if(day !== lastday && i!==0) {
-                        tics.push({class:'DayTic_h', pos: i, label: pad(day,2)})
-                        tics.push({class:'MonthTic_h2', pos: i, label: monthcode[month]})
+                        tics.push({class:lefthand('DayTic_h'), pos: i, label: pad(day,2)})
+                        tics.push({class:lefthand('MonthTic_h2'), pos: i, label: monthcode[month]})
 
                     }    
                 break
@@ -198,10 +202,10 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
                     labeloffset = 60000*60*24
                     if(day !== lastday && i!==0) {
                         if ( day !== 1 ) {
-                            tics.push({class:'DayTic', pos: i, label: day})
+                            tics.push({class:lefthand('DayTic'), pos: i, label: day})
                         } else {
-                            tics.push({class:'MonthTic_h', pos: i, label: monthcode[month]})
-                            if (month === 0) tics.push({class:'YearTic_h2', pos: i, label: year})
+                            tics.push({class:lefthand('MonthTic_h'), pos: i, label: monthcode[month]})
+                            if (month === 0) tics.push({class:lefthand('YearTic_h2'), pos: i, label: year})
                             // tics.push({class:'YearTic_h2', pos: i, label: year})
                          }
                         
@@ -212,12 +216,12 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
                     labeloffset = 60000*60*24*5
                     if(day !== lastday && i!==0) {
                         if ( day !== 1 && day !== 30 && day % 5 === 0 ) {
-                            tics.push({class:'DayTic', pos: i, label: day})
+                            tics.push({class:lefthand('DayTic'), pos: i, label: day})
                         } else {
                             if (day === 1) {
                                 // tics.push({class:'DayTic', pos: i, label: day})
-                                tics.push({class:'MonthTic_h', pos: i, label: monthcode[month]})
-                                if (month === 0) tics.push({class:'YearTic_h2', pos: i, label: year})
+                                tics.push({class:lefthand('MonthTic_h'), pos: i, label: monthcode[month]})
+                                if (month === 0) tics.push({class:lefthand('YearTic_h2'), pos: i, label: year})
                                 // tics.push({class:'YearTic_h2', pos: i, label: year})
                             }
                          }
@@ -230,10 +234,10 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
                     labeloffset = 60000*60*24*28
                     if( month !== lastmonth  && i!==0) {
                         if (month !== 0) {
-                            tics.push({class:'MonthTic', pos: i, label: monthcode[month]})
+                            tics.push({class:lefthand('MonthTic'), pos: i, label: monthcode[month]})
                         } else {
-                            tics.push({class:'MonthTic_h', pos: i, label: monthcode[month]})
-                            tics.push({class:'YearTic_h2', pos: i, label: year})
+                            tics.push({class:lefthand('MonthTic_h'), pos: i, label: monthcode[month]})
+                            tics.push({class:lefthand('YearTic_h2'), pos: i, label: year})
                         }
                     }
     
@@ -243,11 +247,11 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
                     labeloffset = 60000*60*24*28*3
                     if( month !== lastmonth  && i!==0) {
                         if (month !== 0 && month !== 11 && (month) % 3 === 0 ) {
-                            tics.push({class:'MonthTic', pos: i, label: monthcode[month]})
+                            tics.push({class:lefthand('MonthTic'), pos: i, label: monthcode[month]})
                         } else {
                             if (month === 0) {
-                                tics.push({class:'MonthTic_h', pos: i, label: monthcode[month]})
-                                tics.push({class:'YearTic_h2', pos: i, label: year})
+                                tics.push({class:lefthand('MonthTic_h'), pos: i, label: monthcode[month]})
+                                tics.push({class:lefthand('YearTic_h2'), pos: i, label: year})
                             }
                         }
                     }
@@ -258,10 +262,10 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
                     labeloffset = 60000*60*24*30*12
                     if(year !== lastyear  && i!==0) {
                         if (month !== 0) {
-                            tics.push({class:'MonthTic', pos: i, label: monthcode[month]})
+                            tics.push({class:lefthand('MonthTic'), pos: i, label: monthcode[month]})
                         } else {
                             // tics.push({class:'MonthTic', pos: i, label: month})
-                            tics.push({class:'YearTic', pos: i, label: year})
+                            tics.push({class:lefthand('YearTic'), pos: i, label: year})
                         }
                     }
     
@@ -284,6 +288,7 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
             // iteration +=1
         }
         if(_resulttics) {
+            _resulttics.sort((a,b)=>b-a)
             let lastticpos = -10
             for ( let i=_resulttics.length ; i >= 0  ; i-=1 ) {
             // for ( let i=0 ; i < _resulttics.length  ; i+=1 ) {
@@ -298,7 +303,7 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
                     ctx.font = "30px Arial"
                     if(ticpos - lastticpos > 3) {
                         lastticpos = ticpos
-                        ctx.fillText('.', scale.current.offsetWidth -8, ticpos +5);
+                        ctx.fillText('.', leftHanded.current?0:scale.current.offsetWidth -8, ticpos +5);
                     }
             
                     
@@ -333,6 +338,11 @@ function DateSelectorScale({date, zoomfactor, resulttics}) {
         idate.current = date
         setTimescale(scaleText(idate.current,izoom.current,itics.current))
     },[date])
+
+    useEffect(() => {
+        leftHanded.current = lefthanded
+        setTimescale(scaleText(idate.current,izoom.current,itics.current))
+    },[lefthanded])
 
     useEffect(() => {
         // console.log(resulttics)

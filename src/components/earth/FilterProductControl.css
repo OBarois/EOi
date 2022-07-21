@@ -17,3 +17,26 @@
   filter: drop-shadow(  var(--shadow));
   -webkit-tap-highlight-color:  transparent;
 }
+.FilterProductControlL {
+  position: absolute;
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  -webkit-user-drag: none;
+  height: 50px;
+  width: 50px;
+  bottom: 60px;
+  left: 35px;
+  z-index: 300; 
+  /* background-image: url("EOi_logo.png"); */
+  /* backgroundcolor: #77bd35c9; */
+  color: var(--color);
+  -webkit-filter: drop-shadow(  var(--shadow) );
+  filter: drop-shadow(  var(--shadow));
+  -webkit-tap-highlight-color:  transparent;
+}
+
+#left {
+  left: 10px;
+}

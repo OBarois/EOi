@@ -17,15 +17,23 @@ const SearchManagerContainer = () => {
   
     const handlePageSearch = useCallback ( (results, resultdesc) => {
       dispatch({ type: "onResultPage", value: {resultdesc: resultdesc, results: results} })
-    }, [])
+    }, [dispatch])
     
     const handleSearchStart = useCallback ( () => {
       dispatch({ type: "onSearchStart", value: Math.random()})
-    }, [])
+    }, [dispatch])
     
-    const handleSearchComplete =  (searchDesc) => {
+    const handleSearchComplete = useCallback (  (searchDesc) => {
       dispatch({ type: "onSearchComplete", value: searchDesc})
-    }
+    }, [dispatch])
+
+    const handleCredentials = useCallback ( (url) => {
+      let key = url.split("/")[2]
+      let user = window.prompt("Please enter your username for \n"+key,"")
+      let pass = window.prompt("Please enter your password for \n"+key,"")
+      dispatch({ type: "set_credentials", value: {key: key, user:user, pass:pass}})
+      return
+    }, [dispatch])
 
 // to do: pass credentials from state
     return (
@@ -34,10 +42,13 @@ const SearchManagerContainer = () => {
           searchpoint={debouncedsearchPoint} 
           searchmode={state.searchMode}
           mission={state.mission} 
+          credentials={state.credentials}
           altitude={debouncedaltitude} 
           onSearchStart={handleSearchStart}
           onPageSearch={handlePageSearch}
           onSearchComplete={handleSearchComplete}
+          on401={handleCredentials}
+          lefthanded={state.leftHanded}
         />
     )
 }

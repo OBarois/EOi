@@ -26,6 +26,10 @@ function OptionsSelector() {
       dispatch({ type: "toggle_quicklooks"})
     }
     
+    const handleLeftHanded = (checked) => {
+      dispatch({ type: "toggle_lefthanded"})
+    }
+    
     //console.log('mission rendering')
     return (
         <div className='DemSelectorContainer'>
@@ -49,6 +53,10 @@ function OptionsSelector() {
             <div className='Selector horizontalContainer'>
               <Switch id='quicklooks' onChange={handleQuicklooksChange} checked={state.mapSettings.quicklooks} />
                 <span className='Label'>Quicklooks</span>
+            </div>
+            <div className='Selector horizontalContainer'>
+              <Switch id='lefthanded' onChange={handleLeftHanded} checked={state.leftHanded} />
+                <span className='Label'>Left Handed UI</span>
             </div>
             <div height='200px' flexgrow='2'>&nbsp;</div>
           </div>

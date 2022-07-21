@@ -1,4 +1,4 @@
-.ViewProductControl {
+.Share {
   position: absolute;
   -webkit-user-drag: none;
   -khtml-user-drag: none;
@@ -8,7 +8,7 @@
   height: 50px;
   width: 50px;
   bottom: 20px;
-  right: 35px;
+  right: 200px;
   z-index: 300; 
   /* background-image: url("EOi_logo.png"); */
   /* background-color: #77bd35c9; */
@@ -18,7 +18,7 @@
   -webkit-tap-highlight-color:  transparent;
 }
 
-.ViewProductControlL {
+.ShareL {
   position: absolute;
   -webkit-user-drag: none;
   -khtml-user-drag: none;
@@ -28,7 +28,7 @@
   height: 50px;
   width: 50px;
   bottom: 20px;
-  left: 35px;
+  left: 200px;
   z-index: 300; 
   /* background-image: url("EOi_logo.png"); */
   /* background-color: #77bd35c9; */

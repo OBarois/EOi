@@ -1,5 +1,7 @@
 import React  from 'react';
 import {AppContext} from '../app/context'
+import { useKey } from 'rooks'
+
 
 import './Mood.css' 
 import { useEffect, useState } from 'react';
@@ -7,11 +9,16 @@ import { useEffect, useState } from 'react';
 function Mood() {
 
     // const [altitude, ] = useGlobal('altitude')
-    const [ state,  ] = React.useContext(AppContext)
+    const [ state, dispatch  ] = React.useContext(AppContext)
 
 
     const [mood, setmood] =  useState('🙂')
     const [defmood, setdefmood] =  useState('🙂')
+
+    useKey(['l'],()=>{
+        dispatch({type:'toggle_lefthanded'})
+    })
+
 
 
     useEffect(() => {

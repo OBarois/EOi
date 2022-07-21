@@ -1,5 +1,3 @@
-// export { AppContext } from './App'
-
 import React from "react"
 import { reducer } from "./reducer"
 import {  initstate, getsavedstate } from "./initstate"
@@ -27,6 +25,21 @@ export const AppProvider = ({ children }) => {
 
 
   useEffect(() => {
+    // console.log('saving session')
+    // let savedstate = {
+    //   mission: debouncedstate.mission,
+    //   altitude: debouncedstate.altitude,
+    //   appColor: debouncedstate.appColor,
+    //   position: debouncedstate.position,
+    //   animated: debouncedstate.animated,
+    //   mapSettings: debouncedstate.mapSettings,
+    //   viewDate: debouncedstate.viewDate,
+    //   searchDate: debouncedstate.searchDate,
+    //   goToDate: debouncedstate.goToDate,
+    //   credentials: debouncedstate.credentials,
+    //   leftHanded: debouncedstate.leftHanded
+
+    // }
 
     let savedstate = getsavedstate(debouncedstate)
     // console.log(savedstate)

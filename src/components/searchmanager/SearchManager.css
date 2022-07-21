@@ -1,5 +1,5 @@
 .SearchController {
-    position: absolute;
+    position: fixed;
     bottom:30px;
     right: 100px;
     /* display: flex;
@@ -16,6 +16,10 @@
     -webkit-filter: drop-shadow(  var(--shadow) );
     filter: drop-shadow(  var(--shadow));
     -webkit-tap-highlight-color:  transparent;
+}
+
+.lefthanded {
+    left: 100px;
 }
 
 .Active {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 
 
 export function useClock({  initdate }) {
@@ -76,11 +76,11 @@ export function useClock({  initdate }) {
     }
 
      
-    function forceDate(newdate) {
+    const forceDate = useCallback( (newdate) => {
         // console.log('forcedate useclock: '+newdate.toJSON())
         ldate.current = newdate.getTime()
         setDate(new Date(ldate.current))
-    }
+    }, [])
 
     // useEffect(() => {
     //     console.log('init start useclock '+initdate.toJSON())

@@ -65,6 +65,7 @@ export const reducer = (state, action) => {
           case "toggle_satellites":
           return {
             ...state,
+            // mapSettings: {...state.mapSettings, satellites: !state.mapSettings.satellites}
             mapSettings: {...state.mapSettings, satellites: !state.mapSettings.satellites}
           }
     
@@ -78,12 +79,12 @@ export const reducer = (state, action) => {
           
 
 
-          case "altitude_changed":
-            // console.log('set altitude!')
+          case "set_altitude":
+            // console.log('set altitude!: '+action.value)
           return {
             ...state,
             altitude: action.value,
-            productOn: action.value > 3000000?true:state.productOn,
+            productOn: action.value > state.pointSearchMaxAltitude?true:state.productOn,
             searchMode: (action.value > state.pointSearchMaxAltitude)?'global':'point'
           }
     
@@ -153,101 +154,105 @@ export const reducer = (state, action) => {
                 goToDate: action.value?action.value.timeRange[0].getTime():null,
               }
             }
-          
+            
 
-            case "set_closestitem":
-              if(!action.value) return state
-              return {
-                ...state,
-                closestItem: action.value,
-              }
+          case "set_closestitem":
+            if(!action.value) return state
+            return {
+              ...state,
+              closestItem: action.value,
+            }
+            
 
 
-              case "set_tics":
-                // console.log('set_tics')
-                return {
-                  ...state,
-                  tics: action.value,
-                }
+          case "set_tics":
+            // console.log('set_tics')
+            return {
+              ...state,
+              tics: action.value,
+            }
+            
   
-              case "set_filter":
-                console.log('toggle_filter')
-                
-                if(state.closestItem === null) return state
-                console.log(state.filter.length)
-                console.log(state.mission)
-              let newfilter 
-              if(state.filter.length === 0) {
-                if(state.mission.indexOf('S1') <0 ) {
-                  console.log("filter S1")
-                  newfilter = [{
-                    attribute: 'relativePassNumber',
-                    value: state.closestItem.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.relativePassNumber
-                  }]
-                }
-                if(state.mission.indexOf('S2') <0 ) {
-                  newfilter = [{
-                    attribute: 'relativePassNumber',
-                    value: state.closestItem.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.relativePassNumber
-                  }]
-                }
-              } else {
-                newfilter = []
+          case "set_filter":
+            console.log('toggle_filter')
+            
+            if(state.closestItem === null) return state
+            let newfilter 
+            if(state.filter.length === 0) {
+              if(state.mission.indexOf('S1') >=0 ) {
+                newfilter = [{
+                  attribute: 'relativePassNumber',
+                  value: state.closestItem.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.relativePassNumber
+                }]
               }
-              return {
-                ...state,
-                filter: newfilter,
+              if(state.mission.indexOf('S2') >=0 ) {
+                newfilter = [{
+                  attribute: 'relativePassNumber',
+                  value: state.closestItem.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.relativePassNumber
+                }]
               }
-              break
+            } else {
+              console.log("no filter")
+
+              newfilter = []
+            }
+            return {
+              ...state,
+              filter: newfilter,
+            }
+            
 
           case "gotoclosestitem":
             // console.log('gotoclosestitem')
             if(state.closestItem == null || state.closestItem._sector == null) return state
             console.log(state)
-          return {
-            ...state,
-            goToDate: state.closestItem.timeRange[0].getTime(),
-            // moveToClosestItemTrigger: Math.random(),
-            goToPos: {
-              lat: state.closestItem._sector.minLatitude,
-              lon: state.closestItem._sector.minLongitude
+
+            return {
+              ...state,
+              goToDate: state.closestItem.timeRange[0].getTime(),
+              // moveToClosestItemTrigger: Math.random(),
+              goToPos: {
+                lat: state.closestItem._sector.centroidLatitude(),
+                lon: state.closestItem._sector.centroidLongitude(),
+                alt: state.altitude,
+              }
             }
-          }
+            
     
           case "set_goToDate":
             console.log('set_goToDate')
             console.log(action.value)
             if(action.value === null) return state
-          return {
-            ...state,
-            goToDate: action.value.getTime(),
-            // moveToClosestItemTrigger: Math.random()
-          }
+            return {
+              ...state,
+              goToDate: action.value.getTime(),
+              // moveToClosestItemTrigger: Math.random()
+            }
         
           case "set_searchDate":
-            console.log('set_searchDate')
-            console.log(action.value)
-          return {
-            ...state,
-            searchDate: action.value.getTime(),
-            goToDate: action.value.getTime()
-          }
+            // console.log('set_searchDate')
+            // console.log(action.value)
+            return {
+              ...state,
+              searchDate: action.value.getTime(),
+              goToDate: action.value.getTime()
+            }
     
           
           case "set_animated":
             console.log('set_animated')
-          return {
-            ...state,
-            animated: action.value,
-          }
+            return {
+              ...state,
+              animated: action.value,
+            }
     
           
           case "set_color":
             console.log('set_color: '+action.value)
-          return {
-            ...state,
-            appColor: action.value,
-          }
+            return {
+              ...state,
+              appColor: action.value,
+            }
 
 
           case "set_viewDate": {
@@ -263,23 +268,23 @@ export const reducer = (state, action) => {
     
           case "clear_results":
             console.log('clear_results')
-          // return {
-          //   ...state,
-          //   // moveToClosestItemTrigger: Math.random(),
-          //   closestItem: null,
-          //   goToDate: null,
-          //   tics: [],
-          //   filter: [],
-          //   resultDesc: {totalResults:0, totalLoaded:0 },
-          //   selectedProduct: null,
-          //   clearResultsTrigger: Math.random()
-          // }
-          return {
-            ...state,
-            tics: [],
-            resultDesc: {totalResults:0, totalLoaded:0 },
-            clearResultsTrigger: Math.random()
-          }
+            // return {
+            //   ...state,
+            //   // moveToClosestItemTrigger: Math.random(),
+            //   closestItem: null,
+            //   goToDate: null,
+            //   tics: [],
+            //   filter: [],
+            //   resultDesc: {totalResults:0, totalLoaded:0 },
+            //   selectedProduct: null,
+            //   clearResultsTrigger: Math.random()
+            // }
+            return {
+              ...state,
+              tics: [],
+              resultDesc: {totalResults:0, totalLoaded:0 },
+              clearResultsTrigger: Math.random()
+            }
     
           case "set_searchPoint": {
             // console.log('onDateChanged')
@@ -288,8 +293,27 @@ export const reducer = (state, action) => {
               searchPoint: action.value
             }
           }
+
+          case "set_zoomscale": {
+            // console.log('onDateChanged')
+            return {
+              ...state,
+              zoomScale: action.value
+            }
+          }
+
+          case "set_position": {
+            return {
+              ...state,
+              position: {
+                clon: action.value.lon,
+                clat:action.value.lat
+              },
+            }
+          }
     
           case "set_credentials": {
+            console.log(action.value)
             return {
               ...state,
               credentials: action.value
@@ -297,16 +321,27 @@ export const reducer = (state, action) => {
           }
 
           case "reset_credentials": {
+            console.log('reset credentials')
             return {
               ...state,
-              credentials: ''
+              credentials: {user:'', pass:''}
+            }
+          }
+
+          case "toggle_lefthanded": {
+            // console.log('toggle_lefthanded')
+            return {
+              ...state,
+              leftHanded: !state.leftHanded
             }
           }
 
         default:
-        return state
+          return state
     }
   }
+
+
   let init_date = new Date()
   export const initialState = {
     active: false,
@@ -326,6 +361,7 @@ export const reducer = (state, action) => {
       lon: 0
     },
     searchDate: null,
+    credentials: {user:'', pass:''},
     resetStartDateTrigger: null,
     pointSearchMaxAltitude: 3000000,
     selectedProduct: null,
@@ -358,5 +394,24 @@ export const reducer = (state, action) => {
         projection: 0
     },
     collections: collections,
+    leftHanded: false
+  }
+
+  export const getsavedstate = (state) => {
+    return {
+      mission: state.mission,
+      altitude: state.altitude,
+      appColor: state.appColor,
+      position: state.position,
+      animated: state.animated,
+      mapSettings: state.mapSettings,
+      viewDate: state.viewDate,
+      searchDate: state.searchDate,
+      goToDate: state.goToDate,
+      credentials: state.credentials,
+      leftHanded: state.leftHanded
+
+    }
+
   }
   
