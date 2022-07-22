@@ -7,7 +7,7 @@ import { useDebounce } from '../../hooks/useDebounce';
 import {FluidWorldWindowController} from './FluidWorldWindowController'
 // import InfoPanel from "../infopanel"
 import LookAtWidget from './LookAtWidget'
-import ViewProductControl from './ViewProductControl'
+import ViewProductControl from '../viewproductcontrol/ViewProductControl'
 import FilterProductControl from './FilterProductControl'
 import { useKey } from 'rooks'
 
@@ -182,9 +182,9 @@ const Earth = ({ id }) => {
     },[ewwstate.closestRenderable])
 
     useEffect(() => {
-        if(state.mapSettings.quicklooks)
-        console.log('adding QL')
+        if(state.mapSettings.quicklooks) {
             addQuicklook(debouncedclosestItem, state.credentials)
+        }
     }, [debouncedclosestItem]);
 
     useEffect(() => {
