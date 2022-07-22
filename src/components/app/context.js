@@ -7,12 +7,9 @@ import  { useEffect } from "react";
 import { useDebounce } from '../../hooks/useDebounce'
 import JSONCrush from "jsoncrush"
 
-export const AppContext = React.createContext({
-  state: initstate(),
-  dispatch: () => null
-})
+export const AppContext = React.createContext(null)
 
-let istate = initstate()
+const istate = initstate()
 
 export const AppProvider = ({ children }) => {
 
