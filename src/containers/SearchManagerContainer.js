@@ -41,7 +41,7 @@ const SearchManagerContainer = () => {
           searchdate={new Date(state.searchDate)} 
           searchpoint={debouncedsearchPoint} 
           searchmode={state.searchMode}
-          mission={state.mission} 
+          dataset={state.dataset} 
           credentials={state.credentials}
           altitude={debouncedaltitude} 
           onSearchStart={handleSearchStart}

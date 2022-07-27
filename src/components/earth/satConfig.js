@@ -17,8 +17,10 @@ const satConfig = [
             Color.colorFromKmlHex('ffffffff')  //white
         ],
         swatModes: ['IW', 'EW', 'SM'],
-        tleLineOne: '1 39634U 14016A   18124.03591006  .00000001  00000-0  10014-4 0  9998',
-        tleLineTwo: '2 39634  98.1819 132.0838 0001369  78.7198 281.4156 14.59198520217480',
+        // tleLineOne: '1 39634U 14016A   18124.03591006  .00000001  00000-0  10014-4 0  9998',
+        // tleLineTwo: '2 39634  98.1819 132.0838 0001369  78.7198 281.4156 14.59198520217480',
+        tleLineOne: '1 39634U 14016A   22206.03053888  .00000001  00000+0  98653-5 0  9990',
+        tleLineTwo: '2 39634  98.1828 213.0548 0001302  81.4946 278.6403 14.59197888442509',
         hasModel: true,
         filePath: './satellites/sentinel1/s1.json',
         rotations: {
@@ -153,6 +155,7 @@ const satConfig = [
         },
         ignoreLocalTransforms: true,
         launchDate: new Date('2016-04-25T21:02:00.000Z'),
+        retirementDate: new Date('2022-04-01T21:55:00.000Z'),
     },
     {
         key: 's2b',

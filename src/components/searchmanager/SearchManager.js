@@ -12,7 +12,7 @@ import outlineRefresh from '@iconify-icons/ic/outline-refresh';
 
 
 
-function SearchManager({searchdate, searchpoint, searchmode, credentials, mission, altitude, onSearchStart, onPageSearch, onSearchComplete, on401, lefthanded}) {
+function SearchManager({searchdate, searchpoint, searchmode, credentials, dataset, altitude, onSearchStart, onPageSearch, onSearchComplete, on401, lefthanded}) {
 
 
     const [ searching, setsearching ] = useState(false);
@@ -103,11 +103,11 @@ function SearchManager({searchdate, searchpoint, searchmode, credentials, missio
         } else {
             sd = null
         }
-        setparam((param)=>{ return {...param, searchdate: sd, mission: mission, searchpoint: sp }})
-    }, [searchdate, mission, searchpoint, altitude, searchmode]);
+        setparam((param)=>{ return {...param, searchdate: sd, dataset: dataset, searchpoint: sp }})
+    }, [searchdate, dataset, searchpoint, altitude, searchmode]);
 
 
-    //console.log('mission rendering')
+    //console.log('dataset rendering')
     return (
             <div className={(searching === true?'SearchController Active':'SearchController')+ (lefthanded?' lefthanded':'')} onClick={handleTap}>
                 {/* {searching === true?<Icon icon={outlineSync} width='50px'/>:<span/>} */}

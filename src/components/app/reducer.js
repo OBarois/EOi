@@ -10,14 +10,14 @@ export const reducer = (state, action) => {
         }
   
         case "toggle_starfield":
-            console.log('togglename!')
+            console.log('toggle starfield!')
           return {
             ...state,
             mapSettings: {...state.mapSettings, starfield: !state.mapSettings.starfield}
           }
     
           case "toggle_atmosphere":
-            console.log('togglename!')
+            console.log('toggle atmosphere!')
           return {
             ...state,
             mapSettings: {...state.mapSettings, atmosphere: !state.mapSettings.atmosphere}
@@ -25,7 +25,7 @@ export const reducer = (state, action) => {
 
     
           case "toggle_background":
-            console.log('togglename!')
+            console.log('toggle background !')
           return {
             ...state,
             mapSettings: {...state.mapSettings, background: state.mapSettings.background + 1}
@@ -33,7 +33,7 @@ export const reducer = (state, action) => {
     
     
           case "toggle_overlay":
-            console.log('toggleoverlay!')
+            console.log('toggle overlay!')
           return {
             ...state,
             mapSettings: {...state.mapSettings, overlay: state.mapSettings.overlay + 1}
@@ -48,11 +48,13 @@ export const reducer = (state, action) => {
           }
     
 
-          case "set_mission":
-            console.log('set mission!')
+          case "set_dataset":
+            console.log('set dataset!')
+            console.log(action.value[1])
           return {
             ...state,
-            mission: action.value
+            dataset: action.value[0],
+            mapSettings: {...state.mapSettings, satelliteList: action.value[1]}
           }
         
           case "set_dem":
@@ -66,7 +68,8 @@ export const reducer = (state, action) => {
           return {
             ...state,
             // mapSettings: {...state.mapSettings, satellites: !state.mapSettings.satellites}
-            mapSettings: {...state.mapSettings, satellites: !state.mapSettings.satellites}
+            mapSettings: {...state.mapSettings, satellites: !state.mapSettings.satellites},
+
           }
     
     
@@ -108,6 +111,7 @@ export const reducer = (state, action) => {
             clearResultsTrigger: Math.random(),
             resultDesc: {totalResults:0, totalLoaded:0 },
             closestItem: null,
+            filter: [],
             browseMode: state.searchMode,
             searching: true
             // resultDesc: {...state.resultDesc, totalLoaded: action.value.totalLoaded, totalResults: action.value.totalResults}
@@ -179,13 +183,13 @@ export const reducer = (state, action) => {
             if(state.closestItem === null) return state
             let newfilter 
             if(state.filter.length === 0) {
-              if(state.mission.indexOf('S1') >=0 ) {
+              if(state.dataset.indexOf('S1') >=0 ) {
                 newfilter = [{
                   attribute: 'relativePassNumber',
                   value: state.closestItem.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.relativePassNumber
                 }]
               }
-              if(state.mission.indexOf('S2') >=0 ) {
+              if(state.dataset.indexOf('S2') >=0 ) {
                 newfilter = [{
                   attribute: 'relativePassNumber',
                   value: state.closestItem.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.relativePassNumber
@@ -313,7 +317,7 @@ export const reducer = (state, action) => {
           }
     
           case "set_credentials": {
-            console.log(action.value)
+            // console.log(action.value)
             return {
               ...state,
               credentials: action.value
@@ -346,8 +350,8 @@ export const reducer = (state, action) => {
   export const initialState = {
     active: false,
     searching: false,
-    // mission: 'S1A_IW_RAW__0SDV',
-    mission: 'S1A',
+    // dataset: 'S1A_IW_RAW__0SDV',
+    dataset: 'S1A',
     altitude: '5000000',
     appColor: '#b575c5',
     position: {
@@ -399,7 +403,7 @@ export const reducer = (state, action) => {
 
   export const getsavedstate = (state) => {
     return {
-      mission: state.mission,
+      dataset: state.dataset,
       altitude: state.altitude,
       appColor: state.appColor,
       position: state.position,

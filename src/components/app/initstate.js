@@ -9,8 +9,8 @@ import JSONCrush from "jsoncrush"
   export const defaultstate = {
     active: false,
     searching: false,
-    // mission: 'S1A_IW_RAW__0SDV',
-    mission: 'S1A',
+    // dataset: 'S1A_IW_RAW__0SDV',
+    dataset: 'S1A',
     altitude: '5000000',
     appColor: '#b575c5',
     position: {
@@ -53,6 +53,7 @@ import JSONCrush from "jsoncrush"
         overlay:1,
         dem: false,
         satellites: false,
+        satelliteList: ['s1a'],
         quicklooks: true,
         projection: 0
     },
@@ -62,7 +63,7 @@ import JSONCrush from "jsoncrush"
 
   export const getsavedstate = (state) => {
     return {
-      mission: state.mission,
+      dataset: state.dataset,
       altitude: state.altitude,
       appColor: state.appColor,
       position: state.position,
@@ -77,23 +78,51 @@ import JSONCrush from "jsoncrush"
     }
 
   }
-
-  export const initstate = (state) => {
-    let eoi_state = JSON.parse(window.localStorage.getItem("eoi_state"))
-
-
-    let paramindex = window.location.href.indexOf('?s=') 
-    console.log(paramindex)
-
-    let param = {}
-    if(paramindex >= 0) {
-      param = JSON.parse(JSONCrush.uncrush(decodeURIComponent(window.location.href.substring(paramindex+3))))
-      console.log(param)
-
+  export const getsharedstate = (state) => {
+    return {
+      dataset: state.dataset,
+      altitude: state.altitude,
+      appColor: state.appColor,
+      position: state.position,
+      animated: state.animated,
+      mapSettings: state.mapSettings,
+      viewDate: state.viewDate,
+      searchDate: state.searchDate,
+      goToDate: state.goToDate,
+      leftHanded: state.leftHanded
     }
-    console.log(defaultstate)
 
-    return({...defaultstate,...eoi_state,...param})
-  
   }
 
+  export const initstate = (state) => {
+
+    try {
+      let eoi_state = JSON.parse(window.localStorage.getItem("eoi_state"))
+
+
+      let paramindex = window.location.href.indexOf('?s=') 
+      let urlparam = window.location.href.substring(paramindex+3)
+      // window.location.href = window.location.href.split('?')[0]
+      window.history.replaceState(null, document.title, window.location.href.split('?')[0])
+
+      let param = {}
+      if(paramindex >= 0) {
+      
+        param = JSON.parse(JSONCrush.uncrush(decodeURIComponent(urlparam)))
+        console.log(param)
+  
+
+    }
+
+    let initmapsettings = {...defaultstate.mapSettings,...eoi_state.mapSettings,...param.mapSettings}
+
+    let initstate = {...defaultstate,...eoi_state,...param,mapSettings: initmapsettings}
+    console.log(initstate)
+
+    return(initstate)
+  
+  }       catch {
+    return(defaultstate)
+  }
+
+  }

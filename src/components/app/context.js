@@ -2,7 +2,7 @@
 
 import React from "react"
 import { reducer } from "./reducer"
-import {  initstate, getsavedstate } from "./initstate"
+import {  initstate,  getsavedstate } from "./initstate"
 import  { useEffect } from "react";
 import { useDebounce } from '../../hooks/useDebounce'
 import JSONCrush from "jsoncrush"
@@ -24,13 +24,7 @@ export const AppProvider = ({ children }) => {
 
 
   useEffect(() => {
-
-    let savedstate = getsavedstate(debouncedstate)
-    // console.log(savedstate)
-
-    // let eoi_state = encodeURIComponent(JSONCrush.crush(savedstate))
-    // let eoi_state = JSONCrush.crush(JSON.stringify(savedstate))
-    window.localStorage.setItem( "eoi_state", JSON.stringify(savedstate) );
+    window.localStorage.setItem( "eoi_state", JSON.stringify(getsavedstate(debouncedstate)) );
   }, [debouncedstate]);
 
   return (

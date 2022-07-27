@@ -5,7 +5,7 @@ import PRIPToGeojson from "./PRIPToGeojson"
 import OAuth2 from "fetch-mw-oauth2"
 import {AppContext} from '../app/context'
 
-// export default function useDatahub({searchdate, mission, searchpoint})  {
+// export default function useDatahub({searchdate, dataset, searchpoint})  {
 export default function useDatahub()  {
 
     // const searchparam = useRef({})
@@ -190,12 +190,12 @@ export default function useDatahub()  {
         }
     }
 
-    const search = ({searchdate, mission, searchpoint}, credentials) => {
+    const search = ({searchdate, dataset, searchpoint}, credentials) => {
         // console.log(' in search')
-        // console.log(searchdate+' / '+ mission+' / '+ searchpoint)
+        // console.log(searchdate+' / '+ dataset+' / '+ searchpoint)
         // console.log(credentials)
         let startdate, enddate = ''
-        let target = getcollection(mission)
+        let target = getcollection(dataset)
         if(!target) return null
 
         if(loading) controller.current.abort()
@@ -209,14 +209,14 @@ export default function useDatahub()  {
             // enddate = (new Date(searchdate.getTime() + offset - 1000)).toJSON()
         }
         let url = buildUrl({
-            code: mission,
+            code: dataset,
             polygon: searchpoint, 
             start: startdate,
             end: enddate
         })
         let coll_type = target.type
         // searchparam.current.searchdate = searchdate
-        // searchparam.current.mission = mission
+        // searchparam.current.dataset = dataset
         // searchparam.current.searchpoint = searchpoint
 
         let startindex = target.startIndexOrigin

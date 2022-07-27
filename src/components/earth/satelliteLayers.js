@@ -52,6 +52,8 @@ const {
 
 var satelliteLayers = []
 
+let satend, satstart = null
+
     for(let i=0 ; i<satConfig.length ; i++) {
         console.log(satConfig[i].name)
 
@@ -62,10 +64,16 @@ var satelliteLayers = []
             translations: satConfig[i].translations,
             ignoreLocalTransforms: satConfig[i].ignoreLocalTransforms
         }
-        let satstart = satConfig[i].launchDate
-        let satend = new Date(satstart.getTime())
-        satend.setUTCFullYear( satend.getUTCFullYear()+20 )
+        satstart = new Date(satConfig[i].launchDate.getTime())
+        
+        if(satConfig[i].retirementDate == null) {
+            satend = new Date(satstart.getTime())
+            satend.setUTCFullYear( satend.getUTCFullYear()+20 )
+        } else {
+            satend = new Date(satConfig[i].retirementDate.getTime())
+        }
         let layer = new SatelliteModelLayer({key: satConfig[i].key, time: new Date() }, options)
+
         layer.timeRange = [satstart, satend]
 
         const satrec = EoUtils.computeSatrec(satConfig[i].tleLineOne, satConfig[i].tleLineTwo);

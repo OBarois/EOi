@@ -1,0 +1,20 @@
+.GeoName {
+    position: fixed;
+    top: 150px;
+    left: 5px;
+    color: var(--color);
+    width: 100px;
+    height: 30px;
+    margin: auto;
+    overflow: wrap;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    user-select: auto;
+    z-index: 300;
+  
+  }
+
+  .Small {
+    font-size: 10px;
+  }
+  

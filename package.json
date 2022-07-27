@@ -10,6 +10,7 @@
     "@testing-library/user-event": "^12.8.3",
     "dateformat": "^3.0.3",
     "fetch-mw-oauth2": "^1.0.0",
+    "geocoder-geonames": "^0.1.2",
     "jsoncrush": "^1.1.6",
     "react": "^17.0.2",
     "react-colorful": "^5.1.4",

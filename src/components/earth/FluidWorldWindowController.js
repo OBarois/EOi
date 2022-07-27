@@ -19,6 +19,7 @@ export const FluidWorldWindowController = memo( ({world, onSimpleClick}) => {
     // to detect double taps
     const lastTap = useRef()
     const doubleTap = useRef()
+    const longclickdetected = useRef(null)
     const button = useRef()
     const clicktimeout = useRef()
     const tilttimeout = useRef()
@@ -53,6 +54,7 @@ export const FluidWorldWindowController = memo( ({world, onSimpleClick}) => {
     // end debug snippet  
     
     const detectDoubleTap = (e) => {
+        // console.log(e)
         button.current = e.button
         e.preventDefault()
         if (lastTap.current && (e.timeStamp - lastTap.current) < 300) {
@@ -68,6 +70,7 @@ export const FluidWorldWindowController = memo( ({world, onSimpleClick}) => {
         onDrag: ({  event, xy, vxvy, previous, first, down, initial, delta, movement, offset, velocity, direction, tap, scrolling, touches, pinching, origin}) => {
 
             if(first) {
+                longclickdetected.current = null
                 gesturestartposition.current = positionAtPickPoint(xy[0],xy[1])
                 if(!gesturestartposition.current) {
                     gesturestartposition.current = positionAtPickPoint(world.current.canvas.clientWidth/2,world.current.canvas.clientHeight/2)
@@ -92,8 +95,11 @@ export const FluidWorldWindowController = memo( ({world, onSimpleClick}) => {
                 case (!doubleTap.current && tap):  
                     // simple click or tap
                     clicktimeout.current = setTimeout(() => {
-                        console.log("simple click")
-                        handleSimpleClick(event)
+                        if(event.timeStamp - lastTap.current < 800) {
+                            handleSimpleClick(event)
+                        } else {
+                            handleLongClick(event)
+                        }
                     }, 300);
                     break
                 case (doubleTap.current && tap): {
@@ -108,6 +114,10 @@ export const FluidWorldWindowController = memo( ({world, onSimpleClick}) => {
                     // Pan
                     // console.log('pan')
                     if(!dragenabled.current) return
+
+                    if(event.timeStamp - lastTap.current < 800) {
+                    }
+
                     zoomspring.stop()
                     pinchzoomspring.stop()
                     pinchrotatespring.stop()
@@ -194,7 +204,14 @@ export const FluidWorldWindowController = memo( ({world, onSimpleClick}) => {
         return (val - min) / delta
     }
 
+
     function handleSimpleClick(event) {
+        console.log('simple click')
+        onSimpleClick(event)
+    }
+
+    function handleLongClick(event) {
+        console.log('long click')
         onSimpleClick(event)
     }
     // north up
@@ -457,6 +474,7 @@ export const FluidWorldWindowController = memo( ({world, onSimpleClick}) => {
     const handlepan3d = (event,initial,down,delta,offset,vxvy,velocity, direction, xy, previous,first,wheeling, touches,pinching) => {
         try {
             if(first){
+                // console.log('first drag')
                 // can crash the drag:
                 // if(Math.abs(gesturestartposition.current.latitude) > 85 || world.current.navigator.heading > 2 ) {
                 if(Math.abs(gesturestartposition.current.latitude) > 80 || world.current.navigator.heading > 2 ) {
@@ -482,6 +500,9 @@ export const FluidWorldWindowController = memo( ({world, onSimpleClick}) => {
             // config: { mass: 1, tension: 150, friction: 80 },
             config: { mass: 1, tension: 100, friction: 40 },
             onChange: ()=>{
+                if(!longclickdetected.current) {
+                    longclickdetected.current = (event.timeStamp - lastTap.current < 400)
+                }
                 try{
                     let lookatxy = [world.current.canvas.clientWidth/2, world.current.canvas.clientHeight/2]
                     let nextlookatxy = sub(lookatxy,scale(panvalue.get(),correction*enabler))

@@ -10,16 +10,14 @@ import ControlPanel from "../controlpanel"
 import InfoPanel from "../infopanel"
 import Mood from "../mood"
 import Share from "../share"
-// import MissionSelectorContainer from "../../containers/MissionSelectorContainer"
-import MissionSelector from "../missionselector"
-
-// import MapSelectorContainer from "../../containers/MapSelectorContainer"
+import DatasetSelector from "../datasetselector"
 import MapSelector from "../mapselector"
 import ColorSelectorContainer from "../../containers/ColorSelectorContainer"
 import OptionsSelector from "../optionsselector"
 import CollectionLabel from "../collectionlabel"
 import AltitudeLabel from "../altitudelabel"
 import SearchLabel from "../searchlabel"
+import GeoName from "../geoname"
 
 import DateManagerContainer from '../../containers/DateManagerContainer'
 import SearchManagerContainer from '../../containers/SearchManagerContainer'
@@ -54,13 +52,14 @@ function App() {
                 {/* <DateManager startdate={startdate} onDateChange={changeDate} onFinalDateChange={finalChangeDate} animated={searching}/> */}
                 <DateManagerContainer/>
                 <Mood/>
+                {/* <GeoName/> */}
                 <Share/>
                 <SearchManagerContainer/>
                 <ControlPanel active="false" >
                     {/* <div class='logo'><img  src='./images/ESA_logo_2020_White.png' height="40" ></img></div> */}
                     {/* <div className='logo'><img alt='' src='./images/EOi_logo.png' height="100" ></img></div> */}
                     <div className='horizontalContainer'>
-                        <MissionSelector></MissionSelector>
+                        <DatasetSelector></DatasetSelector>
                         <MapSelector ></MapSelector>
                         <div className='horizontalContainer'>
                             <ColorSelectorContainer></ColorSelectorContainer>

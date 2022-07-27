@@ -9,7 +9,7 @@ function CollectionLabel() {
     const [ state,  ] = React.useContext(AppContext)
 
     return (
-        <div className='GenericLabel'>{state.mission}</div>
+        <div className='GenericLabel'>{state.dataset}</div>
      )
 }
 

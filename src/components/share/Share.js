@@ -17,7 +17,7 @@ function Share({active}) {
         let savedstate = JSON.parse(window.localStorage.getItem("eoi_state"))
         newloc = newloc + '?s=' + encodeURIComponent(JSONCrush.crush(JSON.stringify(savedstate)))
         console.log(newloc)
-        navigator.share({url:newloc, text:'Share with love by EOi'})
+        navigator.share({url:newloc, text:'Care for the Earth...'})
     }, [])
 
     return (

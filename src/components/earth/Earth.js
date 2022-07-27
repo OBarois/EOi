@@ -143,8 +143,12 @@ const Earth = ({ id }) => {
     }, [state.mapSettings.atmosphere]);
 
     useEffect(() => {
-        toggleModel(state.mapSettings.satellites)
-    }, [state.mapSettings.satellites]);
+        if(state.mapSettings.satelliteList) toggleModel(state.mapSettings.satellites, state.mapSettings.satelliteList)
+    }, [state.mapSettings.satellites, state.mapSettings.satelliteList]);
+
+    // useEffect(() => {
+    //     console.log(state.mapSettings.satelliteList)
+    // }, [state.mapSettings.satelliteList]);
 
     useEffect(() => {
         toggleStarfield(state.mapSettings.starfield)
@@ -220,6 +224,7 @@ const Earth = ({ id }) => {
                 background: state.mapSettings.background,
                 overlay: state.mapSettings.overlay,
                 satellites: state.mapSettings.satellites,
+                satelliteList: state.mapSettings.satelliteList,
                 names: state.mapSettings.names,
                 projection: state.mapSettings.projection,
                 dem: state.mapSettings.dem

@@ -44,7 +44,8 @@ export function useEww({ id }) {
     const [ewwstate, setEwwState] = useState({})
     const bg = useRef(1)
     const ov = useRef(0)
-    const sat = useRef(false)
+    const modelOn = useRef(false)
+    const satList = useRef([])
     const atm = useRef(false)
     const star = useRef(false)
     const na = useRef(false)
@@ -64,12 +65,11 @@ export function useEww({ id }) {
     const color = useRef()
 
     // Initialise mapsettings
-    function initMap({ clon, clat, alt, atmosphere, starfield, satellites, background, names, dem, projection}) {
-
+    function initMap({ clon, clat, alt, atmosphere, starfield, satellites, satelliteList, background, names, dem, projection}) {
         eww.current.navigator.range = alt
         toggleAtmosphere(atmosphere)
         toggleStarfield(starfield)
-        toggleModel(satellites)
+        toggleModel(satellites,satelliteList)
         toggleBg(background)
         toggleNames(names)
         toggleDem(dem)
@@ -97,7 +97,7 @@ export function useEww({ id }) {
 
     //toggle atmosphere
     function toggleAtmosphere(bool) {
-        // console.log('toggleAtmosphere: '+bool)
+        console.log('toggleAtmosphere: '+bool)
         let la = getLayerByName('Atmosphere')
         atm.current = (bool!== null)?bool:!atm.current
         la.enabled = atm.current
@@ -105,19 +105,20 @@ export function useEww({ id }) {
     }
 
     //toggle model
-    function toggleModel(bool) {
-        // console.log('toggleModel: '+bool)
-        sat.current = (bool!= null)?bool:!sat.current
+    function toggleModel(bool, satelliteList) {
+        // if(satelliteList)
+        modelOn.current = (bool!= null)?bool:!modelOn.current
+        satList.current = satelliteList
 
-        enableSatelliteLayers(lastepoch.current,sat.current)
-        enableOrbitLayers(lastepoch.current,sat.current)
+        enableSatelliteLayers(lastepoch.current,modelOn.current,satList.current)
+        enableOrbitLayers(lastepoch.current,modelOn.current,satList.current)
 
         eww.current.redraw();
     }
 
     //toggle starField
     function toggleStarfield(bool) {
-        // console.log('toggleStarfield: '+bool)
+        console.log('toggleStarfield: '+bool)
         let ls = getLayerByName('StarField')
         star.current = (bool!= null)?bool:!star.current
         ls.enabled = star.current
@@ -512,26 +513,28 @@ export function useEww({ id }) {
         return null
     }
 
-    function enableSatelliteLayers(epoch,bool) {
+    function enableSatelliteLayers(epoch,bool,satlist) {
         for(let l=0 ; l<satelliteLayers.length ; l++) {
             if(satelliteLayers[l].timeRange[0].getTime() > epoch || satelliteLayers[l].timeRange[1].getTime() < epoch) {
                 satelliteLayers[l].enabled = false
+
                 // console.log('satstart: '+satelliteLayers[l].timeRange[0]+'  /  '+(new Date(epoch)))
             } else {
                 satelliteLayers[l].setTime(new Date(epoch))
-                satelliteLayers[l].enabled = (bool === null)?sat.current:bool
+                satelliteLayers[l].enabled = satlist.includes(satelliteLayers[l].key) && bool
             }
         }
+        // console.log(satelliteLayers)
     }
 
-    function enableOrbitLayers(epoch,bool) {
+    function enableOrbitLayers(epoch,bool,satlist) {
         for(let l=0 ; l<orbitLayers.length ; l++) {
             if(orbitLayers[l].timeRange[0].getTime() > epoch || orbitLayers[l].timeRange[1].getTime() < epoch) {
                 orbitLayers[l].enabled = false
                 // console.log('satstart: '+satelliteLayers[l].timeRange[0]+'  /  '+(new Date(epoch)))
             } else {
                 orbitLayers[l].setTime(new Date(epoch))
-                orbitLayers[l].enabled = (bool === null)?sat.current:bool
+                orbitLayers[l].enabled = satlist.includes(satelliteLayers[l].key) && bool
             }
         }
     }
@@ -798,7 +801,12 @@ export function useEww({ id }) {
 
         // if quicklook is already there, do nothing
         for(let i = 0; i < quicklookLayer.renderables.length; i++) {
-            if(quicklookLayer.renderables[i].displayName === timerange[1].toUTCString()) return
+            if(quicklookLayer.renderables[i].displayName === timerange[1].toUTCString()) {
+                console.log('QL already there')
+                enableRenderables(quicklookLayer, lastepoch.current, 0, QLTrail.current)
+    
+                return
+            }
         }
 
         try {
@@ -829,7 +837,7 @@ export function useEww({ id }) {
             quicklook.displayName = timerange[1].toUTCString()
             quicklook.zIndex = ZINDEX_QUICKLOOKS
             quicklook.userProperties = userProperties
-            quicklook.enabled = renderable.enabled
+            // quicklook.enabled = renderable.enabled
             
             quicklook.image = image
 
@@ -837,14 +845,14 @@ export function useEww({ id }) {
             quicklookLayer.addRenderable(quicklook)
 
             // keep the last 20
-            while (quicklookLayer.renderables.length > 20) {
-                quicklookLayer.renderables.shift()
-            }
+            // while (quicklookLayer.renderables.length > 20) {
+            //     quicklookLayer.renderables.shift()
+            // }
     
             URL.revokeObjectURL(objectURL)
             sortLayers()
             // console.log(eww.current.layers)
-
+            enableRenderables(quicklookLayer, lastepoch.current, 0, QLTrail.current)
             eww.current.redraw()
             
         } catch(err) {
@@ -875,15 +883,42 @@ export function useEww({ id }) {
             let prodlayer = getLayerByName('Products')
             let idx = getIndexOfRenderable(renderable,prodlayer)
             // console.log(idx)
-            abortQLUrls()
+            abortAddQuicklooks()
             let j = 0
+            let renderables = []
             for(let i = idx ; idx < prodlayer.renderables.length && j < 10 ; idx++) {
                 if(!prodlayer.renderables[idx].filtered || prodlayer.renderables[idx].filtered !== true ) {
-                    add1Quicklook(prodlayer.renderables[idx], credentials)
                     j+=1
+                    renderables.push(prodlayer.renderables[idx])
                 }
             }
+            const abortController = new AbortController();
+            controller.current.push(abortController)
+            addQuicklooks(renderables, credentials, abortController.signal)
+
         }
+    }
+
+    const addQuicklooks = async (renderables, credentials, abortsignal) => {
+        return new Promise( ( resolve, reject ) => {
+            // console.log(renderables)
+
+            abortsignal.addEventListener( 'abort', () => { 
+                // console.log('aborting QL')
+                reject()
+            })
+
+            for(let i = 0; i < renderables.length; i++) {
+
+                // do something slow
+                // const timeout = setTimeout( ()=> {
+                //     console.log('doing QL');
+                //   }, 5000 );
+                  add1Quicklook(renderables[i], credentials)
+    
+            }
+            resolve()
+        } )
     }
 
     const add1Quicklook = async (renderable, credentials) => {
@@ -924,7 +959,7 @@ export function useEww({ id }) {
             let quicklookLayer = getLayerByName('Quicklooks')
             let enabled = renderable.enabled
 
-            createQL(url, footprint, timerange, attributes, userProperties, quicklookLayer, renderable, credentials)
+            await createQL(url, footprint, timerange, attributes, userProperties, quicklookLayer, renderable, credentials)
         }
     }
 
@@ -933,6 +968,14 @@ export function useEww({ id }) {
         for (let i = 0; i < controller.current.length; i++) {
             controller.current[i].abort()
 
+        }
+        controller.current = []
+    }
+
+    function abortAddQuicklooks() {
+        // abort ongoing QL calls
+        for (let i = 0; i < controller.current.length; i++) {
+            controller.current[i].abort()
         }
         controller.current = []
     }
@@ -971,9 +1014,9 @@ export function useEww({ id }) {
             enableLayer(getLayerByName('QuicklookWMS'), epoch, 0,  QLTrail.current)
         }
 
-        if(sat.current) {
-            enableSatelliteLayers(epoch,null)
-            enableOrbitLayers(epoch,null)
+        if(modelOn.current) {
+            enableSatelliteLayers(epoch,modelOn.current,satList.current)
+            enableOrbitLayers(epoch,modelOn.current,satList.current)
         }
 
         eww.current.redraw();
@@ -1189,13 +1232,13 @@ export function useEww({ id }) {
             eww.current.addLayer(layers[l].layer);
         }
         for (let l = 0; l < satelliteLayers.length; l++) {
-            satelliteLayers[l].enabled = sat.current
+            satelliteLayers[l].enabled = modelOn.current
             satelliteLayers[l].zIndex= ZINDEX_SATELLITE+l
             eww.current.addLayer(satelliteLayers[l]);
         }
 
         for (let l = 0; l < orbitLayers.length; l++) {
-            orbitLayers[l].enabled = sat.current
+            orbitLayers[l].enabled = modelOn.current
             // orbitLayers[l].zIndex= ZINDEX_SATELLITE+l
             eww.current.addLayer(orbitLayers[l]);
         }
