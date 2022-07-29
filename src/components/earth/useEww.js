@@ -65,13 +65,14 @@ export function useEww({ id }) {
     const color = useRef()
 
     // Initialise mapsettings
-    function initMap({ clon, clat, alt, atmosphere, starfield, satellites, satelliteList, background, names, dem, projection}) {
+    function initMap({ clon, clat, alt, atmosphere, starfield, satellites, overlay, satelliteList, background, names, dem, projection}) {
         eww.current.navigator.range = alt
         toggleAtmosphere(atmosphere)
         toggleStarfield(starfield)
         toggleModel(satellites,satelliteList)
         toggleBg(background)
         toggleNames(names)
+        toggleOv(overlay)
         toggleDem(dem)
         toggleProjection(projection)
         moveTo(clat, clon, alt)
@@ -199,14 +200,18 @@ export function useEww({ id }) {
         eww.current.redraw();
     }
 
+
+    // to be redone!!
     function toggleOv(overlay) {
+        // console.log(overlay+' '+(ovLayers.length+1)+' '+ov.current)
+        // console.log((ov.current + 1)%(ovLayers.length+1))
         let ovindex = -1
-        overlay = (overlay === null)?  (ov.current + 1)%ovLayers.length : overlay % ovLayers.length
-        ov.current = overlay
+        ov.current = (overlay == null)?  (ov.current + 1)%(ovLayers.length+1) : overlay % (ovLayers.length+1)
+        
         for(let i=0 ; i<eww.current.layers.length ; i++) {
             if(eww.current.layers[i].type === 'overlay' && eww.current.layers[i].type) {
-                ovindex += 1
-                eww.current.layers[i].enabled = (ovindex === overlay) ? true : false
+                ovindex +=1
+                eww.current.layers[i].enabled = (ovindex === ov.current) ? true : false
             }
         }
         eww.current.redraw();

@@ -169,7 +169,7 @@ export const collections = [
     },
     {
         code: 'ENVISAT/MERIS/FRS',
-        satellites: ['envisat'],
+        satellites: ['env'],
         templateUrl: 'https://dhr.datahub.eodc.eu/search?q=( footprint:"Intersects({polygon})" AND beginposition:[{start} TO {end}] AND platformname:Envisat AND producttype:MER_FRS_2P) &start={startindex}&rows=100&orderby=beginposition desc&format=json',
         name: "ENVISAT/MERIS/FRS from EODC's EO Mission Data relay",
         logo: './images/s5p_black.png',
@@ -181,7 +181,7 @@ export const collections = [
     },
     {
         code: 'EOCAT-MER_FRS_2P',
-        satellites: ['envisat'],
+        satellites: ['env'],
         templateUrl: 'https://eocat.esa.int/api/catalogue/EOCAT-MER_FRS_2P/search?start={start}&stop={end}&geom={polygon}&format=json&count=50&startIndex={startindex}',
         startIndexOrigin: 1,
         name: 'EOCAT-MER_FRS_2P',
@@ -194,7 +194,7 @@ export const collections = [
 
     {
         code: 'EOCAT-ENVISAT.ASA.IMP_1P',
-        satellites: ['envisat'],
+        satellites: ['env'],
         templateUrl: 'https://eocat.esa.int/api/catalogue/EOCAT-ENVISAT.ASA.IMP_1P/search?start={start}&stop={end}&geom={polygon}&format=json&count=50&startIndex={startindex}',
         startIndexOrigin: 1,
         name: 'EOCAT-ENVISAT.ASA.IMP_1P',

@@ -54,6 +54,8 @@ import JSONCrush from "jsoncrush"
         dem: false,
         satellites: false,
         satelliteList: ['s1a'],
+        datasetSatelliteList: ['s1a'],
+        constellation: false,
         quicklooks: true,
         projection: 0
     },

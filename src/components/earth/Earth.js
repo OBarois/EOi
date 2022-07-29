@@ -157,6 +157,7 @@ const Earth = ({ id }) => {
     }, [state.mapSettings.starfield]);
 
     useEffect(() => {
+        console.log(state.mapSettings.names)
         toggleNames(state.mapSettings.names)
     }, [state.mapSettings.names]);
 
@@ -169,6 +170,7 @@ const Earth = ({ id }) => {
     }, [state.mapSettings.background]);
 
     useEffect(() => {
+        console.log('Overlay: '+state.mapSettings.overlay)
         toggleOv(state.mapSettings.overlay)
     }, [state.mapSettings.overlay]);
 

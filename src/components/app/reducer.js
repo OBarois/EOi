@@ -54,9 +54,15 @@ export const reducer = (state, action) => {
           return {
             ...state,
             dataset: action.value[0],
-            mapSettings: {...state.mapSettings, satelliteList: action.value[1]}
+            mapSettings: {...state.mapSettings, satelliteList: action.value[1], datasetSatelliteList: action.value[1]}
           }
-        
+
+          case "set_constellation":
+            console.log('set constellation!')
+          return {
+            ...state,
+            mapSettings: {...state.mapSettings, satelliteList: action.value[1]?action.value[0]:state.mapSettings.datasetSatelliteList, constellation: action.value[1]}
+          }
           case "set_dem":
           return {
             ...state,
@@ -65,10 +71,12 @@ export const reducer = (state, action) => {
     
     
           case "toggle_satellites":
+            console.log('toggle_satellites!: '+action.value)
+
           return {
             ...state,
             // mapSettings: {...state.mapSettings, satellites: !state.mapSettings.satellites}
-            mapSettings: {...state.mapSettings, satellites: !state.mapSettings.satellites},
+            mapSettings: {...state.mapSettings, satellites: action.value},
 
           }
     

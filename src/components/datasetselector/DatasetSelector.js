@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {AppContext} from '../app/context'
 
 
-import { useKey } from 'rooks'
 import './DatasetSelector.css'
 
 
@@ -13,12 +12,6 @@ function DatasetSelector() {
     const [ state, dispatch ] = React.useContext(AppContext)
 
     
-    useKey(['0'],()=>dispatch({ type: "set_dataset", value: [state.dataset,['s1a','s1b','s2a','s2b','s3a','s3b','s5p']]}))
-    useKey(['1'],()=>dispatch({ type: "set_dataset", value: [state.dataset,['s1a','s1b']]}))
-    useKey(['2'],()=>dispatch({ type: "set_dataset", value: [state.dataset,['s2a','s2b']]}))
-    useKey(['3'],()=>dispatch({ type: "set_dataset", value: [state.dataset,['s3a','s3b']]}))
-    useKey(['5'],()=>dispatch({ type: "set_dataset", value: [state.dataset,['s5p']]}))
-
 
     return (
         <div className='DatasetSelectorContainer'>

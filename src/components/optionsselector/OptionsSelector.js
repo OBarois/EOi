@@ -1,11 +1,21 @@
 
 import React from "react";
 import {AppContext} from '../app/context'
+import { useKey } from 'rooks'
+
 
 import './OptionsSelector.css'
 import Switch from "react-switch";
 
 function OptionsSelector() {
+
+  useKey(['0'],()=>dispatch({ type: "set_dataset", value: [state.dataset,['s1a','s1b','s2a','s2b','s3a','s3b','s5p']]}))
+  useKey(['1'],()=>dispatch({ type: "set_dataset", value: [state.dataset,['s1a','s1b']]}))
+  useKey(['2'],()=>dispatch({ type: "set_dataset", value: [state.dataset,['s2a','s2b']]}))
+  useKey(['3'],()=>dispatch({ type: "set_dataset", value: [state.dataset,['s3a','s3b']]}))
+  useKey(['5'],()=>dispatch({ type: "set_dataset", value: [state.dataset,['s5p']]}))
+
+
 
     const [ state, dispatch ] = React.useContext(AppContext)
 
@@ -14,7 +24,10 @@ function OptionsSelector() {
       dispatch({ type: "set_dem", value: checked})
     }
     const handleSatChange = (checked) => {
-      dispatch({ type: "toggle_satellites" })
+      dispatch({ type: "toggle_satellites",  value: checked})
+    }
+    const handleConstellationChange = (checked) => {
+      dispatch({ type: "set_constellation", value: [['s1a','s1b','s2a','s2b','s3a','s3b','s5p'],checked]})
     }
     const handleStarfieldChange = (checked) => {
       dispatch({ type: "toggle_starfield"})
@@ -34,9 +47,13 @@ function OptionsSelector() {
     return (
         <div className='DemSelectorContainer'>
           <div className='verticalContainer DemSelector' >
-            <div className='Selector horizontalContainer'>
+          <div className='Selector horizontalContainer'>
                 <Switch id='satellites' onChange={handleSatChange} checked={state.mapSettings.satellites} />
-                <span className='Label'>Satellites</span>
+                <span className='Label'>Satellites in Dataset</span>
+            </div>
+            <div className='Selector horizontalContainer'>
+                <Switch id='constellation' onChange={handleConstellationChange} checked={state.mapSettings.constellation} />
+                <span className='Label'>Constellation</span>
             </div>
             <div className='Selector horizontalContainer'>
               <Switch id='dem' onChange={handleDemChange} checked={state.mapSettings.dem} />

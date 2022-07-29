@@ -60,8 +60,8 @@ const satConfig = [
             Color.colorFromKmlHex('ff00fff7')  //greener
         ],
         swatModes: ['NOBS'],
-        tleLineOne: '1 40697U 15028A   18124.08865983  .00000004  00000-0  17994-4 0  9993',
-        tleLineTwo: '2 40697  98.5686 199.4434 0001286  92.5669 267.5666 14.30817033149583',
+        tleLineOne: '1 40697U 15028A   22209.03279834  .00000059  00000+0  39204-4 0  9998',
+        tleLineTwo: '2 40697  98.5679 283.2380 0001239  91.6336 268.4979 14.30822892370656',
         hasModel: true,
         filePath: './satellites/senti2version6/s2.json',
         rotations: {
@@ -91,8 +91,8 @@ const satConfig = [
         name: 'SENTINEL-3A',
         shortName: 'S-3A',
         satIndex: 2,
-        tleLineOne: '1 41335U 16011A   18124.14356592 -.00000000  00000-0  18017-4 0  9998',
-        tleLineTwo: '2 41335  98.6266 192.0005 0001035 100.1921 259.9376 14.26736754115121',
+        tleLineOne: '1 41335U 16011A   22209.15666111  .00000036  00000+0  32851-4 0  9998',
+        tleLineTwo: '2 41335  98.6209 275.8640 0001147  97.0294 263.1017 14.26737212335576',
         hasModel: true,
         filePath: './satellites/Sentinel3/s3.json',
         rotations: {
@@ -130,8 +130,8 @@ const satConfig = [
             Color.colorFromKmlHex('ffffffff')  //white
         ],
         swatModes: ['IW', 'EW', 'SM'],
-        tleLineOne: '1 41456U 16025A   18124.13828432 -.00000022  00000-0  49756-5 0  9992',
-        tleLineTwo: '2 41456  98.1817 132.0102 0001487  82.9964 277.1419 14.59197806107664',
+        tleLineOne: '1 41456U 16025A   22209.21862431  .00000042  00000+0  18606-4 0  9996',
+        tleLineTwo: '2 41456  98.1829 216.0238 0001369  88.6708 271.4653 14.59198877333137',
         hasModel: true,
         filePath: './satellites/sentinel1/s1.json',
         rotations: {
@@ -167,8 +167,8 @@ const satConfig = [
             Color.colorFromKmlHex('ffffff00'),
         ],
         swatModes: ['NOBS'],
-        tleLineOne: '1 42063U 17013A   18124.12358125  .00000002  00000-0  17497-4 0  9994',
-        tleLineTwo: '2 42063  98.5687 199.4702 0001382  97.5073 262.6270 14.30817718 60503',
+        tleLineOne: '1 42063U 17013A   22209.13764023  .00000067  00000+0  42146-4 0  9991',
+        tleLineTwo: '2 42063  98.5689 283.3111 0001478  92.7207 267.4142 14.30818304281580',
         groundPosition: {latitude: 5.2079, longitude: -52.7724, altitude: 0},
         hasModel: true,
         filePath: './satellites/senti2version6/s2.json',
@@ -202,8 +202,8 @@ const satConfig = [
         swathTypes: [],
         swathColors: [],
 
-        tleLineOne: '1 42969U 17064A   18123.85141871 -.00000009  00000-0  16636-4 0  9994',
-        tleLineTwo: '2 42969  98.7352  64.1585 0001101  78.1817 281.9482 14.19565315 28712',
+        tleLineOne: '1 42969U 17064A   22208.78956647 -.00000001  00000+0  20275-4 0  9995',
+        tleLineTwo: '2 42969  98.7323 147.9939 0001240  83.7357 276.3960 14.19543785248044',
 
         groundPosition: {latitude: 62.927860, longitude: 40.574830, altitude: 0},
         hasModel: true,
@@ -235,8 +235,8 @@ const satConfig = [
         name: 'SENTINEL-3B',
         shortName: 'S-3B',
         satIndex: 6,
-        tleLineOne: '1 43437U 18039A   18122.61596633  .00002473  00000-0  10753-2 0  9999',
-        tleLineTwo: '2 43437  98.6226 190.4610 0008811 292.4467  67.5830 14.24954518   977',
+        tleLineOne: '1 43437U 18039A   22208.77883229  .00000033  00000+0  31691-4 0  9991',
+        tleLineTwo: '2 43437  98.6268 275.5208 0001599 102.2196 257.9163 14.26737935221584',
         groundPosition: {
             latitude: 62.925556,
             longitude: 40.577778,
@@ -266,6 +266,49 @@ const satConfig = [
         ignoreLocalTransforms: true,
         launchDate: new Date('2018-04-25T17:57:00.000Z'),
     },
+    {
+        key: 'env',
+        name: 'ENVISAT',
+        shortName: 'Envisat',
+        satIndex: 0,
+        swathTypes: ['black', 'red', 'green', 'white'],
+        swathColors: [
+            Color.colorFromKmlHex('ff000000'), //black
+            Color.colorFromKmlHex('ff0000ff'), //red
+            Color.colorFromKmlHex('ff00ff00'), //green
+            Color.colorFromKmlHex('ffffffff')  //white
+        ],
+        swatModes: ['IW', 'EW', 'SM'],
+        // tleLineOne: '1 39634U 14016A   18124.03591006  .00000001  00000-0  10014-4 0  9998',
+        // tleLineTwo: '2 39634  98.1819 132.0838 0001369  78.7198 281.4156 14.59198520217480',
+        tleLineOne: '1 27386U 02009A   22208.94689716  .00000035  00000+0  24922-4 0  9991',
+        tleLineTwo: '2 27386  98.1855 188.1604 0001389  88.0150 331.3538 14.38141701 69354',
+        hasModel: true,
+        filePath: './satellites/sentinel1/s1.json',
+        rotations: {
+            x: 0,
+            y: 0,
+            z: 0,
+            headingAxis: [0, 0, 1],
+            headingAdd: -90,
+            headingMultiply: 1
+        },
+        preRotations: {
+            x: 0,
+            y: 0,
+            z: 0
+        },
+        scale: 500000,
+        translations: {
+            x: -0.1,
+            y: -0.1,
+            z: 0
+        },
+        ignoreLocalTransforms: true,
+        launchDate: new Date('2002-03-01T21:02:00.000Z'),
+        retirementDate: new Date('2012-05-09T21:55:00.000Z'),
+
+    }
 ];
 
 export const getSatConfigByKey = (satKey) => {
