@@ -18,8 +18,12 @@ export default function dhusToGeojson(response) {
     function mapFromHubOpenSearch(item) {    
         function reshuffle(array) {
             let json = {};
-            for(let i=0; i < array.length; i++) {
-                json[array[i].name] =  array[i].content;
+            if(Array.isArray(array)) {
+                for(let i=0; i < array.length; i++) {
+                    json[array[i].name] =  array[i].content;
+                }
+            } else {
+                json[array.name] = array.content
             }
             return json;
         }
@@ -54,7 +58,7 @@ export default function dhusToGeojson(response) {
             }
             
             // console.log(gmlToWkt(hubItem.gmlfootprint))
-
+            // console.log(hubItem)
             var newItem = {
                 id: item.title,
                 geometry: wellknown(gmlToWkt(hubItem.gmlfootprint)),
@@ -99,7 +103,8 @@ export default function dhusToGeojson(response) {
                             productType: hubItem.producttype,
                             //timeliness: indexes["product"]["Timeliness Category"],
                             tile: hubItem.tileid,
-                            size: sizeInBytes
+                            size: sizeInBytes,
+                            cloudCoverPercentage: hubItem.cloudcoverpercentage
                         }
                     }
                 }

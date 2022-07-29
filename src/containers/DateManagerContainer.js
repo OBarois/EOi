@@ -25,6 +25,10 @@ function DateManagerContainer() {
         dispatch({type:'set_animated', value: animated})
     },[dispatch])
 
+    const handleStepChange = useCallback( (step) => {
+         dispatch({type:'set_step', value: step})
+    },[dispatch])
+
     // useEffect(() => {
     //     let newtics = []
     //     if(!state.geojson) return
@@ -49,7 +53,7 @@ function DateManagerContainer() {
     // console.log(startDate)
 
     return (
-        <DateManager onDateChange={handleDateChanged} onFinalDateChange={handleFinalDate} startdate={startdate} tics={tics} gotoscalezoom={state.zoomScale} onStateChange={handleStateChange} animated={state.animated} searching={state.searching} leftHanded={state.leftHanded}/> 
+        <DateManager onDateChange={handleDateChanged} onFinalDateChange={handleFinalDate} onStepChange={handleStepChange} startdate={startdate} tics={tics} gotoscalezoom={state.zoomScale} onStateChange={handleStateChange} animated={state.animated} cycle={state.cycle} searching={state.searching} leftHanded={state.leftHanded}/> 
      )
 }
 

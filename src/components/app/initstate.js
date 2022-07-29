@@ -44,6 +44,7 @@ import JSONCrush from "jsoncrush"
         totalLoaded: 0
     },
     animated: false,
+    cycle: 1000*60*60*24*12,
     clearResultsTrigger: null,
     mapSettings: {
         atmosphere: false,
@@ -66,6 +67,7 @@ import JSONCrush from "jsoncrush"
   export const getsavedstate = (state) => {
     return {
       dataset: state.dataset,
+      cycle: state.cycle,
       altitude: state.altitude,
       appColor: state.appColor,
       position: state.position,
@@ -83,6 +85,7 @@ import JSONCrush from "jsoncrush"
   export const getsharedstate = (state) => {
     return {
       dataset: state.dataset,
+      cycle: state.cycle,
       altitude: state.altitude,
       appColor: state.appColor,
       position: state.position,

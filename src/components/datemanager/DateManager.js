@@ -1,10 +1,10 @@
-import React, { useState, useCallback} from 'react';
+import React, { useState, useCallback, useEffect} from 'react';
 import DateLabel from './components/datelabel'
 import DateController from './components/datecontroller'
 import DateSelector from './components/dateselector'
 
 
-function DateManager({ onDateChange, onFinalDateChange, onStateChange, animated, searching, startdate, resetstartdatetrigger, tics, gotoscalezoom, leftHanded}) {
+function DateManager({ onDateChange, onFinalDateChange, onStateChange, onStepChange, animated, searching, startdate, resetstartdatetrigger, tics, gotoscalezoom, cycle, leftHanded}) {
 
     // if(!startdate) startdate = new Date()
     const [selectorStartdate, setselectorStartdate] = useState(startdate)
@@ -32,7 +32,7 @@ function DateManager({ onDateChange, onFinalDateChange, onStateChange, animated,
     }, [])
 
     const handleSelectorStepChange = useCallback( (step) => {
-        console.log('handleSelectorStepChange' + step)
+        onStepChange(step)
         setDateLabelHighlight(step)
     },[])
 
@@ -41,9 +41,9 @@ function DateManager({ onDateChange, onFinalDateChange, onStateChange, animated,
         setscalezoom(zoom)
     },[])
 
-    // useEffect(() => {
-    //     console.log(tics)
-    // }, [tics]);
+    useEffect(() => {
+        console.log(cycle)
+    }, [cycle]);
 
 
 
@@ -51,7 +51,7 @@ function DateManager({ onDateChange, onFinalDateChange, onStateChange, animated,
         <div >
           <DateController startdate={startdate}  onDateChange={handleControllerDateChange} onStateChange={onStateChange} animated={animated} lefthanded={leftHanded}/>
           <DateLabel date={labeldate} highlight={dateLabelHighlight} handleLabelClick={handleLabelClick}/>
-          <DateSelector startdate={selectorStartdate} resetToStartDateTrigger={resetstartdatetrigger} tics={tics} gotoscalezoom={scalezoom}
+          <DateSelector startdate={selectorStartdate} resetToStartDateTrigger={resetstartdatetrigger} tics={tics} gotoscalezoom={scalezoom} satcycle={cycle}
                 onDateChange={handleSelectorDateChange} 
                 onFinalDateChange={handleSelectorFinalDateChange} 
                 onStepChange={handleSelectorStepChange}

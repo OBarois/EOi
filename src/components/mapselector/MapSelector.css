@@ -10,7 +10,7 @@
     justify-content: left;
     flex-direction: row;
     /* flex-wrap: wrap; */
-    width: 300px;
+    width: 600px;
     height: auto;
     overflow: scroll; 
     /* background:  rgba(0, 255, 34, 0.315); */

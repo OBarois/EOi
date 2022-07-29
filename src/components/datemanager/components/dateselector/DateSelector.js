@@ -10,7 +10,7 @@ import DateSelectorScale from './DateSelectorScale'
 import './DateSelector.css';
 // import { start } from 'repl';
 
-function DateSelector({startdate, resetToStartDateTrigger, tics, gotoscalezoom, onDateChange, onFinalDateChange, onStepChange, leftHanded}) {
+function DateSelector({startdate, resetToStartDateTrigger, tics, gotoscalezoom, onDateChange, onFinalDateChange, onStepChange, satcycle, leftHanded}) {
 
 
     // const [ setlog, renderlog] = useLog()
@@ -31,8 +31,9 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, gotoscalezoom, 
 
     
     const isActive = useRef(false)
-    const [step, setStep ] = useState([60000])
+    // const [step, setStep ] = useState([60000])
     const [stepLabel, setStepLabel ] = useState('hour')
+    // const [cycle, setcycle ] = useState('hour')
 
     // to detect double taps
     const lastTap = useRef()
@@ -42,6 +43,10 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, gotoscalezoom, 
 
     const startingdate = useRef(startdate)
     const discreetdate = useRef(startdate)
+    const cycle = useRef(satcycle)
+    const step = useRef(satcycle)
+
+    // const setStep = (value) => step.current = value
 
     const detectDoubleTap = (e) => {
         const now = Date.now();
@@ -109,7 +114,7 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, gotoscalezoom, 
                     isActive.current = true
                     let newdate
                     const rounder = (posy_wheel.get() < 0)?Math.ceil:Math.floor
-                    let nbstep = rounder(posy_wheel.get() * zoomfactor  / step[0])
+                    let nbstep = rounder(posy_wheel.get() * zoomfactor  / step.current[0])
                     if(nbstep === 0) {
                         // onFinalDateChange(discreetdate.current)
                         // isActive.current = false
@@ -123,7 +128,7 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, gotoscalezoom, 
                         newdate.setUTCMonth( newdate.getUTCMonth()-nbstep )
                         // setlog({newdate:discreetdate.current.toJSON()})
                     } else { 
-                        newdate = new Date(discreetdate.current.getTime() - nbstep * step[0]) 
+                        newdate = new Date(discreetdate.current.getTime() - nbstep * step.current[0]) 
                     }
                     discreetdate.current = newdate
                     setScaledate(newdate)
@@ -185,7 +190,7 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, gotoscalezoom, 
                     isActive.current = true
                     
 
-                    // if(Math.floor(Math.abs(test.get()*zoomfactor   / step[0]))==0) test.stop()
+                    // if(Math.floor(Math.abs(test.get()*zoomfactor   / step.current[0]))==0) test.stop()
 
                     // let even = (test.get()<0 ? Math.ceil:Math.floor)
                         // setlog({anim:test.get(), velocity: velocity*5})
@@ -193,16 +198,15 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, gotoscalezoom, 
                         // this avoids the double tap to be detected while touch dragging fast
                         if(Math.abs(movement[1]) > 5) lastTap.current = new Date(0)
 
-
                         if(stepLabel==='month') {
-                            let nbstep = Math.ceil(test.get() * zoomfactor  / step[0])
+                            let nbstep = Math.ceil(test.get() * zoomfactor  / step.current[0])
                             // setlog({olddate:discreetdate.current.toJSON()})
                             let adate = new Date(startingdate.current.getTime())
                             adate.setUTCMonth( adate.getUTCMonth()-nbstep )
                             discreetdate.current = adate
                             // setlog({newdate:discreetdate.current.toJSON()})
                         } else {
-                            discreetdate.current = new Date(startingdate.current.getTime() - Math.ceil(test.get()*zoomfactor   / step[0]) * step[0])
+                            discreetdate.current = new Date(startingdate.current.getTime() - Math.ceil(test.get()*zoomfactor   / step.current[0]) * step.current[0])
                         }
                         
                     
@@ -219,7 +223,7 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, gotoscalezoom, 
                 },
                 // stop: (spring)=>{
                 //     let even = (test.get()<0 ? Math.ceil:Math.floor)
-                //     return (even(test.get()*zoomfactor   / step[0])<=0)
+                //     return (even(test.get()*zoomfactor   / step.current[0])<=0)
                 // }
             }) 
 
@@ -368,16 +372,21 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, gotoscalezoom, 
         onStepChange(stepLabel)
     },[stepLabel,onStepChange])
 
-    // useEffect(() => {
-    //     setlefthanded(stepLabel)
-    // },[leftHanded])
+    useEffect(() => {
+        console.log('cycle changed to: '+satcycle)
+        cycle.current = satcycle
+        if(stepLabel === 'cycle') {
+            console.log('new step')
+            step.current= [satcycle]
+        }
+    },[satcycle])
 
     
     useEffect(() => {
         // console.log(zoomfactor)
         switch (true) {
             case zoomfactor > 120426316:
-                setStep([
+                step.current = [
                     1000*60*60*24*31,
                     1000*60*60*24*28,
                     1000*60*60*24*31,
@@ -390,27 +399,27 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, gotoscalezoom, 
                     1000*60*60*24*31,
                     1000*60*60*24*30,
                     1000*60*60*24*31,
-                    ])
+                    ]
                 setStepLabel('month')
                 break
             case zoomfactor > 94544702:
-                setStep([1000*60*60*24*12])
+                step.current = [cycle.current]
                 setStepLabel('cycle')
                 break
             case zoomfactor > 14544702:
-                setStep([1000*60*60*24])
+                step.current = [1000*60*60*24]
                 setStepLabel('day')
                 break
             case zoomfactor > 735259:
-                setStep([1000*60*60])
+                step.current = [1000*60*60]
                 setStepLabel('hour')
                 break
             case zoomfactor > 32274:
-                setStep([1000*60])
+                step.current = [1000*60]
                 setStepLabel('minute')
                 break
             default:
-                setStep([1000])
+                step.current = [1000]
                 setStepLabel('second')
         }
     },[zoomfactor])

@@ -17,7 +17,7 @@ function DatasetSelector() {
         <div className='DatasetSelectorContainer'>
             <div className='DatasetSelector'>
                 {state.collections.map( (coll)  => (
-                    <div key={coll.code} className={(state.dataset === coll.code)?'CircleButtonSelected':'CircleButton'}><img className='DatasetIcon' src={coll.logo} alt='' onClick={() => dispatch({ type: "set_dataset", value: [coll.code,coll.satellites]})} /></div>
+                    <div key={coll.code} className={(state.dataset === coll.code)?'CircleButtonSelected':'CircleButton'}><img className='DatasetIcon' src={coll.logo} alt='' onClick={() => dispatch({ type: "set_dataset", value: [coll.code,coll.satellites,coll.cycle]})} /></div>
                     ))}
                 </div>
         </div>

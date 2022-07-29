@@ -47,9 +47,10 @@ function OptionsSelector() {
     return (
         <div className='DemSelectorContainer'>
           <div className='verticalContainer DemSelector' >
+
           <div className='Selector horizontalContainer'>
                 <Switch id='satellites' onChange={handleSatChange} checked={state.mapSettings.satellites} />
-                <span className='Label'>Satellites in Dataset</span>
+                <span className='Label'>Satellites</span>
             </div>
             <div className='Selector horizontalContainer'>
                 <Switch id='constellation' onChange={handleConstellationChange} checked={state.mapSettings.constellation} />

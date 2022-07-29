@@ -51,24 +51,27 @@ export const reducer = (state, action) => {
           case "set_dataset":
             console.log('set dataset!')
             console.log(action.value[1])
+            console.log(action.value[2])
           return {
             ...state,
             dataset: action.value[0],
+            cycle: action.value[2],
             mapSettings: {...state.mapSettings, satelliteList: action.value[1], datasetSatelliteList: action.value[1]}
           }
 
+          case "set_dem":
+            return {
+              ...state,
+              mapSettings: {...state.mapSettings, dem: action.value}
+            }
+      
+  
           case "set_constellation":
             console.log('set constellation!')
           return {
             ...state,
-            mapSettings: {...state.mapSettings, satelliteList: action.value[1]?action.value[0]:state.mapSettings.datasetSatelliteList, constellation: action.value[1]}
+            mapSettings: {...state.mapSettings, satelliteList: action.value[1]?action.value[0]:state.mapSettings.datasetSatelliteList, constellation: action.value[1], satellites: action.value[1]?true:state.mapSettings.satellites}
           }
-          case "set_dem":
-          return {
-            ...state,
-            mapSettings: {...state.mapSettings, dem: action.value}
-          }
-    
     
           case "toggle_satellites":
             console.log('toggle_satellites!: '+action.value)
@@ -76,7 +79,7 @@ export const reducer = (state, action) => {
           return {
             ...state,
             // mapSettings: {...state.mapSettings, satellites: !state.mapSettings.satellites}
-            mapSettings: {...state.mapSettings, satellites: action.value},
+            mapSettings: {...state.mapSettings, satellites: (action.value != null)?action.value:!state.mapSettings.satellites, constellation: action.value?state.mapSettings.constellation:false},
 
           }
     
@@ -183,8 +186,17 @@ export const reducer = (state, action) => {
               ...state,
               tics: action.value,
             }
-            
-  
+              
+          // case "set_step":
+          //   console.log('set_step: '+action.value)
+          //   if(action.value === 'cycle') {
+          //     return {
+          //       ...state,
+          //       // cycle: 1000*60*60*24*12,
+          //     } 
+          //   } else return state
+                
+        
           case "set_filter":
             console.log('toggle_filter')
             
@@ -201,7 +213,12 @@ export const reducer = (state, action) => {
                 newfilter = [{
                   attribute: 'relativePassNumber',
                   value: state.closestItem.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.relativePassNumber
-                }]
+                },
+                {
+                  attribute: 'cloudCoverPercentage',
+                  value: 20
+                }
+              ]
               }
             } else {
               console.log("no filter")

@@ -577,9 +577,22 @@ export function useEww({ id }) {
         // console.log(renderable)
         for(let i = 0; i < filter.length; i++) {
 
-            if(filter[i].attribute === 'relativePassNumber' ) {
-                test *= renderable.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.relativePassNumber === filter[i].value
+            // if(filter[i].attribute === 'relativePassNumber' ) {
+            //     test *= renderable.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.relativePassNumber === filter[i].value
+            // }
+            
+
+            switch(filter[i].attribute) {
+                case 'relativePassNumber': test *= renderable.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.relativePassNumber === filter[i].value
+                break
+                case 'cloudCoverPercentage': {
+                    console.log(renderable.userProperties.earthObservation.productInformation.cloudCoverPercentage)
+                    test *= renderable.userProperties.earthObservation.productInformation.cloudCoverPercentage <= filter[i].value
+                break
+                }
+                default: test = test
             }
+
         }
         // console.log(test)
         return test
