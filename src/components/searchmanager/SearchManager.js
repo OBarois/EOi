@@ -12,7 +12,7 @@ import outlineRefresh from '@iconify-icons/ic/outline-refresh';
 
 
 
-function SearchManager({searchdate, searchpoint, searchmode, credentials, dataset, altitude, onSearchStart, onPageSearch, onSearchComplete, on401, lefthanded}) {
+function SearchManager({searchdate, searchpoint, searchmode, credentials, dataset, altitude, onClearResult, onSearchStart, onPageSearch, onSearchComplete, on401, lefthanded}) {
 
 
     const [ searching, setsearching ] = useState(false);
@@ -29,7 +29,7 @@ function SearchManager({searchdate, searchpoint, searchmode, credentials, datase
 
     const { geojsonResults, loading, status, search, abort } = useDatahub({});
     
-    const {handleTap} = useHandleDoubleTap( ()=>{setsearchtrigger(Math.random())}, onSearchStart )
+    const {handleTap} = useHandleDoubleTap( ()=>{setsearchtrigger(Math.random())}, onClearResult )
 
 
     useKey(["x"],()=>setsearchtrigger(Math.random())) 

@@ -4,7 +4,7 @@ import DateController from './components/datecontroller'
 import DateSelector from './components/dateselector'
 
 
-function DateManager({ onDateChange, onFinalDateChange, onStateChange, onStepChange, animated, searching, startdate, resetstartdatetrigger, tics, gotoscalezoom, cycle, leftHanded}) {
+function DateManager({ onDateChange, onFinalDateChange, onStateChange, onStepChange, onZoomChange, animated, searching, startdate, tics, gotoscalezoom, cycle, leftHanded}) {
 
     // if(!startdate) startdate = new Date()
     const [selectorStartdate, setselectorStartdate] = useState(startdate)
@@ -36,14 +36,14 @@ function DateManager({ onDateChange, onFinalDateChange, onStateChange, onStepCha
         setDateLabelHighlight(step)
     },[])
 
+    const handleSelectorZoomChange = useCallback( (zoom) => {
+        onZoomChange(zoom)
+    },[])
+
     const handleLabelClick = useCallback( (zoom) => {
         console.log(zoom)
         setscalezoom(zoom)
     },[])
-
-    useEffect(() => {
-        console.log(cycle)
-    }, [cycle]);
 
 
 
@@ -51,10 +51,11 @@ function DateManager({ onDateChange, onFinalDateChange, onStateChange, onStepCha
         <div >
           <DateController startdate={startdate}  onDateChange={handleControllerDateChange} onStateChange={onStateChange} animated={animated} lefthanded={leftHanded}/>
           <DateLabel date={labeldate} highlight={dateLabelHighlight} handleLabelClick={handleLabelClick}/>
-          <DateSelector startdate={selectorStartdate} resetToStartDateTrigger={resetstartdatetrigger} tics={tics} gotoscalezoom={scalezoom} satcycle={cycle}
+          <DateSelector startdate={selectorStartdate}  tics={tics} gotoscalezoom={scalezoom} satcycle={cycle}
                 onDateChange={handleSelectorDateChange} 
                 onFinalDateChange={handleSelectorFinalDateChange} 
                 onStepChange={handleSelectorStepChange}
+                onZoomChange={handleSelectorZoomChange}
                 leftHanded={leftHanded}/>
         </div>
     ) 

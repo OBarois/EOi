@@ -21,7 +21,7 @@ function FilterProductControl({active}) {
     },[])
 
     useEffect(() => {
-        console.log('filter')
+        // console.log('filter')
         setfilter(state.filter)
     },[state.filter])
 

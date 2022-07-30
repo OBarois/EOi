@@ -10,7 +10,7 @@ import DateSelectorScale from './DateSelectorScale'
 import './DateSelector.css';
 // import { start } from 'repl';
 
-function DateSelector({startdate, resetToStartDateTrigger, tics, gotoscalezoom, onDateChange, onFinalDateChange, onStepChange, satcycle, leftHanded}) {
+function DateSelector({startdate, tics, gotoscalezoom, onDateChange, onFinalDateChange, onStepChange, onZoomChange, satcycle, leftHanded}) {
 
 
     // const [ setlog, renderlog] = useLog()
@@ -326,7 +326,11 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, gotoscalezoom, 
     },[startdate, moveToDate])
 
     useEffect(() => {
-        if(gotoscalezoom) setZoomfactor(gotoscalezoom)
+        console.log('gotoscalezoom: '+gotoscalezoom)
+        if(gotoscalezoom) {
+            setZoomfactor(gotoscalezoom)
+            lastZoom.current = gotoscalezoom
+        }
         switch (gotoscalezoom) {
             case 'year':
                 setZoomfactor(1029135270)
@@ -371,6 +375,10 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, gotoscalezoom, 
     useEffect(() => {
         onStepChange(stepLabel)
     },[stepLabel,onStepChange])
+
+    // useEffect(() => {
+    //     onZoomChange(stepLabel)
+    // },[stepLabel,onZoomChange])
 
     useEffect(() => {
         console.log('cycle changed to: '+satcycle)
@@ -422,6 +430,7 @@ function DateSelector({startdate, resetToStartDateTrigger, tics, gotoscalezoom, 
                 step.current = [1000]
                 setStepLabel('second')
         }
+        onZoomChange(zoomfactor)
     },[zoomfactor])
 
     

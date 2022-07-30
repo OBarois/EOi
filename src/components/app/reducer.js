@@ -112,13 +112,30 @@ export const reducer = (state, action) => {
             geojson: action.value.results
             // resultDesc: {...state.resultDesc, totalLoaded: action.value.totalLoaded, totalResults: action.value.totalResults}
           }
-    
+
+          case "clearResult":
+            console.log('clear result')
+            return {
+              ...state,
+              // tics: [],
+              clearResultsTrigger: Math.random(),
+              // geojson: null,
+              resultDesc: {totalResults:0, totalLoaded:0 },
+              closestItem: null,
+              filter: [],
+              browseMode: state.searchMode,
+              searching: false
+              // resultDesc: {...state.resultDesc, totalLoaded: action.value.totalLoaded, totalResults: action.value.totalResults}
+            }
+  
+            
           case "onSearchStart":
             console.log('onSearchStart')
             console.log(action.value)
           return {
             ...state,
-            tics: [],
+            // tics: [],
+            // geojson: null,
             clearResultsTrigger: Math.random(),
             resultDesc: {totalResults:0, totalLoaded:0 },
             closestItem: null,
@@ -181,7 +198,7 @@ export const reducer = (state, action) => {
 
 
           case "set_tics":
-            // console.log('set_tics')
+            console.log('set_tics')
             return {
               ...state,
               tics: action.value,
@@ -295,25 +312,6 @@ export const reducer = (state, action) => {
             }
           }
     
-          case "clear_results":
-            console.log('clear_results')
-            // return {
-            //   ...state,
-            //   // moveToClosestItemTrigger: Math.random(),
-            //   closestItem: null,
-            //   goToDate: null,
-            //   tics: [],
-            //   filter: [],
-            //   resultDesc: {totalResults:0, totalLoaded:0 },
-            //   selectedProduct: null,
-            //   clearResultsTrigger: Math.random()
-            // }
-            return {
-              ...state,
-              tics: [],
-              resultDesc: {totalResults:0, totalLoaded:0 },
-              clearResultsTrigger: Math.random()
-            }
     
           case "set_searchPoint": {
             // console.log('onDateChanged')
@@ -324,7 +322,6 @@ export const reducer = (state, action) => {
           }
 
           case "set_zoomscale": {
-            // console.log('onDateChanged')
             return {
               ...state,
               zoomScale: action.value
@@ -391,7 +388,7 @@ export const reducer = (state, action) => {
     },
     searchDate: null,
     credentials: {user:'', pass:''},
-    resetStartDateTrigger: null,
+    // resetStartDateTrigger: null,
     pointSearchMaxAltitude: 3000000,
     selectedProduct: null,
     searchPoint: 'POINT(40 0)',

@@ -25,6 +25,10 @@ function DateManagerContainer() {
         dispatch({type:'set_animated', value: animated})
     },[dispatch])
 
+    const handleZoomChange = useCallback( (zoom) => {
+        dispatch({type:'set_zoomscale', value: zoom})
+    },[dispatch])
+
     const handleStepChange = useCallback( (step) => {
          dispatch({type:'set_step', value: step})
     },[dispatch])
@@ -38,10 +42,10 @@ function DateManagerContainer() {
     //     settics((tics)=>[...tics,...newtics])
     // }, [state.geojson]);
 
-    useEffect(() => {
-        console.log('set tics ')
-        settics(state.tics)
-    }, [state.tics]);
+    // useEffect(() => {
+    //     console.log(state.tics)
+    //     settics(state.tics)
+    // }, [state.tics]);
 
     useEffect(() => {
         // console.log('state.goToDate:')
@@ -53,7 +57,7 @@ function DateManagerContainer() {
     // console.log(startDate)
 
     return (
-        <DateManager onDateChange={handleDateChanged} onFinalDateChange={handleFinalDate} onStepChange={handleStepChange} startdate={startdate} tics={tics} gotoscalezoom={state.zoomScale} onStateChange={handleStateChange} animated={state.animated} cycle={state.cycle} searching={state.searching} leftHanded={state.leftHanded}/> 
+        <DateManager onDateChange={handleDateChanged} onFinalDateChange={handleFinalDate} onStepChange={handleStepChange} onZoomChange={handleZoomChange} startdate={startdate} tics={state.tics} gotoscalezoom={state.zoomScale} onStateChange={handleStateChange} animated={state.animated} cycle={state.cycle} searching={state.searching} leftHanded={state.leftHanded}/> 
      )
 }
 

@@ -432,6 +432,7 @@ export function useEww({ id }) {
     function removeGeojson() {
 
         getLayerByName('Products').removeAllRenderables()
+        setEwwState((ewwstate) => { return {...ewwstate, closestRenderable: null, tics: []}})
         eww.current.redraw();
       }
 

@@ -23,6 +23,7 @@ import JSONCrush from "jsoncrush"
       lat: 0,
       lon: 0
     },
+    zoomScale: 6461494,
     searchDate: null,
     credentials: {user:'', pass:''},
     resetStartDateTrigger: null,
@@ -71,6 +72,7 @@ import JSONCrush from "jsoncrush"
       altitude: state.altitude,
       appColor: state.appColor,
       position: state.position,
+      zoomScale: state.zoomScale,
       animated: state.animated,
       mapSettings: state.mapSettings,
       viewDate: state.viewDate,
@@ -90,11 +92,12 @@ import JSONCrush from "jsoncrush"
       appColor: state.appColor,
       position: state.position,
       animated: state.animated,
+      zoomScale: state.zoomScale,
       mapSettings: state.mapSettings,
       viewDate: state.viewDate,
       searchDate: state.searchDate,
       goToDate: state.goToDate,
-      leftHanded: state.leftHanded
+      // leftHanded: state.leftHanded
     }
 
   }

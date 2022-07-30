@@ -23,6 +23,10 @@ const SearchManagerContainer = () => {
       dispatch({ type: "onSearchStart", value: Math.random()})
     }, [dispatch])
     
+    const handleClearResult = useCallback ( () => {
+      dispatch({ type: "clearResult"})
+    }, [dispatch])
+    
     const handleSearchComplete = useCallback (  (searchDesc) => {
       dispatch({ type: "onSearchComplete", value: searchDesc})
     }, [dispatch])
@@ -44,6 +48,7 @@ const SearchManagerContainer = () => {
           dataset={state.dataset} 
           credentials={state.credentials}
           altitude={debouncedaltitude} 
+          onClearResult={handleClearResult}
           onSearchStart={handleSearchStart}
           onPageSearch={handlePageSearch}
           onSearchComplete={handleSearchComplete}
