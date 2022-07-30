@@ -560,7 +560,7 @@ export const FluidWorldWindowController = memo( ({world, onSimpleClick}) => {
             onChange: ()=>{
                     // logdebug({rangefactor: spring.value.range})
                     // let rangefactor = (enabler === 0)?1:range.get()[0]
-                    let rangefactor = (enabler === 0)?1:1-range.get()[1]/(wheeling?300:300)
+                    let rangefactor = (enabler === 0)?1:1-range.get()[1]/(wheeling?300:100)
                     moveZoom(gesturestartposition.current,rangefactor)
                     world.current.navigator.range *= rangefactor
                     applyLimits()
