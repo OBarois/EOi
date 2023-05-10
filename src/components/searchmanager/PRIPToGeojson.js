@@ -60,7 +60,11 @@ export default function PRIPToGeojson(response,startIndex) {
                 // ignore items without a geometry
                 let geometry = {}
                 if (item.Footprint == null) {
-                    return null
+                    geometry = {type: "Point",
+                    coordinates: [
+                                 0,
+                                 0
+                               ]}
                 } else {
                     geometry = item.Footprint
                     if(geometry.type == "LineString") return null
@@ -100,6 +104,7 @@ export default function PRIPToGeojson(response,startIndex) {
                             },
                             acquisitionParameter: {
                                 acquisitionStartTime: new Date(item.ContentDate.Start),
+                                // acquisitionStopTime: parseInt(item.ContentDate.End.substr(0, 4))<2100?new Date(item.ContentDate.End):new Date(),
                                 acquisitionStopTime: new Date(item.ContentDate.End),
                                 relativePassNumber: 0,
                                 orbitNumber: 0,
@@ -118,7 +123,6 @@ export default function PRIPToGeojson(response,startIndex) {
                     }
                 }
             }
-            
             return newItem;
         } catch (err) {
             console.log("error parsing item from PRIP: "+err.message);
@@ -128,9 +132,9 @@ export default function PRIPToGeojson(response,startIndex) {
 
     let features = [];
     try {
+
             if(Array.isArray(response.value)) {
-                console.log("first: ")
-                // console.log(response.value[0])
+                console.log(response.value[0])
                 features = response.value.filter(it => it !== null).map( item =>  mapFromHubOpenSearch(item)).filter(it => it !== null);
             } else {
                 features = []

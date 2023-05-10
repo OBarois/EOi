@@ -3,6 +3,8 @@ import dhusToGeojson from "./dhusToGeojson";
 import eocatToGeojson from "./eocatToGeojson"
 import PRIPToGeojson from "./PRIPToGeojson"
 import OAuth2 from "fetch-mw-oauth2"
+// to be done: use OAuth2Client instead of OAuth2
+//import { OAuth2Client, OAuth2Fetch } from '@badgateway/oauth2-client'    
 import {AppContext} from '../app/context'
 
 // export default function useDatahub({searchdate, dataset, searchpoint})  {
@@ -16,7 +18,7 @@ export default function useDatahub()  {
     const [geojsonResults, setGeojsonResults] = useState(null)
     const [loading, setLoading] = useState(false)
     const [status, setStatus] = useState('')
-    // const [credentials,setCredentials] = useState('')
+    const [credentials,setCredentials] = useState(null)
     const [ state, dispatch ] = useContext(AppContext)
 
 
@@ -72,28 +74,54 @@ export default function useDatahub()  {
         try {
             let response
             if(coll_type == 'PRIP') {
-
-                const oauth2 = new OAuth2({
-                    grantType: 'password',
-                    // clientId: 'admin-cli',
-                    clientId: 's1pro-user-web-client',
-                    userName: user,
-                    password: pass,
-                    clientSecret: '',
-                    tokenEndpoint: 'https:/iam.platform.ops-csc.com/auth/realms/RS/protocol/openid-connect/token',
-                  })
-        
-
-                response = await oauth2.fetch(newurl, 
-                    {
-                    mode: 'cors', 
-                    credentials: 'include', 
-                    signal: controller.current.signal
-                    })
+                let oauth2 = null
+                console.log(credentials)
+                if(!credentials) {
+                    console.log(user)
+                    try {
+                        oauth2 = new OAuth2({
+                            // grantType: 'password',
+                            grantType: 'client_credentials',
+                            // grantType: 'authorization_code',
+                            // userName: user,
+                            // password: pass,
+                            clientId: user,
+                            clientSecret: pass,
+                            // clientSecret: '',
+                            tokenEndpoint: 'https://iam.platform.ops-csc.com/auth/realms/RS/protocol/openid-connect/token',                    
+                        })
+                        console.log(oauth2)
+                        setCredentials(oauth2)
+                    }
+                    catch (err) {
+                        setLoading(false)
+                        setCredentials(null)
+                        throw new Error(`401`)
+                    }
+                    
+                } else {
+                    oauth2 = credentials
+                }
+                
+                try {
+                    response = await oauth2.fetch(newurl, 
+                        {
+                        mode: 'cors', 
+                        credentials: 'include', 
+                        signal: controller.current.signal
+                        })
                     console.log(response)
+                }
+                catch(err) {
+                    console.log(err)
+                    setCredentials(null)
+                    throw new Error(`401`)
+                }
+
+
                 if (!response.ok) {
-                    window.alert(`HTTP error! status: ${response.status}`)
-                    if(response.status == '401') {
+                    // window.alert(`HTTP error! status: ${response.status}`)
+                    if(response.status == '401' || response.status == '400') {
                         setStatus(newurl)
                         // dispatch({ type: "reset_credentials", value: {}})
                     }
@@ -123,7 +151,6 @@ export default function useDatahub()  {
                     
                 }
             }
-    
         
             try {
                 const json = await response.json()

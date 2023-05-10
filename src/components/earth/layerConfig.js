@@ -42,15 +42,26 @@ export const bgLayers = [
         levelZeroDelta: new WorldWind.Location(90, 90)
     },
     {
-        service: "https://tiles.maps.eox.at/wms",
-        layerNames: "terrain",
-        title: "terrain",
+        service: "https://tiles.esa.maps.eox.at/wms",
+        layerNames: "terrain-light",
+        title: "terrain-light",
+        numLevels: 19,
+        format: "image/png",
+        size: 256,
+        sector: WorldWind.Sector.FULL_SPHERE,
+        levelZeroDelta: new WorldWind.Location(90, 90)
+    },
+    {
+        service: "https://s2maps-tiles.eu/wms",
+        layerNames: "s2cloudless-2021",
+        title: "s2cloudless-2021",
         numLevels: 19,
         format: "image/png",
         size: 256,
         sector: WorldWind.Sector.FULL_SPHERE,
         levelZeroDelta: new WorldWind.Location(90, 90)
     }
+    
 ]
 export const ovLayers = [
 

@@ -243,19 +243,36 @@ export const collections = [
     {
         code: 'S1A_IW_RAW__0SDV',
         satellites: ['s1a'],
-        templateUrl: 'https://processing.platform.ops-csc.com/ddip/odata/v1/Products?$format=json&$count=true&$top=100&$skip={startindex}&$filter=contains(Name,%27S1A_IW_RAW__0SDV%27)%20and%20ContentDate/Start%20gt%20{start}%20and%20ContentDate/Start%20lt%20{end}&$orderby=%20ContentDate/Start%20desc',
+        templateUrl: 'https://processing.platform.ops-csc.com/ddip/odata/v1/Products?$format=json&$count=true&$top=100&$skip={startindex}&$filter=contains(Name,%27S1A_IW_RAW__0SDV%27)%20and%20OData.CSC.Intersects(area=geography%27SRID=4326;{polygon}%27)%20and%20ContentDate/Start%20gt%20{start}%20and%20ContentDate/Start%20lt%20{end}&$orderby=%20ContentDate/Start%20desc',
         startIndexOrigin: 0,
         name: 'RS PRIP',
-        logo: './images/s5p_black.png',
+        logo: './images/s1_black.png',
         type: 'PRIP',
         dateOff: '%20and%20ContentDate/Start%20gt%20{start}%20and%20ContentDate/Start%20lt%20{end}',
-        areaOff:  ' and OData.CSC.Intersects(area=geography%27SRID=4326;{polygon}%27)',
+        areaOff:  '%20and%20OData.CSC.Intersects(area=geography%27SRID=4326;{polygon}%27)',
         windowSize: 1000 * 60 * 60 * 24 * 100
     },
+
     {
-        code: 'S3 RS',
+        code: 'EW_RAW__0N',
+        satellites: ['s1a'],
+        templateUrl: 'https://processing.platform.ops-csc.com/ddip/odata/v1/Products?$format=json&$count=true&$top=100&$skip={startindex}&$filter=contains(Name,%27EW_RAW__0N%27)%20and%20OData.CSC.Intersects(area=geography%27SRID=4326;{polygon}%27)%20and%20ContentDate/Start%20gt%20{start}%20and%20ContentDate/Start%20lt%20{end}&$orderby=%20ContentDate/Start%20desc',
+        startIndexOrigin: 0,
+        name: 'RS PRIP',
+        logo: './images/s1_black.png',
+        type: 'PRIP',
+        dateOff: '%20and%20ContentDate/Start%20gt%20{start}%20and%20ContentDate/Start%20lt%20{end}',
+        areaOff:  '%20and%20OData.CSC.Intersects(area=geography%27SRID=4326;{polygon}%27)',
+        windowSize: 1000 * 60 * 60 * 24 * 100
+    },
+
+    
+
+
+    {
+        code: 'S3A_SR_0_SRA',
         satellites: ['s3a','s3b'],
-        templateUrl: 'https://processing.platform.ops-csc.com/ddip/odata/v1/Products?$format=json&$count=true&$top=100&$skip={startindex}&$filter=contains(Name,%27S3%27)%20and%20ContentDate/Start%20gt%20{start}%20and%20ContentDate/Start%20lt%20{end}&$orderby=%20ContentDate/Start%20desc',
+        templateUrl: 'https://processing.platform.ops-csc.com/ddip/odata/v1/Products?$format=json&$count=true&$top=100&$skip={startindex}&$filter=startswith(Name,%27S3A_SR_0_SRA%27)%20and%20ContentDate/Start%20gt%20{start}%20and%20ContentDate/Start%20lt%20{end}&$orderby=%20ContentDate/Start%20desc',
         startIndexOrigin: 0,
         name: 'RS PRIP',
         logo: './images/s5p_black.png',
@@ -263,7 +280,47 @@ export const collections = [
         dateOff: '%20and%20ContentDate/Start%20gt%20{start}%20and%20ContentDate/Start%20lt%20{end}',
         areaOff:  ' and OData.CSC.Intersects(area=geography%27SRID=4326;{polygon}%27)',
         windowSize: 1000 * 60 * 60 * 24 * 7
+    },
+
+    {
+        code: 'MSI_L1C_TL',
+        satellites: ['s2a'],
+        templateUrl: 'https://processing.platform.ops-csc.com/ddip/odata/v1/Products?$format=json&$count=true&$top=100&$skip={startindex}&$filter=contains(Name,%27L1C_TL%27)%20and%20ContentDate/Start%20gt%20{start}%20and%20ContentDate/Start%20lt%20{end}&$orderby=%20ContentDate/Start%20desc',
+        startIndexOrigin: 0,
+        name: 'RS PRIP',
+        logo: './images/s2_black.png',
+        type: 'PRIP',
+        dateOff: '%20and%20ContentDate/Start%20gt%20{start}%20and%20ContentDate/Start%20lt%20{end}',
+        areaOff:  ' and OData.CSC.Intersects(area=geography%27SRID=4326;{polygon}%27)',
+        windowSize: 1000 * 60 * 60 * 24 * 7
+    },
+
+    {
+        code: 'MSI_L2A',
+        satellites: ['s2a'],
+        templateUrl: 'https://processing.platform.ops-csc.com/ddip/odata/v1/Products?$format=json&$count=true&$top=100&$skip={startindex}&$filter=contains(Name,%27MSI_L2A_TL%27)%20and%20ContentDate/Start%20gt%20{start}%20and%20ContentDate/Start%20lt%20{end}&$orderby=%20ContentDate/Start%20desc',
+        startIndexOrigin: 0,
+        name: 'RS PRIP',
+        logo: './images/s2_black.png',
+        type: 'PRIP',
+        dateOff: '%20and%20ContentDate/Start%20gt%20{start}%20and%20ContentDate/Start%20lt%20{end}',
+        areaOff:  ' and OData.CSC.Intersects(area=geography%27SRID=4326;{polygon}%27)',
+        windowSize: 1000 * 60 * 60 * 24 * 7
+    },
+
+    {
+        code: 'S1__AUX_WAV',
+        satellites: ['s2a'],
+        templateUrl: 'https://processing.platform.ops-csc.com/ddip/odata/v1/Products?$format=json&$count=true&$top=100&$skip={startindex}&$filter=contains(Name,%27S1__AUX_WAV%27)%20and%20ContentDate/Start%20gt%20{start}%20and%20ContentDate/Start%20lt%20{end}&$orderby=%20ContentDate/Start%20desc',
+        startIndexOrigin: 0,
+        name: 'RS PRIP',
+        logo: './images/s2_black.png',
+        type: 'PRIP',
+        dateOff: '%20and%20ContentDate/Start%20gt%20{start}%20and%20ContentDate/Start%20lt%20{end}',
+        areaOff:  ' and OData.CSC.Intersects(area=geography%27SRID=4326;{polygon}%27)',
+        windowSize: 1000 * 60 * 60 * 24 * 7
     }
+
 
 
 ]

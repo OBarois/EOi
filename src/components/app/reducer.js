@@ -104,8 +104,8 @@ export const reducer = (state, action) => {
     
     
           case "onResultPage":
-            console.log('onResultPage')
-            console.log(action.value)
+            // console.log('onResultPage')
+            // console.log(action.value)
           return {
             ...state,
             resultDesc: action.value.resultdesc,
@@ -146,8 +146,8 @@ export const reducer = (state, action) => {
           }
     
           case "onSearchComplete":
-            console.log('onSearchComplete')
-            console.log(action.value)
+            // console.log('onSearchComplete')
+            // console.log(action.value)
             if(state.altitude > state.pointSearchMaxAltitude) {
               return {
                 ...state,
@@ -198,7 +198,7 @@ export const reducer = (state, action) => {
 
 
           case "set_tics":
-            console.log('set_tics')
+            // console.log('set_tics')
             return {
               ...state,
               tics: action.value,
@@ -251,7 +251,7 @@ export const reducer = (state, action) => {
           case "gotoclosestitem":
             // console.log('gotoclosestitem')
             if(state.closestItem == null || state.closestItem._sector == null) return state
-            console.log(state)
+            // console.log(state)
 
             return {
               ...state,
@@ -266,8 +266,8 @@ export const reducer = (state, action) => {
             
     
           case "set_goToDate":
-            console.log('set_goToDate')
-            console.log(action.value)
+            // console.log('set_goToDate')
+            // console.log(action.value)
             if(action.value === null) return state
             return {
               ...state,

@@ -12,7 +12,7 @@ import JSONCrush from "jsoncrush"
     // dataset: 'S1A_IW_RAW__0SDV',
     dataset: 'S1A',
     altitude: '5000000',
-    appColor: '#b575c5',
+    appColor: '#d1498f',
     position: {
         clon:'0.5',
         clat:'45' 

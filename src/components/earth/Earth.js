@@ -189,7 +189,7 @@ const Earth = ({ id }) => {
 
     useEffect(() => {
         if(state.mapSettings.quicklooks) {
-            addQuicklook(debouncedclosestItem, state.credentials)
+            addQuicklook(debouncedclosestItem, state.credentials, state.animated)
         }
     }, [debouncedclosestItem]);
 
@@ -215,12 +215,39 @@ const Earth = ({ id }) => {
  
     
     useEffect(() => {
-        console.log("world created"+' / '+state.position.clat+' / '+state.position.clon+' / '+state.altitude)
+        let geolocation = null
+        let ilat = state.position.clat
+        let ilon = state.position.clon
+        let ialt = state.altitude
+
+        // if(window.navigator && window.navigator.geolocation) {
+        //     geolocation = window.navigator.geolocation
+        // }
+        // if(geolocation) {
+        //     geolocation.watchPosition(onLocationUpdate, onError,{
+        //         enableHighAccuracy:true,
+        //         maximumAge:1000
+        //     })
+        // } else {
+        //     console.log('No geoloc')
+        // }
+        // function onLocationUpdate(event) {
+        //     console.log(event.coords.latitude)
+        //     ilat = event.coords.latitude
+        //     ilon = event.coords.longitude
+        //     ialt = 3000
+        // }
+        // function onError(err) {
+        //     console.log("Error geoloc: "+err)
+        // }
+
+        console.log("Creating world"+' / '+ilat+' / '+ilon+' / '+ialt)
+
         setTimeout(() => {
             initMap({
-                clat: state.position.clat,
-                clon: state.position.clon,
-                alt: state.altitude,
+                clat: ilat,
+                clon: ilon,
+                alt: ialt,
                 starfield: state.mapSettings.starfield,
                 atmosphere: state.mapSettings.atmosphere,
                 background: state.mapSettings.background,

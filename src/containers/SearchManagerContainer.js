@@ -39,7 +39,7 @@ const SearchManagerContainer = () => {
       return
     }, [dispatch])
 
-// to do: pass credentials from state
+
     return (
         <SearchManager 
           searchdate={new Date(state.searchDate)} 

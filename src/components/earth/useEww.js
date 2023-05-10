@@ -62,6 +62,10 @@ export function useEww({ id }) {
     const lastepoch = useRef(new Date())
     const lastclosestitemindex = useRef(-1)
 
+    // QL loader queue
+    const qlqueue = useRef([])
+    const qlcontroller = useRef(null)
+    
     const color = useRef()
 
     // Initialise mapsettings
@@ -821,7 +825,7 @@ export function useEww({ id }) {
         // if quicklook is already there, do nothing
         for(let i = 0; i < quicklookLayer.renderables.length; i++) {
             if(quicklookLayer.renderables[i].displayName === timerange[1].toUTCString()) {
-                console.log('QL already there')
+                // console.log('QL already there')
                 enableRenderables(quicklookLayer, lastepoch.current, 0, QLTrail.current)
     
                 return
@@ -880,46 +884,62 @@ export function useEww({ id }) {
         }
     }
 
-    const addQuicklook_old = async (renderable) => {
+    const addQuicklook =  (renderable, credentials, forward) => {
+
+        const abortqlloader = () => {
+            // console.log('aborting ql loader')
+            qlcontroller.current.abort()
+            qlcontroller.current = null
+        }
+
         if(renderable) {
-            // add1Quicklook(renderable)
             let prodlayer = getLayerByName('Products')
             let idx = getIndexOfRenderable(renderable,prodlayer)
-            // console.log(idx)
             let j = 0
-            for(let i = idx ; idx < prodlayer.renderables.length && j < 10 ; idx++) {
-                if(!prodlayer.renderables[idx].filtered || prodlayer.renderables[idx].filtered !== true ) {
-                    add1Quicklook(prodlayer.renderables[idx])
-                    j+=1
+
+            let qltoadd = []
+
+            if(forward == null || forward == false) {
+                for(let i = idx ; idx < prodlayer.renderables.length && j < 10 ; idx++) {
+                    if(!prodlayer.renderables[idx].filtered || prodlayer.renderables[idx].filtered !== true ) {
+                        j+=1
+                        // qlqueue.current.push(prodlayer.renderables[idx])
+                        qltoadd.push(prodlayer.renderables[idx])
+                        // insert at begening of queue
+                        
+                    }
                 }
+    
+            } else {
+                for(let i = idx ; idx >= 0 && j < 10 ; idx--) {
+                    if(!prodlayer.renderables[idx].filtered || prodlayer.renderables[idx].filtered !== true ) {
+                        j+=1
+                        // qlqueue.current.push(prodlayer.renderables[idx])
+                        qltoadd.push(prodlayer.renderables[idx])
+                        // insert at begening of queue
+                        
+                    }
+                }
+    
+            }
+
+            for(let i=qltoadd.length ; i >= 0  ; i --) {
+                qlqueue.current.splice(0,0,qltoadd[i])
+            }
+            qlqueue.current.splice(100,1000)    // queue max: 100 items
+            // 
+            if(qlcontroller.current == null) {
+                qlcontroller.current = new AbortController();
+                QLLoader(credentials,qlcontroller.current.signal).then( ()=>abortqlloader() )
             }
         }
+
     }
 
-    const addQuicklook =  (renderable, credentials) => {
-        if(renderable) {
-            // add1Quicklook(renderable)
-            let prodlayer = getLayerByName('Products')
-            let idx = getIndexOfRenderable(renderable,prodlayer)
-            // console.log(idx)
-            abortAddQuicklooks()
-            let j = 0
-            let renderables = []
-            for(let i = idx ; idx < prodlayer.renderables.length && j < 10 ; idx++) {
-                if(!prodlayer.renderables[idx].filtered || prodlayer.renderables[idx].filtered !== true ) {
-                    j+=1
-                    renderables.push(prodlayer.renderables[idx])
-                }
-            }
-            const abortController = new AbortController();
-            controller.current.push(abortController)
-            addQuicklooks(renderables, credentials, abortController.signal)
+    const QLLoader = async (credentials, abortsignal) => {
 
-        }
-    }
-
-    const addQuicklooks = async (renderables, credentials, abortsignal) => {
-        return new Promise( ( resolve, reject ) => {
+        const delay = ms => new Promise(res => setTimeout(res, ms))
+        return new Promise( async ( resolve, reject ) => {
             // console.log(renderables)
 
             abortsignal.addEventListener( 'abort', () => { 
@@ -927,25 +947,26 @@ export function useEww({ id }) {
                 reject()
             })
 
-            for(let i = 0; i < renderables.length; i++) {
-
-                // do something slow
-                // const timeout = setTimeout( ()=> {
-                //     console.log('doing QL');
-                //   }, 5000 );
-                  add1Quicklook(renderables[i], credentials)
-    
+            
+            while(qlqueue.current.length > 0) {
+                // console.log('QL queue: '+qlqueue.current.length)
+                let prod = qlqueue.current.shift()
+                await  add1Quicklook(prod, credentials)
             }
             resolve()
         } )
     }
+
+
+
+
 
     const add1Quicklook = async (renderable, credentials) => {
         if(renderable) {
 
             let url = renderable.userProperties.quicklookUrl
             if (url == null) {
-                console.log("no QL")
+                // console.log("no QL")
                 return
             }
             // console.log(renderable)
@@ -982,14 +1003,6 @@ export function useEww({ id }) {
         }
     }
 
-    function abortQLUrls() {
-        // abort ongoing QL calls
-        for (let i = 0; i < controller.current.length; i++) {
-            controller.current[i].abort()
-
-        }
-        controller.current = []
-    }
 
     function abortAddQuicklooks() {
         // abort ongoing QL calls
@@ -1000,12 +1013,7 @@ export function useEww({ id }) {
     }
 
     function removeQuicklooks() {        
-        // abort ongoing QL calls
-        for (let i = 0; i < controller.current.length; i++) {
-            controller.current[i].abort()
-
-        }
-        controller.current = []
+        qlqueue.current = []
 
         getLayerByName('Quicklooks').removeAllRenderables()
 
@@ -1193,7 +1201,9 @@ export function useEww({ id }) {
 
         
 
-        // eww.current.worldWindowController = null;
+        eww.current.worldWindowController = null;
+
+
         eww.current.redrawCallbacks().push(setGlobeStates)
 
         // better do it after the layers are altered manually
@@ -1270,6 +1280,8 @@ export function useEww({ id }) {
         getS2LUT('./data/s2lut.txt')
         // eww.current.deepPicking = true;
         // eww.current.orderedRenderingFilters.push(declutterByTime)
+
+        // return () => eww.current = null
     }, []); // effect runs only once
         
   return { 

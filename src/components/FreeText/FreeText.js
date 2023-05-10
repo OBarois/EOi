@@ -1,0 +1,77 @@
+import React, {useRef, useMemo} from 'react';
+import {AppContext} from '../app/context'
+// import TextField from '@mui/material/TextField';
+import './FreeText.css' 
+
+function FreeText() {
+
+    const [ state, dispatch ] = React.useContext(AppContext)
+
+    const inputRef = useRef(null)
+
+    const search = (event) => {
+        console.log('searching: ')
+        console.log(event)
+        event.stopPropagation()
+        event.preventDefault()
+        dispatch({ type: "freetextsearch", value: event.target.value })
+    } 
+
+    return (
+        <div>
+            {/* <form onInput={search} > */}
+                <input ref={inputRef} className='FreeText' type="text" onChange={search} ></input>
+                {/* <TextField id="outlined-basic" className='FreeText' label="Outlined" variant="outlined" /> */}
+            {/* </form> */}
+        </div>
+     )
+}
+
+export default FreeText
+
+// import Paper from '@mui/material/Paper';
+// import InputBase from '@mui/material/InputBase';
+// import Divider from '@mui/material/Divider';
+// import IconButton from '@mui/material/IconButton';
+// import MenuIcon from '@mui/icons-material/Menu';
+// import SearchIcon from '@mui/icons-material/Search';
+// import DirectionsIcon from '@mui/icons-material/Directions';
+
+// export default function FreeText() {
+
+//     const [ state, dispatch ] = React.useContext(AppContext)
+//     const search = (value) => {
+//         console.log('searching: ')
+//         console.log(value)
+//         dispatch({ type: "freetextsearch", value: value })
+//     } 
+
+
+//     return (
+//         <Paper
+//         component="form"
+//         sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: 400 }}
+//         onChange={search}
+//         >
+//         <IconButton sx={{ p: '10px' }} aria-label="menu">
+//             <MenuIcon />
+//         </IconButton>
+//         <InputBase
+//             sx={{ ml: 1, flex: 1 }} 
+//             color="white"
+//             placeholder="Search Google Maps"
+//             inputProps={{ 'aria-label': 'search google maps' }}
+//             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+//                 search(event.target.value);
+//               }}
+//         />
+//         <IconButton type="button" color="primary" sx={{ p: '10px' }} aria-label="search" onClick={search}>
+//             <SearchIcon />
+//         </IconButton>
+//         <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
+//         <IconButton color="primary" sx={{ p: '10px' }} aria-label="directions">
+//             <DirectionsIcon />
+//         </IconButton>
+//         </Paper>
+//     );
+//     }

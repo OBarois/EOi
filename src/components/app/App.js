@@ -18,6 +18,7 @@ import CollectionLabel from "../collectionlabel"
 import AltitudeLabel from "../altitudelabel"
 import SearchLabel from "../searchlabel"
 import GeoName from "../geoname"
+import FreeText from "../FreeText"
 
 import DateManagerContainer from '../../containers/DateManagerContainer'
 import SearchManagerContainer from '../../containers/SearchManagerContainer'
@@ -48,6 +49,7 @@ function App() {
         <AppProvider>
         <div className="App" ref={container} id="container">
              {/* <FullScreen handle={fshandle}> */}
+             {/* <FreeText/> */}
                 <Earth id="globe" />
                 {/* <DateManager startdate={startdate} onDateChange={changeDate} onFinalDateChange={finalChangeDate} animated={searching}/> */}
                 <DateManagerContainer/>
