@@ -23,6 +23,13 @@ export const reducer = (state, action) => {
             mapSettings: {...state.mapSettings, atmosphere: !state.mapSettings.atmosphere}
           }
 
+          case "north_up":
+            console.log('North Up!')
+          return {
+            ...state,
+            mapSettings: {...state.mapSettings, northup: state.northup+1}
+          }
+
     
           case "toggle_background":
             console.log('toggle background !')
@@ -50,12 +57,17 @@ export const reducer = (state, action) => {
 
           case "set_dataset":
             console.log('set dataset!')
-            console.log(action.value[1])
-            console.log(action.value[2])
-          return {
+            // console.log(action.value[0])
+            // console.log(action.value[1])
+            // console.log(action.value[2])
+            // console.log(action.value[3])
+            console.log(action.value[4])
+            return {
             ...state,
             dataset: action.value[0],
             cycle: action.value[2],
+            freetext: action.value[3],
+            searchWindow: action.value[4],
             mapSettings: {...state.mapSettings, satelliteList: action.value[1], datasetSatelliteList: action.value[1]}
           }
 
@@ -101,6 +113,13 @@ export const reducer = (state, action) => {
             productOn: action.value > state.pointSearchMaxAltitude?true:state.productOn,
             searchMode: (action.value > state.pointSearchMaxAltitude)?'global':'point'
           }
+
+          case "freetextsearch":
+            return {
+              ...state,
+              freetext: action.value,
+              searchtrigger: Math.random(),
+            }
     
     
           case "onResultPage":
@@ -124,6 +143,7 @@ export const reducer = (state, action) => {
               closestItem: null,
               filter: [],
               browseMode: state.searchMode,
+              searchWinStart: null,
               searching: false
               // resultDesc: {...state.resultDesc, totalLoaded: action.value.totalLoaded, totalResults: action.value.totalResults}
             }
@@ -131,7 +151,24 @@ export const reducer = (state, action) => {
             
           case "onSearchStart":
             console.log('onSearchStart')
-            console.log(action.value)
+            // // console.log(action.value)
+            // // let julianstart = Math.floor(state.searchDate/state.searchWindow) * state.searchWindow
+            // // let startdate = julianstart
+            // // let enddate = julianstart + state.searchWindow - 1000
+
+            // let day = 1000 * 60 * 60 * 24
+            // // let startdate = Math.floor((state.searchDate - (state.searchWindow/2))/day) * day
+            // // let enddate = Math.floor((state.searchDate + (state.searchWindow/2))/day) * day
+
+            // let searchWinDay = Math.floor(state.searchWindow / day) * day    
+            // let startdate = Math.floor(state.searchDate/searchWinDay) * searchWinDay
+            // let enddate = startdate + searchWinDay
+    
+    
+            // let startdate = Math.floor(state.searchDate/state.searchWindow) * state.searchWindow
+            // let enddate = Math.floor((state.searchDate + (state.searchWindow/2))/day) * day
+
+
           return {
             ...state,
             // tics: [],
@@ -141,7 +178,9 @@ export const reducer = (state, action) => {
             closestItem: null,
             filter: [],
             browseMode: state.searchMode,
-            searching: true
+            searching: true,
+            // searchWinStart: startdate,
+            // searchWinEnd: enddate,
             // resultDesc: {...state.resultDesc, totalLoaded: action.value.totalLoaded, totalResults: action.value.totalResults}
           }
     
@@ -167,6 +206,21 @@ export const reducer = (state, action) => {
 
             }
       
+          case  "set_searchWindow":
+            // console.log('set_searchWindow: ')
+            // console.log(action.value)
+            // let julianstart2 = Math.floor(state.searchDate/action.value) * action.value
+            // let startdate2 = julianstart2
+            // let enddate2 = julianstart2 + action.value - 1000
+
+
+            return {
+              ...state,
+              searchWindow: action.value.win,
+              searchWinStart: action.value.wins,
+              searchWinEnd: action.value.wine,
+              }
+
 
           case "set_selectedProduct":
             console.log('set_selectedProduct:')
@@ -198,7 +252,6 @@ export const reducer = (state, action) => {
 
 
           case "set_tics":
-            // console.log('set_tics')
             return {
               ...state,
               tics: action.value,
@@ -216,20 +269,21 @@ export const reducer = (state, action) => {
         
           case "set_filter":
             console.log('toggle_filter')
+            console.log(state.filter)
             
             if(state.closestItem === null) return state
-            let newfilter 
-            if(state.filter.length === 0) {
+            let newfilter = []
+            if(state.filter.length === 0 || !state.filter) {
               if(state.dataset.indexOf('S1') >=0 ) {
                 newfilter = [{
                   attribute: 'relativePassNumber',
-                  value: state.closestItem.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.relativePassNumber
+                  value: state.closestItem.closest.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.relativePassNumber
                 }]
               }
               if(state.dataset.indexOf('S2') >=0 ) {
                 newfilter = [{
                   attribute: 'relativePassNumber',
-                  value: state.closestItem.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.relativePassNumber
+                  value: state.closestItem.closest.userProperties.earthObservation.acquisitionInformation[0].acquisitionParameter.relativePassNumber
                 },
                 {
                   attribute: 'cloudCoverPercentage',
@@ -248,39 +302,101 @@ export const reducer = (state, action) => {
             }
             
 
-          case "gotoclosestitem":
-            // console.log('gotoclosestitem')
-            if(state.closestItem == null || state.closestItem._sector == null) return state
-            // console.log(state)
+            case "gotoclosestitem":
+              // console.log('gotoclosestitem')
+              // if(state.closestItem == null || state.closestItem.closest._sector == null) return state
+              if(state.closestItem == null) return state
+              // console.log(state)
+  
+              return {
+                ...state,
+                goToDate: state.closestItem.closest.timeRange[0].getTime(),
+                // moveToClosestItemTrigger: Math.random(),
+                goToPos: {
+                  lat: state.closestItem.closest._sector == null?0:state.closestItem.closest._sector.centroidLatitude(),
+                  lon: state.closestItem.closest._sector == null?0:state.closestItem.closest._sector.centroidLongitude(),
+                alt: state.altitude,
+                }
+              }
+              
+              case "gotonextitem":
+                // console.log('gotoclosestitem')
+                // if(state.closestItem == null || state.closestItem.next._sector == null) return state
+                if(state.closestItem == null ) return state
+                // console.log(state)
+    
+                if(state.closestItem.next.sector != null) {
+                  return {
+                    ...state,
+                    goToDate: state.closestItem.next.timeRange[0].getTime(),
+                    // moveToClosestItemTrigger: Math.random(),
+                    goToPos: {
+                      // lat: state.closestItem.previous.sector == null?0:state.closestItem.previous.sector.centroidLatitude(),
+                      // lon: state.closestItem.previous.sector == null?0:state.closestItem.previous.sector.centroidLongitude(),
+                      lat: state.closestItem.next.sector.centroidLatitude(),
+                      lon: state.closestItem.next.sector.centroidLongitude(),
+                        alt: state.altitude,
+                    }
+                  }
+
+                } else {
+                  return {
+                    ...state,
+                    goToDate: state.closestItem.next.timeRange[0].getTime()
+                  }
+                }
+
+                case "gotopreviousitem":
+                  // console.log('gotoclosestitem')
+                  // if(state.closestItem == null || state.closestItem.previous._sector == null) return state
+                  if(state.closestItem == null) return state
+
+                  if(state.closestItem.previous.sector != null) {
+                    return {
+                      ...state,
+                      goToDate: state.closestItem.previous.timeRange[0].getTime(),
+                      // moveToClosestItemTrigger: Math.random(),
+                      goToPos: {
+                        // lat: state.closestItem.previous.sector == null?0:state.closestItem.previous.sector.centroidLatitude(),
+                        // lon: state.closestItem.previous.sector == null?0:state.closestItem.previous.sector.centroidLongitude(),
+                        lat: state.closestItem.previous.sector.centroidLatitude(),
+                        lon: state.closestItem.previous.sector.centroidLongitude(),
+                          alt: state.altitude,
+                      }
+                    }
+  
+                  } else {
+                    return {
+                      ...state,
+                      goToDate: state.closestItem.previous.timeRange[0].getTime()
+                    }
+                  }
+                  
+                    
+                
+          // case "set_goToDate":
+          //   console.log('set_goToDate')
+          //   // console.log(action.value)
+          //   if(action.value === null) return state
+          //   return {
+          //     ...state,
+          //     goToDate: action.value.getTime(),
+          //     // moveToClosestItemTrigger: Math.random()
+          //   }
+        
+          case "set_searchDate":
+            console.log('set_searchDate')
+
+            let day = 1000 * 60 * 60 * 24
+            let searchWinDay = Math.floor(state.searchWindow / day) * day
+            let startdate = Math.floor(action.value.getTime()/searchWinDay) * searchWinDay
+            let enddate = startdate + searchWinDay
 
             return {
               ...state,
-              goToDate: state.closestItem.timeRange[0].getTime(),
-              // moveToClosestItemTrigger: Math.random(),
-              goToPos: {
-                lat: state.closestItem._sector.centroidLatitude(),
-                lon: state.closestItem._sector.centroidLongitude(),
-                alt: state.altitude,
-              }
-            }
-            
-    
-          case "set_goToDate":
-            // console.log('set_goToDate')
-            // console.log(action.value)
-            if(action.value === null) return state
-            return {
-              ...state,
-              goToDate: action.value.getTime(),
-              // moveToClosestItemTrigger: Math.random()
-            }
-        
-          case "set_searchDate":
-            // console.log('set_searchDate')
-            // console.log(action.value)
-            return {
-              ...state,
               searchDate: action.value.getTime(),
+              searchWinStart: startdate,
+              searchWinEnd: enddate,
               goToDate: action.value.getTime()
             }
     
@@ -314,7 +430,7 @@ export const reducer = (state, action) => {
     
     
           case "set_searchPoint": {
-            // console.log('onDateChanged')
+            // console.log('set_searchPoint')
             return {
               ...state,
               searchPoint: action.value
@@ -337,12 +453,33 @@ export const reducer = (state, action) => {
               },
             }
           }
-    
-          case "set_credentials": {
-            // console.log(action.value)
+
+          case "set_token": {
+            console.log('set token: ')
+            console.log(action.value)
             return {
               ...state,
-              credentials: action.value
+              token: action.value
+            }
+          }
+          case "set_credentials": {
+            console.log(action.value)
+            let newcreds = state.credentials
+            let i
+            let found = false
+            for ( i=0; i< state.credentials.length;i++) {
+              if(state.credentials[i].key && state.credentials[i].key == action.value.key) {
+                newcreds[i] = action.value
+                found = true
+              } 
+            }
+            if(!found) newcreds.push(action.value)
+
+            
+      
+            return {
+              ...state,
+              credentials: newcreds
             }
           }
 
@@ -373,7 +510,7 @@ export const reducer = (state, action) => {
     active: false,
     searching: false,
     // dataset: 'S1A_IW_RAW__0SDV',
-    dataset: 'S1A',
+    dataset: 'SciHub/S1',
     altitude: '5000000',
     appColor: '#b575c5',
     position: {
@@ -387,7 +524,7 @@ export const reducer = (state, action) => {
       lon: 0
     },
     searchDate: null,
-    credentials: {user:'', pass:''},
+    credentials: {key:'',user:'', pass:''},
     // resetStartDateTrigger: null,
     pointSearchMaxAltitude: 3000000,
     selectedProduct: null,
@@ -408,6 +545,7 @@ export const reducer = (state, action) => {
     },
     animated: false,
     clearResultsTrigger: null,
+    searchWindow: 1000 * 60 * 60 * 24,
     mapSettings: {
         atmosphere: false,
         starfield: false,
@@ -417,7 +555,8 @@ export const reducer = (state, action) => {
         dem: false,
         satellites: false,
         quicklooks: true,
-        projection: 0
+        projection: 0,
+        northup: 0
     },
     collections: collections,
     leftHanded: false
@@ -433,10 +572,13 @@ export const reducer = (state, action) => {
       mapSettings: state.mapSettings,
       viewDate: state.viewDate,
       searchDate: state.searchDate,
+      searchMode: state.searchMode,
       goToDate: state.goToDate,
       credentials: state.credentials,
-      leftHanded: state.leftHanded
-
+      leftHanded: state.leftHanded,
+      searchPoint: state.searchPoint,
+      searchWinStart: state.searchWinStart,
+      searchWinEnd: state.searchWinEnd,
     }
 
   }

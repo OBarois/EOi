@@ -10,9 +10,9 @@ import JSONCrush from "jsoncrush"
     active: false,
     searching: false,
     // dataset: 'S1A_IW_RAW__0SDV',
-    dataset: 'S1A',
+    dataset: 'SciHub/S1',
     altitude: '5000000',
-    appColor: '#d1498f',
+    appColor: '#d1b849',
     position: {
         clon:'0.5',
         clat:'45' 
@@ -25,7 +25,7 @@ import JSONCrush from "jsoncrush"
     },
     zoomScale: 6461494,
     searchDate: null,
-    credentials: {user:'', pass:''},
+    credentials: [{key:'',user:'', pass:''}],
     resetStartDateTrigger: null,
     pointSearchMaxAltitude: 3000000,
     selectedProduct: null,
@@ -46,6 +46,9 @@ import JSONCrush from "jsoncrush"
     },
     animated: false,
     cycle: 1000*60*60*24*12,
+    searchWindow: 1000*60*60*24,
+    searchWinStart: 0,
+    searchWinEnd: 0,
     clearResultsTrigger: null,
     mapSettings: {
         atmosphere: false,
@@ -79,7 +82,13 @@ import JSONCrush from "jsoncrush"
       searchDate: state.searchDate,
       goToDate: state.goToDate,
       credentials: state.credentials,
-      leftHanded: state.leftHanded
+      leftHanded: state.leftHanded,
+      searchWindow: state.searchWindow,
+      searchMode: state.searchMode,
+      searchPoint: state.searchPoint,
+      searchWinStart: state.searchWinStart,
+      searchWinEnd: state.searchWinEnd,
+
 
     }
 
@@ -97,6 +106,9 @@ import JSONCrush from "jsoncrush"
       viewDate: state.viewDate,
       searchDate: state.searchDate,
       goToDate: state.goToDate,
+      searchWindow: state.searchWindow.Date,
+      searchWinStart: state.searchWinStart,
+      searchWinEnd: state.searchWinEnd,
       // leftHanded: state.leftHanded
     }
 
@@ -130,6 +142,9 @@ import JSONCrush from "jsoncrush"
     return(initstate)
   
   }       catch {
+    console.log('init with default state')
+    console.log(defaultstate)
+
     return(defaultstate)
   }
 

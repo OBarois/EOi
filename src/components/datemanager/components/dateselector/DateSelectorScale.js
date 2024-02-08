@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react';
 import './DateSelector.css';
 
-function DateSelectorScale({date, zoomfactor, resulttics, lefthanded}) {
+function DateSelectorScale({date, zoomfactor, resulttics, lefthanded, searchWinStart, searchWinEnd}) {
 
     const scale = useRef(0)
     const canvas = useRef(null)
@@ -13,10 +13,12 @@ function DateSelectorScale({date, zoomfactor, resulttics, lefthanded}) {
     const izoom = useRef(zoomfactor)    
     const idate = useRef(date)    
     const itics = useRef(resulttics)    
+    const isearchwinstart = useRef(0)    
+    const isearchwinend = useRef(0)    
 
 
         
-    const scaleText = (_start, _zoom, _resulttics) => {
+    const scaleText = (_start, _zoom, _resulttics, _searchwinstart, _searchwinend) => {
         // console.log('_start: '+_start.toJSON()+'  zoom: '+_zoom)
         // if(!scale.current) return
 
@@ -26,7 +28,6 @@ function DateSelectorScale({date, zoomfactor, resulttics, lefthanded}) {
         ctx.shadowOffsetX = 1
         ctx.shadowOffsetY = 1
         ctx.shadowBlur = 2
-        ctx.fillStyle = "red";
         ctx.clearRect(0, 0, window.innerWidth, window.innerHeight)
 
             
@@ -287,8 +288,28 @@ function DateSelectorScale({date, zoomfactor, resulttics, lefthanded}) {
             lastticslength = tics.length
             // iteration +=1
         }
+
+        // draw searchWindow
+        if(_searchwinstart && _searchwinend) {
+            let winstartpos = ( _searchwinstart - _start.getTime()  ) / _zoom + scale.current.offsetHeight/2
+            // let winendpos = ( _searchwinend - _start.getTime() ) / _zoom + scale.current.offsetHeight/2
+            ctx.font = "30px Arial"
+            ctx.fillStyle = "green"
+            // ctx.fillText('_', leftHanded.current?0:scale.current.offsetWidth -28, winstartpos -1);
+            // ctx.fillText('_', leftHanded.current?0:scale.current.offsetWidth -28, winendpos-1)
+            ctx.fillRect(
+                leftHanded.current?0:scale.current.offsetWidth -4, winstartpos +5,
+                4, (_searchwinend - _searchwinstart) / _zoom
+            )
+            // ctx.beginPath()
+            // ctx.strokeStyle = "green"
+            // ctx.moveTo(leftHanded.current?0:scale.current.offsetWidth -18, winstartpos +5);
+            // ctx.lineTo(leftHanded.current?0:scale.current.offsetWidth -18, winendpos +5);
+            // ctx.stroke()
+        }
+        
         if(_resulttics) {
-            _resulttics.sort((a,b)=>b-a)
+            // _resulttics.sort((a,b)=>b-a)
             let lastticpos = -10
             for ( let i=_resulttics.length ; i >= 0  ; i-=1 ) {
             // for ( let i=0 ; i < _resulttics.length  ; i+=1 ) {
@@ -301,6 +322,7 @@ function DateSelectorScale({date, zoomfactor, resulttics, lefthanded}) {
                     // ctx.shadowOffsetY = null
                     // ctx.shadowBlur = null
                     ctx.font = "30px Arial"
+                    ctx.fillStyle = "red"
                     if(ticpos - lastticpos > 3) {
                         lastticpos = ticpos
                         ctx.fillText('.', leftHanded.current?0:scale.current.offsetWidth -8, ticpos +5);
@@ -330,32 +352,40 @@ function DateSelectorScale({date, zoomfactor, resulttics, lefthanded}) {
     useEffect(() => {
         // console.log(zoomfactor)
         izoom.current = zoomfactor
-        setTimescale(scaleText(idate.current,izoom.current,itics.current))
+        setTimescale(scaleText(idate.current,izoom.current,itics.current,isearchwinstart.current,isearchwinend.current))
     },[zoomfactor])
 
     useEffect(() => {
         // console.log(date)
         idate.current = date
-        setTimescale(scaleText(idate.current,izoom.current,itics.current))
+        setTimescale(scaleText(idate.current,izoom.current,itics.current,isearchwinstart.current,isearchwinend.current))
     },[date])
 
     useEffect(() => {
         leftHanded.current = lefthanded
-        setTimescale(scaleText(idate.current,izoom.current,itics.current))
+        setTimescale(scaleText(idate.current,izoom.current,itics.current,isearchwinstart.current,isearchwinend.current))
     },[lefthanded])
 
     useEffect(() => {
         // console.log(resulttics)
         itics.current = resulttics
-        setTimescale(scaleText(idate.current,izoom.current,itics.current))
+        if(itics.current) itics.current.sort((a,b)=>b-a)
+
+        setTimescale(scaleText(idate.current,izoom.current,itics.current,isearchwinstart.current,isearchwinend.current))
     },[resulttics])
+
+    useEffect(() => {
+        isearchwinstart.current = searchWinStart
+        isearchwinend.current = searchWinEnd
+        setTimescale(scaleText(idate.current,izoom.current,itics.current,isearchwinstart.current,isearchwinend.current))
+    },[searchWinStart, searchWinEnd])
 
     useEffect(() => {
         const handleResize =  (e) => {
             e.preventDefault()
             e.stopPropagation()
             // console.log('resize')
-            setTimescale(scaleText(idate.current,izoom.current,itics.current))
+            setTimescale(scaleText(idate.current,izoom.current,itics.current,isearchwinstart.current,isearchwinend.current))
         }
         window.addEventListener('resize', handleResize)
         return ()=>{window.removeEventListener('resize', handleResize)}

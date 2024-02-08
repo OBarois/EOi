@@ -1,7 +1,7 @@
 import React from 'react';
 import {AppContext} from '../app/context'
 
-import './GenericLabel.css' 
+import './AltitudeLabel.css' 
 
 function AltitudeLabel() {
 

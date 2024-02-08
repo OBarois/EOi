@@ -57,7 +57,20 @@ function DateManagerContainer() {
     // console.log(startDate)
 
     return (
-        <DateManager onDateChange={handleDateChanged} onFinalDateChange={handleFinalDate} onStepChange={handleStepChange} onZoomChange={handleZoomChange} startdate={startdate} tics={state.tics} gotoscalezoom={state.zoomScale} onStateChange={handleStateChange} animated={state.animated} cycle={state.cycle} searching={state.searching} leftHanded={state.leftHanded}/> 
+        <DateManager 
+            onDateChange={handleDateChanged} 
+            onFinalDateChange={handleFinalDate} 
+            onStepChange={handleStepChange} 
+            onZoomChange={handleZoomChange} 
+            startdate={startdate} tics={state.tics} 
+            gotoscalezoom={state.zoomScale} 
+            onStateChange={handleStateChange} 
+            animated={state.animated} 
+            cycle={state.cycle} 
+            searching={state.searching} 
+            leftHanded={state.leftHanded} 
+            searchWinStart={state.searchWinStart} 
+            searchWinEnd={state.searchWinEnd} /> 
      )
 }
 

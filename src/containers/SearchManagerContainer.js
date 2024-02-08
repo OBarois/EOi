@@ -1,5 +1,5 @@
 
-import React, {  useCallback } from "react";
+import React, {  useState, useCallback } from "react";
 import {AppContext} from '../components/app/context'
 
 import SearchManager from "../components/searchmanager"
@@ -13,6 +13,27 @@ const SearchManagerContainer = () => {
 
   const debouncedsearchPoint = useDebounce(state.searchPoint, 200)
   const debouncedaltitude = useDebounce(state.altitude, 200)
+
+ 
+  
+  const getcredential = (key) => {
+    for(let i=0; i < state.credentials.length; i++) {
+        if(state.credentials[i].key === key) {
+            return {user:state.credentials[i].user,pass:state.credentials[i].pass}
+        }
+    }
+    return {user:"",pass:""}
+}
+
+    const getcollection = (code) => {
+        for(let i=0; i < state.collections.length; i++) {
+            if(state.collections[i].code === code) {
+                return state.collections[i]
+            }
+        }
+        return null
+    }
+
 
   
     const handlePageSearch = useCallback ( (results, resultdesc) => {
@@ -31,10 +52,14 @@ const SearchManagerContainer = () => {
       dispatch({ type: "onSearchComplete", value: searchDesc})
     }, [dispatch])
 
-    const handleCredentials = useCallback ( (url) => {
-      let key = url.split("/")[2]
-      let user = window.prompt("Please enter your username for \n"+key,"")
-      let pass = window.prompt("Please enter your password for \n"+key,"")
+    const handleCredentials = useCallback ( (dataset) => {
+      console.log(dataset)
+      // let key = getcollection(state.dataset).templateUrl.split("/")[2]
+      let key = dataset.templateUrl.split("/")[2]
+      let credential = getcredential(key)
+      console.log(key)
+      let user = window.prompt("Please enter your username for \n"+key,credential.user?credential.user:'')
+      let pass = window.prompt("Please enter your password for \n"+key,credential.pass?credential.pass:'')
       dispatch({ type: "set_credentials", value: {key: key, user:user, pass:pass}})
       return
     }, [dispatch])
@@ -42,10 +67,14 @@ const SearchManagerContainer = () => {
 
     return (
         <SearchManager 
-          searchdate={new Date(state.searchDate)} 
+          searchdate={state.searchDate} 
           searchpoint={debouncedsearchPoint} 
           searchmode={state.searchMode}
-          dataset={state.dataset} 
+          searchWinStart={state.searchWinStart}
+          searchWinEnd={state.searchWinEnd}
+          dataset={getcollection(state.dataset)} 
+          freetext={state.freetext}
+          trigger={state.searchtrigger}
           credentials={state.credentials}
           altitude={debouncedaltitude} 
           onClearResult={handleClearResult}

@@ -1,0 +1,18 @@
+.Slider {
+    /* position: fixed; */
+    color: var(--color);
+    width: 50px;
+    user-select: auto;
+    z-index: 300;
+    background: rgba(168, 213, 161, 0.751);
+    border: none;
+    visibility: hidden;
+  
+  }
+
+  
+
+  .Small {
+    font-size: 10px;
+  }
+  

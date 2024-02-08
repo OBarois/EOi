@@ -20,7 +20,7 @@
 import WorldWind from 'webworldwind-esa';
 import TexturedSurfacePolygon from '../../wwwxx/textured/TexturedSurfacePolygon'
 
-
+// import SurfacePolyline from 'webworldwind-esa';
 
     const { 
         ArgumentError,
@@ -28,7 +28,8 @@ import TexturedSurfacePolygon from '../../wwwxx/textured/TexturedSurfacePolygon'
         GeoJSONParser,
         Location ,
         Logger,
-        RenderableLayer
+        RenderableLayer,
+        SurfacePolyline
               
             } = WorldWind;
 
@@ -98,7 +99,12 @@ import TexturedSurfacePolygon from '../../wwwxx/textured/TexturedSurfacePolygon'
                     if (configuration && configuration.timeRange) {
                         shape.timeRange = configuration.timeRange;
                     }
+                    shape.highlighted = true
+                    shape.enabled = true
+
                     layer.addRenderable(shape);
+                    // layer.enabled = true
+
             }
         };
 
@@ -182,6 +188,53 @@ import TexturedSurfacePolygon from '../../wwwxx/textured/TexturedSurfacePolygon'
                     layer.addRenderable(shape);
                 }
             }
+        }
+
+
+        GeoJSONParser.prototype.addRenderablesForLineString = function (layer, geometry, properties) {
+            if (!layer) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "GeoJSON", "addRenderablesForLineString",
+                        "missingLayer"));
+            }
+            if (!geometry) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "GeoJSON", "addRenderablesForLineString",
+                        "missingGeometry"));
+            }
+            var configuration = this.shapeConfigurationCallback(geometry, properties);
+            if (!this.crs || this.crs.isCRSSupported()) {
+                var positions = [];
+                for (var pointsIndex = 0, points = geometry.coordinates; pointsIndex < points.length; pointsIndex++) {
+                    var longitude = points[pointsIndex][0],
+                        latitude = points[pointsIndex][1];
+                    //altitude = points[pointsIndex][2] ?  points[pointsIndex][2] : 0,
+                    var reprojectedCoordinate = this.getReprojectedIfRequired(
+                        latitude,
+                        longitude,
+                        this.crs);
+                    var position = new Location(reprojectedCoordinate[1], reprojectedCoordinate[0]);
+                    positions.push(position);
+                }
+                var shape;
+                console.log('polyline!!')
+                shape = new SurfacePolyline(
+                    positions,
+                    configuration && configuration.attributes ? configuration.attributes : null);
+                    console.log('polyline2!!')
+                    if (configuration.highlightAttributes) {
+                    shape.highlightAttributes = configuration.highlightAttributes;
+                }
+                if (configuration && configuration.pickDelegate) {
+                    shape.pickDelegate = configuration.pickDelegate;
+                }
+                if (configuration && configuration.userProperties) {
+                    shape.userProperties = configuration.userProperties;
+                }
+                console.log(shape)
+                layer.addRenderable(shape);
+            }
         };
+
 
 

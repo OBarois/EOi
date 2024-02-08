@@ -1,6 +1,6 @@
 import wellknown from 'wellknown';
 
-export default function PRIPToGeojson(response,startIndex) {
+export default function LTAToGeojson(response,startIndex) {
 
     function gmlToWkt(gmlfootprint) {
         let coord = gmlfootprint.slice(gmlfootprint.indexOf('<gml:coordinates>')+17,gmlfootprint.indexOf('</gml:coordinates>'))
@@ -56,10 +56,22 @@ export default function PRIPToGeojson(response,startIndex) {
 
             // console.log(gmlToWkt(hubItem.gmlfootprint))
 
-            let defaultgeometry = { type: "Point",coordinates: [0,0]}
 
                 // ignore items without a geometry
-                let geometry = item.Footprint?item.Footprint:defaultgeometry
+                let geometry = {}
+                if (item.GeoFootprint == null) {
+                    geometry = {type: "Point",
+                    coordinates: [
+                                 0,
+                                 0
+                               ]}
+                } else {
+                    geometry = item.GeoFootprint
+                    // if(geometry.type == "LineString") return null
+                    // delete geometry.crs
+                    // console.log(item.Footprint.type+":")
+                    // console.log(geometry.coordinates)
+                }
 
             var newItem = {
                 id: item.Id,
@@ -72,10 +84,7 @@ export default function PRIPToGeojson(response,startIndex) {
                     uuid: item.Id,
                     date: item.ContentDate.Start  +'/'+ item.ContentDate.End,
                     downloadUrl: null,
-                    // quicklookUrl: null,
-                    //ex: https://processing.platform.ops-csc.com/ddip/odata/v1/Products(6ad185e9-44b5-4c3e-b4c1-5b3115863199)/Quicklooks('S1A_EW_GRDM_1SDH_20240117T083035_20240117T083135_052144_064D8A_F07E.SAFE_bwi.png')/$value
-                    quicklookUrl: 'https://processing.platform.ops-csc.com/odata/v1/Products('+item.Id+")/Quicklooks('"+item.Name.slice(0, -4)+"_bwi.png')/$value",
-                    // quicklookUrl: null,
+                    quicklookUrl: null,
                     // links: {
                     //     data: [{
                     //         href: item.link[0].href,
@@ -116,17 +125,17 @@ export default function PRIPToGeojson(response,startIndex) {
             }
             return newItem;
         } catch (err) {
-            console.log("error parsing item from PRIP: "+err.message);
+            console.log("error parsing item from LTA: "+err.message);
             return null;
         }
     }
 
     let features = [];
-    // console.log(response.value)
+    console.log(response.value)
     try {
 
             if(Array.isArray(response.value)) {
-                // console.log(response.value[0])
+                console.log(response.value[0])
                 features = response.value.filter(it => it !== null).map( item =>  mapFromHubOpenSearch(item)).filter(it => it !== null);
             } else {
                 features = []
@@ -149,7 +158,7 @@ export default function PRIPToGeojson(response,startIndex) {
                 // totalResults: response.value.length,
                 startIndex: startIndex,
                 itemsPerPage: response.value.length,
-                title: "PRIP search response",
+                title: "LTA search response",
                 updated: new Date()
             },
             features: features

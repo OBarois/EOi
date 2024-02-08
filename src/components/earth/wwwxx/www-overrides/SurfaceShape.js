@@ -25,7 +25,7 @@ const {
     // SurfaceShape,
 } = WorldWind;
 
-let SurfaceShape = WorldWind.SurfaceShape;
+// let SurfaceShape = WorldWind.SurfaceShape;
 
 
 /**
@@ -44,14 +44,14 @@ let SurfaceShape = WorldWind.SurfaceShape;
  * @param {ShapeAttributes} attributes The attributes to apply to this shape. May be null, in which case
  * attributes must be set directly before the shape is drawn.
  */
-SurfaceShape = function (attributes) {
+const SurfaceShape = function (attributes) {
 
     Renderable.call(this);
 
     // All these are documented with their property accessors below.
     this._displayName = "Surface Shape";
     this._attributes = attributes ? attributes : new ShapeAttributes(null);
-    this._highlightAttributes = null;
+    this._highlightAttributes = attributes.highlightAttributes ? attributes.highlightAttributes : null;
     this._highlighted = false;
     this._enabled = true;
     this._pathType = WorldWind.GREAT_CIRCLE;

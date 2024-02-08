@@ -6,9 +6,9 @@
   -o-user-drag: none;
   -webkit-user-drag: none;
   height: 50px;
-  width: 50px;
+  width: 80px;
   bottom: 20px;
-  right: 35px;
+  right: 20px;
   z-index: 300; 
   /* background-image: url("EOi_logo.png"); */
   /* background-color: #77bd35c9; */

@@ -206,7 +206,7 @@ export const FluidWorldWindowController = memo( ({world, onSimpleClick}) => {
 
 
     function handleSimpleClick(event) {
-        console.log('simple click')
+        // console.log('simple click')
         onSimpleClick(event)
     }
 
@@ -716,7 +716,7 @@ export const FluidWorldWindowController = memo( ({world, onSimpleClick}) => {
             world.current.globe.elevationAtLocation(nav.lookAtLocation.latitude, nav.lookAtLocation.longitude) + EYE_ALT, 
             MAX_ALT 
         )
-        nav.tilt = WorldWind.WWMath.clamp(nav.tilt,0,80)
+        nav.tilt = WorldWind.WWMath.clamp(nav.tilt,0,90)
         // logdebug({
         //     range: nav.range, 
         //     lookAtlat: nav.lookAtLocation.latitude, 

@@ -10,7 +10,7 @@ import DateSelectorScale from './DateSelectorScale'
 import './DateSelector.css';
 // import { start } from 'repl';
 
-function DateSelector({startdate, tics, gotoscalezoom, onDateChange, onFinalDateChange, onStepChange, onZoomChange, satcycle, leftHanded}) {
+function DateSelector({startdate, tics, gotoscalezoom, onDateChange, onFinalDateChange, onStepChange, onZoomChange, satcycle, leftHanded, searchWinStart, searchWinEnd}) {
 
 
     // const [ setlog, renderlog] = useLog()
@@ -309,11 +309,11 @@ function DateSelector({startdate, tics, gotoscalezoom, onDateChange, onFinalDate
                     setScaledate(adate)
                     onDateChange(adate)
                 },
-                // onRest: ()=>{
-                //     // isActive.current = false
+                onRest: ()=>{
+                    // isActive.current = false
                 // console.log("rest move")
-                //     // onFinalDateChange(discreetdate.current)
-                // }
+                    onFinalDateChange(discreetdate.current)
+                }
             })
         // }
 
@@ -377,8 +377,8 @@ function DateSelector({startdate, tics, gotoscalezoom, onDateChange, onFinalDate
     },[stepLabel,onStepChange])
 
     // useEffect(() => {
-    //     onZoomChange(stepLabel)
-    // },[stepLabel,onZoomChange])
+    //     console.log(searchWindow/86400000+' Days')
+    // },[searchWindow])
 
     useEffect(() => {
         console.log('cycle changed to: '+satcycle)
@@ -442,7 +442,14 @@ function DateSelector({startdate, tics, gotoscalezoom, onDateChange, onFinalDate
             <div {...bind()} className={leftHanded?"touchMaskL":"touchMask"}> </div>
             <div className="Mask"  >
 
-                    <DateSelectorScale className={leftHanded?'scale lefthanded':'scale'} date={scaledate} zoomfactor={zoomfactor} resulttics={tics} lefthanded={leftHanded}></DateSelectorScale>
+                    <DateSelectorScale className={leftHanded?'scale lefthanded':'scale'} 
+                        date={scaledate} 
+                        zoomfactor={zoomfactor} 
+                        resulttics={tics} 
+                        lefthanded={leftHanded} 
+                        searchWinStart={searchWinStart}
+                        searchWinEnd={searchWinEnd}>
+                    </DateSelectorScale>
                     
                     <div className={leftHanded?'TriangleContainerL':'TriangleContainer'} >
                         <svg height="40" width="20" className="Triangle">

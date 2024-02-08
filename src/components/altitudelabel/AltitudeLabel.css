@@ -1,7 +1,7 @@
 .GenericLabel {
-    /* position: fixed; */
-    /* top: 80px;
-    left: 5px; */
+    position: fixed;
+    bottom: 5px;
+    left: 5px;
     color: var(--color);
     width: 100px;
     /* height: 30px; */

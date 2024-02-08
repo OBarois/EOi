@@ -20,7 +20,7 @@ export default function eocatToGeojson(response) {
                 properties: {
                     updated: item.properties.updated,
                     title: item.properties.title,
-                    name: item.title,
+                    name: item.properties.title,
                     uuid: item.properties.identifier,
                     date: item.properties.date,
                     downloadUrl: downloadurl,
@@ -64,7 +64,7 @@ export default function eocatToGeojson(response) {
                     }
                 }
             }
-        
+        // console.log(item)
             return newItem;
         } catch (err) {
             console.log("error parsing item from dhus: "+err.message);

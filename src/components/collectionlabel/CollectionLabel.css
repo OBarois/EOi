@@ -1,0 +1,55 @@
+.FreeTextContainer {
+  position: absolute;
+  top: 30px;
+  /* left: 50%; */
+  margin-left: 20px;
+  height: 25px;
+  width: auto;
+  /* margin: auto; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* background: rgba(75, 197, 213, 0.937); */
+  z-index: 300;
+  user-select: none;
+}
+
+.FreeText {
+  color: var(--color);
+    /* margin: auto;
+    overflow: scroll; */
+    /* overflow-wrap: break-word;
+    word-wrap: break-word; */
+    user-select: auto;
+    z-index: 300;
+    background: rgba(173, 57, 146, 0);
+    border: 5px;
+    font-size: 15px;
+    font-weight: bold;
+    text-shadow:  var(--shadow);
+    text-align: left;
+    
+  }
+
+  .CollCode {
+    color: var(--color);
+      /* margin: auto;
+      overflow: scroll; */
+      /* overflow-wrap: break-word;
+      word-wrap: break-word; */
+      user-select: auto;
+      z-index: 300;
+      /* background: rgba(173, 144, 57, 0.782); */
+      border: 5px;
+      font-size: 14px;
+      font-weight: bold;
+      text-shadow:  var(--shadow);
+      text-align: center;
+      
+    }
+  
+    
+    .Small {
+    font-size: 10px;
+  }
+  

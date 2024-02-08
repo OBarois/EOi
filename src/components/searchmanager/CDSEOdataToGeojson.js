@@ -1,6 +1,6 @@
 import wellknown from 'wellknown';
 
-export default function PRIPToGeojson(response,startIndex) {
+export default function CDSEOdataToGeojson(response,startIndex) {
 
     function gmlToWkt(gmlfootprint) {
         let coord = gmlfootprint.slice(gmlfootprint.indexOf('<gml:coordinates>')+17,gmlfootprint.indexOf('</gml:coordinates>'))
@@ -59,7 +59,7 @@ export default function PRIPToGeojson(response,startIndex) {
             let defaultgeometry = { type: "Point",coordinates: [0,0]}
 
                 // ignore items without a geometry
-                let geometry = item.Footprint?item.Footprint:defaultgeometry
+                let geometry = item.GeoFootprint?item.GeoFootprint:defaultgeometry
 
             var newItem = {
                 id: item.Id,
@@ -72,10 +72,8 @@ export default function PRIPToGeojson(response,startIndex) {
                     uuid: item.Id,
                     date: item.ContentDate.Start  +'/'+ item.ContentDate.End,
                     downloadUrl: null,
-                    // quicklookUrl: null,
-                    //ex: https://processing.platform.ops-csc.com/ddip/odata/v1/Products(6ad185e9-44b5-4c3e-b4c1-5b3115863199)/Quicklooks('S1A_EW_GRDM_1SDH_20240117T083035_20240117T083135_052144_064D8A_F07E.SAFE_bwi.png')/$value
-                    quicklookUrl: 'https://processing.platform.ops-csc.com/odata/v1/Products('+item.Id+")/Quicklooks('"+item.Name.slice(0, -4)+"_bwi.png')/$value",
-                    // quicklookUrl: null,
+                    // quicklookUrl: 'https://catalogue.dataspace.copernicus.eu/odata/v1/Assets('+item.Id+")/$value",
+                    quicklookUrl: item.Assets[0].DownloadLink,
                     // links: {
                     //     data: [{
                     //         href: item.link[0].href,

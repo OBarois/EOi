@@ -9,10 +9,11 @@ import useHandleDoubleTap from '../../hooks/useHandleDoubleTap'
 // npm install --save-dev @iconify/react @iconify-icons/ic
 import { Icon } from '@iconify/react';
 import outlineRefresh from '@iconify-icons/ic/outline-refresh';
+// import useFetcher  from '../../hooks/useFetcher';
 
 
 
-function SearchManager({searchdate, searchpoint, searchmode, credentials, dataset, altitude, onClearResult, onSearchStart, onPageSearch, onSearchComplete, on401, lefthanded}) {
+function SearchManager({searchdate, searchpoint, searchmode, searchWinStart, searchWinEnd, credentials, dataset, freetext, trigger, altitude, onClearResult, onSearchStart, onPageSearch, onSearchComplete, on401, lefthanded}) {
 
 
     const [ searching, setsearching ] = useState(false);
@@ -25,18 +26,23 @@ function SearchManager({searchdate, searchpoint, searchmode, credentials, datase
 
     const [param, setparam] = useState({})
 
-
-
     const { geojsonResults, loading, status, search, abort } = useDatahub({});
     
     const {handleTap} = useHandleDoubleTap( ()=>{setsearchtrigger(Math.random())}, onClearResult )
 
 
+    // useKey(['x'],(e) => myDispatch(e,{ type: "toggle_projection" }))
     useKey(["x"],()=>setsearchtrigger(Math.random())) 
+
+
+
+    useEffect(() => {
+        setsearchtrigger(Math.random())
+    }, [trigger])
 
     useEffect(() => {
         if(geojsonResults) {
-            console.log(geojsonResults)
+            // console.slog(JSON.stringify(geojsonResults))
 
             // saves first and last item dates
             let firstitemdate = (new Date(geojsonResults.features[0].properties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStartTime))
@@ -71,13 +77,13 @@ function SearchManager({searchdate, searchpoint, searchmode, credentials, datase
     }, [loading])
 
     useEffect(() => {
-        console.log('status: '+status)
-        if(status !== '') on401(status)
+        console.log('status: ')
+        console.log(status)
+        // console.log(credentials)
+        if(status !== -1) on401(dataset)
     }, [status]);
 
     useEffect(() => {
-        console.log('searchtrigger')
-        console.log(searchtrigger)
         if(!searchtrigger || searchtrigger == 0) return
         if(loading) {
             abort()
@@ -88,23 +94,31 @@ function SearchManager({searchdate, searchpoint, searchmode, credentials, datase
             totalresults.current = 0
 
             onSearchStart()
-            search(param,credentials)    
+            // console.log(param)
+            search(param)    
         }
 
     }, [searchtrigger]);
 
 
     useEffect(() => {
-        // console.log('set param')
-        let sd = searchdate
+        console.log('should reset token')
+    }, [dataset]);
+
+
+    useEffect(() => {
+        // console.log('search param changed:')
+        // console.log(searchdate)
+        // console.log(searchWindow)
+        let sd = new Date(searchdate)
         let sp = searchpoint
         if(searchmode === 'global') {
             sp = null
         } else {
             sd = null
         }
-        setparam((param)=>{ return {...param, searchdate: sd, dataset: dataset, searchpoint: sp }})
-    }, [searchdate, dataset, searchpoint, altitude, searchmode]);
+        setparam((param)=>{ return {...param, searchdate: sd, dataset: dataset, freetext: freetext, searchpoint: sp, windowStart: searchWinStart, windowEnd: searchWinEnd, credentials: credentials}})
+    }, [searchdate, dataset, freetext, searchpoint, searchmode, searchWinStart, searchWinEnd, credentials]);
 
 
     //console.log('dataset rendering')

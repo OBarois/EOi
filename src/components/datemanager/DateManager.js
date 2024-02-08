@@ -4,7 +4,7 @@ import DateController from './components/datecontroller'
 import DateSelector from './components/dateselector'
 
 
-function DateManager({ onDateChange, onFinalDateChange, onStateChange, onStepChange, onZoomChange, animated, searching, startdate, tics, gotoscalezoom, cycle, leftHanded}) {
+function DateManager({ onDateChange, onFinalDateChange, onStateChange, onStepChange, onZoomChange, animated, searching, startdate, tics, gotoscalezoom, cycle, leftHanded, searchWinStart, searchWinEnd, searchDate}) {
 
     // if(!startdate) startdate = new Date()
     const [selectorStartdate, setselectorStartdate] = useState(startdate)
@@ -56,7 +56,9 @@ function DateManager({ onDateChange, onFinalDateChange, onStateChange, onStepCha
                 onFinalDateChange={handleSelectorFinalDateChange} 
                 onStepChange={handleSelectorStepChange}
                 onZoomChange={handleSelectorZoomChange}
-                leftHanded={leftHanded}/>
+                leftHanded={leftHanded}
+                searchWinStart={searchWinStart}
+                searchWinEnd={searchWinEnd}/>
         </div>
     ) 
 }

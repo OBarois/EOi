@@ -16,6 +16,9 @@ import orbitLayers from './orbitLayers';
 
 import {bgLayers, ovLayers} from './layerConfig'; 
 
+import { OAuth2Client, OAuth2Fetch } from '@badgateway/oauth2-client'    
+
+
 export function useEww({ id }) {
     
     // const TRAIL_PRODUCT = 1000 * 60 * 60 * 24 //1 day
@@ -60,7 +63,6 @@ export function useEww({ id }) {
     const s2lut = useRef([])
 
     const lastepoch = useRef(new Date())
-    const lastclosestitemindex = useRef(-1)
 
     // QL loader queue
     const qlqueue = useRef([])
@@ -163,6 +165,9 @@ export function useEww({ id }) {
         let products = getLayerByName('Products').renderables
         for( let i = 0; i < products.length; i++) {
             products[i].highlightAttributes.interiorColor = color.current
+            products[i].highlightAttributes.outlineColor = new WorldWind.Color(0, 0, 1, 1);
+
+
         }
         eww.current.redraw()
     }
@@ -172,7 +177,8 @@ export function useEww({ id }) {
         switch (value) {
             case "point":
                 ProductHead.current = 0
-                ProductTrail.current = 1000 * 60 * 60 * 24
+                // ProductHead.current = 1000 * 60 * 60 * 24 *12
+                ProductTrail.current = 1000 * 60 * 60 * 24 
                 // QLTrail.current = 1000 * 60 * 60 * 24 *12
                 break;
             case "global":
@@ -358,19 +364,21 @@ export function useEww({ id }) {
             let configuration = {};
             configuration.userProperties = properties
     
-            let placemarkAttributes = new WorldWind.PlacemarkAttributes(null);
-            placemarkAttributes.imageScale = 10;
-            placemarkAttributes.imageColor = new WorldWind.Color(0, 1, 1, 0.2);
-            placemarkAttributes.labelAttributes.offset = new WorldWind.Offset(
-                WorldWind.OFFSET_FRACTION, 5,
-                WorldWind.OFFSET_FRACTION, 5);
+            
             //placemarkAttributes.imageSource = whiteDot;
     
     
             if (geometry.isPointType() || geometry.isMultiPointType()) {
+                let placemarkAttributes = new WorldWind.PlacemarkAttributes(null);
+                placemarkAttributes.imageScale = 10;
+                placemarkAttributes.imageColor = new WorldWind.Color(0, 1, 1, 0.2);
+                placemarkAttributes.labelAttributes.offset = new WorldWind.Offset(
+                WorldWind.OFFSET_FRACTION, 5,
+                WorldWind.OFFSET_FRACTION, 5);
                 configuration.attributes = new WorldWind.PlacemarkAttributes(placemarkAttributes);
                 
             } else if (geometry.isLineStringType() || geometry.isMultiLineStringType()) {
+                console.log('config call back line string')
                 configuration.attributes = new WorldWind.ShapeAttributes(null);
                 configuration.attributes.drawOutline = true;
                 configuration.attributes.outlineColor = new WorldWind.Color(
@@ -380,18 +388,24 @@ export function useEww({ id }) {
                     1
                 );
                 configuration.attributes.outlineWidth = 1;
+
+                configuration.highlightAttributes = new WorldWind.ShapeAttributes(configuration.attributes);
+                configuration.highlightAttributes.interiorColor = color.current;
+                configuration.highlightAttributes.outlineColor = new WorldWind.Color(0, 0, 1, 1);
+                configuration.highlightAttributes.outlineWidth = 5;
+                configuration.highlightAttributes.drawOutline = true
+
             } else if (geometry.isPolygonType() || geometry.isMultiPolygonType()) {
                 configuration.attributes = new WorldWind.ShapeAttributes(null);
-                configuration.attributes.interiorColor = new WorldWind.Color(1, 0, 0, 0.2);
                 configuration.attributes.interiorColor = new WorldWind.Color(1, 0, 0, 0.2);
                 // configuration.attributes.outlineColor = new WorldWind.Color(1, 0, 1, 0.3);
                 // configuration.attributes.outlineWidth = 5;
 
                 configuration.highlightAttributes = new WorldWind.ShapeAttributes(configuration.attributes);
                 configuration.highlightAttributes.interiorColor = color.current;
-                // configuration.highlightAttributes.outlineColor = new WorldWind.Color(1, 0, 0, 1);
-                // configuration.highlightAttributes.outlineWidth = 5;
-                // configuration.attributes.drawOutline = true
+                configuration.highlightAttributes.outlineColor = new WorldWind.Color(0, 0, 1, 1);
+                configuration.highlightAttributes.outlineWidth = 5;
+                configuration.highlightAttributes.drawOutline = true
 
                 // configuration.attributes.applyLighting = true;
                 // configuration.attributes.imageSource = properties.quicklookUrl
@@ -578,7 +592,7 @@ export function useEww({ id }) {
         //     return item.properties.earthObservation.acquisitionInformation[0].acquisitionParameter.acquisitionStartTime.getTime()
         // })
         let test = true
-        if(!renderable.userProperties) return true
+        if(!renderable.userProperties || filter === undefined ) return true
         // console.log(renderable)
         for(let i = 0; i < filter.length; i++) {
 
@@ -610,13 +624,19 @@ export function useEww({ id }) {
             return null
         }
         let closestrenderableindex = -1
-        let lastdistance = 99999999999999999
+        let previousrenderableindex = -1
+        let nextrenderableindex = -1
+        let lastpreviousdistance = 99999999999999999
+        let lastnextdistance = 99999999999999999
 
         let start, end, filtered
         for (let j = 0; j < layer.renderables.length; j++) {
             start = layer.renderables[j].timeRange[0].getTime()
             end = layer.renderables[j].timeRange[1].getTime()
             filtered = layer.renderables[j].filtered?layer.renderables[j].filtered:false
+            // layer.renderables[j].enabled = true
+            // layer.renderables[j].highlighted = true
+
 
 
 
@@ -629,85 +649,48 @@ export function useEww({ id }) {
             }
 
             //find closest in the past
-            if( start <= time.getTime() && Math.abs(start - time.getTime()) < lastdistance && !filtered) {
-                closestrenderableindex = j
-                lastdistance = Math.abs(start - time.getTime())
+            let timediff = start - time.getTime()
+            if (!filtered) {
+                if( timediff < 0 && Math.abs(timediff) <= lastpreviousdistance) {
+                    // previousrenderableindex = closestrenderableindex
+                    previousrenderableindex = j
+                    lastpreviousdistance = Math.abs(timediff)
+                }
+                if(timediff == 0) closestrenderableindex = j
+                if(timediff > 0 && Math.abs(timediff) <= lastnextdistance) {
+                    // nextrenderableindex = nextrenderableindex
+                    nextrenderableindex = j
+                    lastnextdistance = Math.abs(timediff)
+                }
             }
-                            
+            
+
 
         }
 
+        // find closest
+
         if(closestrenderableindex == -1) {
             // console.log("closest not found")
-            closestrenderableindex = layer.renderables.length - 1
+            closestrenderableindex = lastnextdistance >= lastpreviousdistance ? previousrenderableindex : nextrenderableindex
+
+            // closestrenderableindex = layer.renderables.length - 1
         }
         // make the closest one always visible 
         layer.renderables[closestrenderableindex].enabled = true
         layer.renderables[closestrenderableindex].highlighted = true
+        // if(nextrenderableindex != -1) layer.renderables[nextrenderableindex].enabled = true
+        // layer.renderables[nextrenderableindex].highlighted = true
+        // console.log(previousrenderableindex,closestrenderableindex,nextrenderableindex)
+        // console.log(layer.renderables)
+        return {
+            closest: layer.renderables[closestrenderableindex],
+            previous:layer.renderables[previousrenderableindex == -1?0:previousrenderableindex],
+            next:layer.renderables[nextrenderableindex == -1?layer.renderables.length-1:nextrenderableindex]
+        }
 
-        return (layer.renderables[closestrenderableindex])
+
     }
-
-    function enableRenderables_old(layer, time, trailduration) {
-        if(layer.renderables.length === 0) {
-            return null
-        }
-        let closestrenderableindex = -1
-        let oldestrenderableindex = -1
-        let youngestrenderableindex = -1
-        let youngestrenderableepoch= 0
-        let oldestrenderableepoch = (new Date(2100,0)).getTime()
-        let closestrenderableepoch = 0
-        for (let j = 0; j < layer.renderables.length; j++) {
-            let renderable = layer.renderables[j]
-            if (time !== 0) {
-
-                let visibilityend = renderable.timeRange[1].getTime() + HEAD_PRODUCT
-                let filtered = layer.renderables[j].filtered?layer.renderables[j].filtered:false
-
-                // find closest
-                if( visibilityend > closestrenderableepoch && visibilityend <= time && !filtered) {
-                    closestrenderableindex = j
-                    closestrenderableepoch = visibilityend
-                } 
-                if( visibilityend <= oldestrenderableepoch && !filtered) {
-                    oldestrenderableindex = j
-                    oldestrenderableepoch = visibilityend
-                }
-
-                if( visibilityend >= youngestrenderableepoch && !filtered) {
-                    youngestrenderableindex = j
-                    youngestrenderableepoch = visibilityend
-                }
-
-
-                renderable.enabled = (time-trailduration < visibilityend && visibilityend <= time) ? !filtered : false   
-            } else {
-                renderable.enabled = false
-            }         
-        }
-        // make the closest one always visible 
-        if(closestrenderableindex !== -1) {
-            console.log('closet not found')
-            layer.renderables[closestrenderableindex].enabled = true
-            layer.renderables[closestrenderableindex].highlighted = true
-            // if(lastclosestitemindex.current !== -1) layer.renderables[lastclosestitemindex.current].highlighted = false
-
-        } else {
-            closestrenderableindex = oldestrenderableindex
-        }
-        console.log('last closest index:'+ lastclosestitemindex.current)
-        console.log('closest index:'+ closestrenderableindex)
-        lastclosestitemindex.current = closestrenderableindex
-
-        // make the youngest one visible if closest not found
-        // if(time <= oldestrenderableepoch && closestrenderableindex === -1) {
-        //     layer.renderables[oldestrenderableindex].enabled = true
-        //     closestrenderableindex = oldestrenderableindex
-        // } 
-        return (layer.renderables[closestrenderableindex])
-    }
-
 
 
 
@@ -718,7 +701,9 @@ export function useEww({ id }) {
     
         // https://stackoverflow.com/questions/20600800/js-client-side-exif-orientation-rotate-and-mirror-jpeg-images
         // https://stackoverflow.com/questions/7584794/accessing-jpeg-exif-rotation-data-in-javascript-on-the-client-side/32490603#32490603
-        const srcOrientation = 4;
+        const srcOrientation = 3; // for CDSE descending
+        // const srcOrientation = 4; // for CDSE Aescending
+        // const srcOrientation = 4; //for DHUS
         img.onload = function() {
             var width = img.width,
                 height = img.height,
@@ -804,7 +789,7 @@ export function useEww({ id }) {
         return multiboundaries
     }
 
-    const createQL = async (url, footprint, timerange, attributes, userProperties, quicklookLayer, renderable, credentials) => {
+    const createQL = async (url, footprint, timerange, attributes, userProperties, quicklookLayer, renderable, credential, server, tokenendpoint, granttype, fetchURL, abort_fetchURL) => {
 
         async function createImage(url) {
             return new Promise((resolve, reject) => {
@@ -831,26 +816,45 @@ export function useEww({ id }) {
                 return
             }
         }
+      // hack:
+    //   url = url.replace('catalogue.dataspace.copernicus.eu','zipper.dataspace.copernicus.eu')
 
         try {
-            
-            let response = await fetch (url, 
-                {mode: 'cors', 
-                credentials: 'include', 
-                signal: abortcontroller.signal, 
-                headers: {
-                    "Content-Type": "text/plain",
-                    'Authorization': 'Basic ' + window.btoa(credentials.user+":"+credentials.pass),
-                },
-                cache: "force-cache"})
+            let response = await fetchURL(url, server, tokenendpoint, granttype, credential.user, credential.pass) 
+            // let response
+            // console.log(token)
+            // if(token) {
+            //     console.log('fetch with token)')
+            //     response = await token.fetch(url, 
+            //         {
+            //         mode: 'cors', 
+            //         credentials: 'include', 
+            //         signal: abortcontroller.signal
+            //         })
+            //     console.log(response)
+            // } else {
+            //     response = await fetch (url, 
+            //         {mode: 'cors', 
+            //         credentials: 'include', 
+            //         signal: abortcontroller.signal, 
+            //         headers: {
+            //             "Content-Type": "text/plain",
+            //             'Authorization': 'Basic ' + window.btoa(credential.user+":"+credential.pass),
+            //         },
+            //         cache: "force-cache"})
+
+            // }
             if (!response.ok) {
                 throw new Error(`HTTP error (QL)! status: ${response.status}`);
             }
             
             let blob = await response.blob()
             let objectURL = URL.createObjectURL(blob)
-            let image = await createImage(objectURL)
-            
+            let image = await createImage(objectURL) // for dhus
+            // let image = new Image()
+            // image.src = objectURL
+            // image.rotate(180)
+
             let quicklook =  new TexturedSurfacePolygon(footprint,attributes)
             // quicklook.maxImageWidth = 64
             // quicklook.maxImageHeight = 64
@@ -877,14 +881,14 @@ export function useEww({ id }) {
             // console.log(eww.current.layers)
             enableRenderables(quicklookLayer, lastepoch.current, 0, QLTrail.current)
             eww.current.redraw()
-            
         } catch(err) {
             console.log("Error contacting server (QL)...")
-            // console.log(err)
+            console.log(err)
         }
     }
 
-    const addQuicklook =  (renderable, credentials, forward) => {
+// const {fetchURL, init_fetcher, abort_fetchURL} = useFetcher()
+    const addQuicklook =  (renderable, server, tokenendpoint, granttype, credential, forward, fetchURL, abort_fetchURL) => {
 
         const abortqlloader = () => {
             // console.log('aborting ql loader')
@@ -894,6 +898,7 @@ export function useEww({ id }) {
 
         if(renderable) {
             let prodlayer = getLayerByName('Products')
+            // console.log(renderable)
             let idx = getIndexOfRenderable(renderable,prodlayer)
             let j = 0
 
@@ -930,15 +935,15 @@ export function useEww({ id }) {
             // 
             if(qlcontroller.current == null) {
                 qlcontroller.current = new AbortController();
-                QLLoader(credentials,qlcontroller.current.signal).then( ()=>abortqlloader() )
+                QLLoader(credential, server, tokenendpoint, granttype, fetchURL, abort_fetchURL, qlcontroller.current.signal).then( ()=>abortqlloader() )
             }
         }
 
     }
 
-    const QLLoader = async (credentials, abortsignal) => {
+    const QLLoader = async (credential, server, tokenendpoint, granttype, fetchURL, abort_fetchURL, abortsignal) => {
 
-        const delay = ms => new Promise(res => setTimeout(res, ms))
+        // const delay = ms => new Promise(res => setTimeout(res, ms))
         return new Promise( async ( resolve, reject ) => {
             // console.log(renderables)
 
@@ -951,7 +956,7 @@ export function useEww({ id }) {
             while(qlqueue.current.length > 0) {
                 // console.log('QL queue: '+qlqueue.current.length)
                 let prod = qlqueue.current.shift()
-                await  add1Quicklook(prod, credentials)
+                await  add1Quicklook(prod, server, tokenendpoint, granttype, credential, fetchURL, abort_fetchURL)
             }
             resolve()
         } )
@@ -961,7 +966,10 @@ export function useEww({ id }) {
 
 
 
-    const add1Quicklook = async (renderable, credentials) => {
+    const add1Quicklook = async (renderable, server, tokenendpoint, granttype, credential, fetchURL, abort_fetchURL) => {
+        // console.log(credential)
+        // console.log(token)
+
         if(renderable) {
 
             let url = renderable.userProperties.quicklookUrl
@@ -999,7 +1007,7 @@ export function useEww({ id }) {
             let quicklookLayer = getLayerByName('Quicklooks')
             let enabled = renderable.enabled
 
-            await createQL(url, footprint, timerange, attributes, userProperties, quicklookLayer, renderable, credentials)
+            await createQL(url, footprint, timerange, attributes, userProperties, quicklookLayer, renderable, credential, server, tokenendpoint, granttype, fetchURL, abort_fetchURL)
         }
     }
 
@@ -1036,7 +1044,7 @@ export function useEww({ id }) {
 
         let closestrenderable = null
         closestrenderable = enableRenderables(getLayerByName('Products'), epoch, ProductHead.current, ProductTrail.current)
-        
+        // console.log(closestrenderable)
         if(qw.current) {
             enableLayer(getLayerByName('QuicklookWMS'), epoch, 0,  QLTrail.current)
         }

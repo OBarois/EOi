@@ -1,6 +1,6 @@
 import React from 'react'
 import {AppContext} from '../app/context'
-import './GenericLabel.css' 
+import './ProductInfo.css' 
 
 function ProductInfo() {
 
@@ -8,7 +8,7 @@ function ProductInfo() {
 
 
     return (
-        <div className='GenericLabel Small'>{state.closestItem?state.closestItem.userProperties.title:''}</div>
+        <div className='ProductInfo Small'>{state.closestItem?state.closestItem.closest.userProperties.title:''}</div>
      )
 }
 

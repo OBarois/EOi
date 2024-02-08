@@ -17,8 +17,8 @@ import OptionsSelector from "../optionsselector"
 import CollectionLabel from "../collectionlabel"
 import AltitudeLabel from "../altitudelabel"
 import SearchLabel from "../searchlabel"
-import GeoName from "../geoname"
-import FreeText from "../FreeText"
+// import GeoName from "../geoname"
+import WindowSizeController from "../WindowSizeController"
 
 import DateManagerContainer from '../../containers/DateManagerContainer'
 import SearchManagerContainer from '../../containers/SearchManagerContainer'
@@ -43,18 +43,22 @@ function App() {
         // element
     } = useFullscreen();
 
-    useKey(['f'],()=>{toggle(container.current)})
+
+    useKey(['f'],(e) => {if(e.target.tagName === 'BODY') toggle(container.current)})
+    // useKey(['f'],()=>{toggle(container.current)})
+
 
     return (
         <AppProvider>
         <div className="App" ref={container} id="container">
              {/* <FullScreen handle={fshandle}> */}
-             {/* <FreeText/> */}
                 <Earth id="globe" />
+
                 {/* <DateManager startdate={startdate} onDateChange={changeDate} onFinalDateChange={finalChangeDate} animated={searching}/> */}
                 <DateManagerContainer/>
                 <Mood/>
-                {/* <GeoName/> */}
+                <CollectionLabel/>
+                <WindowSizeController/>
                 <Share/>
                 <SearchManagerContainer/>
                 <ControlPanel active="false" >
@@ -66,16 +70,18 @@ function App() {
                         <div className='horizontalContainer'>
                             <ColorSelectorContainer></ColorSelectorContainer>
                             <OptionsSelector/>
+
                         </div>
                     </div>
                 </ControlPanel>
+                <AltitudeLabel/>
                 <InfoPanel>
-                    <CollectionLabel/>
-                    <AltitudeLabel/>
+                    {/* <CollectionLabel/> */}
                     <SearchLabel/>
                     <ProductInfo/>
 
                 </InfoPanel>
+                {/* <FreeText/> */}
             {/* </FullScreen> */}
         </div>
         </AppProvider>

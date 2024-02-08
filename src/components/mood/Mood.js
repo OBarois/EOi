@@ -15,10 +15,11 @@ function Mood() {
     const [mood, setmood] =  useState('🙂')
     const [defmood, setdefmood] =  useState('🙂')
 
-    useKey(['l'],()=>{
-        dispatch({type:'toggle_lefthanded'})
-    })
+    // useKey(['l'],()=>{
+    //     dispatch({type:'toggle_lefthanded'})
+    // })
 
+    useKey(['l'],(e) => {console.log('l:  '+e.target.tagName);if(e.target.tagName === 'BODY') dispatch({type:'toggle_lefthanded'})})
 
 
     useEffect(() => {
@@ -27,8 +28,8 @@ function Mood() {
     }, [state.animated]);
 
     useEffect(() => {
-        console.log('searching...')
-        console.log('searching: '+state.searching)
+        // console.log('searching...')
+        // console.log('searching: '+state.searching)
         setmood(state.searching?'🧐':defmood)
     }, [state.searching]);
 

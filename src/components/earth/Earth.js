@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {AppContext} from '../app/context'
 
 import './Earth.css'
@@ -9,11 +9,15 @@ import {FluidWorldWindowController} from './FluidWorldWindowController'
 import LookAtWidget from './LookAtWidget'
 import ViewProductControl from '../viewproductcontrol/ViewProductControl'
 import FilterProductControl from './FilterProductControl'
-import { useKey } from 'rooks'
+import useFetcher  from '../../hooks/useFetcher';
+
+import { useKey, useKeyRef } from 'rooks'
 
 const Earth = ({ id }) => {
 
     const [ state, dispatch ] = React.useContext(AppContext)
+
+    const ref = useRef('keys')
 
 
 
@@ -59,20 +63,32 @@ const Earth = ({ id }) => {
     })
 
     const debouncedclosestItem = useDebounce(state.closestItem, 500)
+    const debouncedviewpoint = useDebounce(ewwstate.viewpoint, 500)
     // const debouncedewwstate = useDebounce(ewwstate, 100)
 
+    const {fetchURL, abort_fetchURL} = useFetcher()
 
-    useKey(['p'],() => dispatch({ type: "toggle_projection" }))
-    useKey(['c'],removeGeojson)
-    useKey(['u'],northUp)
-    useKey(['w'],()=>toggleQuicklookWMS(null))
-    useKey(['b'],() => dispatch({ type: "toggle_background" }))
-    useKey(['m'],() => dispatch({ type: "toggle_satellites" }))
-    useKey(['d'],() => dispatch({ type: "toggle_dem" }))
-    useKey(['o'],() => dispatch({ type: "toggle_overlay" }))
-    useKey(['a'],() => dispatch({ type: "toggle_atmosphere" }))
-    useKey(['s'],() => dispatch({ type: "toggle_starfield" }))
-    useKey(['n'],() => dispatch({ type: "toggle_names" }))
+    const myDispatch = (event,action) => {
+        console.log(event.target.tagName)
+        if(event.target.tagName === 'BODY') dispatch({type: action.type})
+    }
+
+    // const myUseKey = (event,callback) => {
+    //     console.log(event.target.tagName)
+    //     if(event.target.tagName === 'BODY') callback(event)
+    // }
+
+    useKey(['p'],(e) => myDispatch(e,{ type: "toggle_projection" }))
+    useKey(['c'],(e) => myDispatch(e,{ type: "clearResult"}))
+    useKey(['u'],(e) => myDispatch(e,{ type: "north_up"}))
+    useKey(['w'],(e) => myDispatch(e,{ type: "toggle_quicklooks"}))
+    useKey(['b'],(e) => myDispatch(e,{ type: "toggle_background" }))
+    useKey(['m'],(e) => myDispatch(e,{ type: "toggle_satellites" }))
+    useKey(['d'],(e) => myDispatch(e,{ type: "toggle_dem" }))
+    useKey(['o'],(e) => myDispatch(e,{ type: "toggle_overlay" }))
+    useKey(['a'],(e) => myDispatch(e,{ type: "toggle_atmosphere" }))
+    useKey(['s'],(e) => myDispatch(e,{ type: "toggle_starfield" }))
+    useKey(['n'],(e) => myDispatch(e,{ type: "toggle_names" }))
 
     useEffect(() => {
         // console.log('set_altitude')
@@ -85,7 +101,7 @@ const Earth = ({ id }) => {
     useEffect(() => {
         // console.log('set_searchPoint')
         dispatch({ type: "set_searchPoint", value: ewwstate.viewpoint})
-    },[ewwstate.viewpoint, dispatch])
+    },[debouncedviewpoint, dispatch])
 
     useEffect(() => {
         // console.log('set_position')
@@ -100,6 +116,7 @@ const Earth = ({ id }) => {
 
 
     useEffect(() => {
+        // console.log('viewdate')
         setTime(new Date(state.viewDate))
     },[state.viewDate])
 
@@ -170,6 +187,10 @@ const Earth = ({ id }) => {
     }, [state.mapSettings.background]);
 
     useEffect(() => {
+        northUp()
+    }, [state.mapSettings.northup]);
+
+    useEffect(() => {
         console.log('Overlay: '+state.mapSettings.overlay)
         toggleOv(state.mapSettings.overlay)
     }, [state.mapSettings.overlay]);
@@ -187,9 +208,41 @@ const Earth = ({ id }) => {
         dispatch({ type: "set_closestitem", value: ewwstate.closestRenderable})
     },[ewwstate.closestRenderable])
 
+  
+    const getcredential = (key) => {
+        for(let i=0; i < state.credentials.length; i++) {
+            if(state.credentials[i].key === key) {
+                return {user:state.credentials[i].user,pass:state.credentials[i].pass,grantType:state.credentials[i].grantType}
+            }
+        }
+        return {user:"",pass:"",grantType:''}
+    }
+    
+    const getcollection = (code) => {
+        for(let i=0; i < state.collections.length; i++) {
+            if(state.collections[i].code === code) {
+                return state.collections[i]
+            }
+        }
+        return null
+    }
+
+
     useEffect(() => {
-        if(state.mapSettings.quicklooks) {
-            addQuicklook(debouncedclosestItem, state.credentials, state.animated)
+        if(state.mapSettings.quicklooks && debouncedclosestItem && !state.searching) {
+            // should set credentials as a state to not redo this each time
+            let target = getcollection(state.dataset)
+            let key = target.templateUrl.split("/")[2]
+            let credential = getcredential(key)
+
+            let idx, server, tokenendpoint, granttype = ''
+            if(target.tokenEndpoint) {
+                idx = target.tokenEndpoint.split('/', 3).join('/').length
+                server = target.tokenEndpoint.substring(0,idx)
+                tokenendpoint = target.tokenEndpoint.substring(idx)
+                granttype = target.grantType
+            }
+            addQuicklook(debouncedclosestItem.closest, server, tokenendpoint, granttype, credential, state.animated, fetchURL, abort_fetchURL)
         }
     }, [debouncedclosestItem]);
 
@@ -291,7 +344,7 @@ const Earth = ({ id }) => {
                 () => { return(<canvas className={'Earth'} id={id} />)},
                 [id]
             )} */}
-            <canvas id={id} className={'Earth'} />
+            <canvas  ref={ref} id={id} className={'Earth'} />
             <FluidWorldWindowController world={eww} onSimpleClick={handleSimpleClick}/>
             <LookAtWidget active={(state.searchMode === 'point')}/>
             <ViewProductControl active={state.closestItem != null}/>

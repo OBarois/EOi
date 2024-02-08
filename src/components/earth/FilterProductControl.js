@@ -22,13 +22,16 @@ function FilterProductControl({active}) {
 
     useEffect(() => {
         // console.log('filter')
-        setfilter(state.filter)
+        console.log(state.filter)
+
+        // setfilter(state.filter)
     },[state.filter])
 
 
     return (
         <div className={state.leftHanded?'FilterProductControlL':'FilterProductControl'} style={{display:active?'flex':'none'}}>
-            <Icon icon={filter.length === 0 || filter == null ?outlineFilterAlt:baselineFilterAlt} width='40px' onClick={handleClick}/>            
+            {/* <Icon icon={filter.length === 0 || filter == null ?outlineFilterAlt:baselineFilterAlt} width='40px' onClick={handleClick}/>             */}
+            <Icon icon={state.filter ?outlineFilterAlt:baselineFilterAlt} width='40px' onClick={handleClick}/>            
         </div>
      )
 }
